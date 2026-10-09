@@ -59,7 +59,7 @@ Scope, decisions (D1–D9) and constraints (C1–C5) are in [`spec.md`](spec.md)
 
 - [ ] 9.1 **Ask the owner first:** push `develop` and the feature branch to `origin` (C3).
 - [x] 9.2 Connect the Vercel project to the GitHub repo and confirm the production branch is `main` (D9).
-- [ ] 9.3 Create the Vercel "Protection Bypass for Automation" secret and store it as the GitHub Actions secret `VERCEL_AUTOMATION_BYPASS_SECRET`.
+- [x] 9.3 Create the Vercel "Protection Bypass for Automation" secret and store it as the GitHub Actions secret `VERCEL_AUTOMATION_BYPASS_SECRET`.
 - [x] 9.4 Turn on secret scanning and push protection in the repo settings.
 - [ ] 9.5 Create rulesets for `main` and `develop` (D3), with required checks `ci` and `branch-check` (`main`) or `ci` (`develop`).
 

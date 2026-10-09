@@ -31,6 +31,7 @@
 | `typecheck` script | `tsc --noEmit` | `next typegen && tsc --noEmit` | `LayoutProps` and other route types are generated globals, so tsc fails without typegen. |
 | Next config | Not specified | Kept the template's `cacheComponents: true` and `partialPrefetching: true` | Upstream 16.4 defaults. Static header CSP is compatible: nonces would force dynamic rendering (bundled Next CSP guide). |
 | lefthook build script | Not specified | Denied in `pnpm-workspace.yaml` → `allowBuilds`. Hooks are installed by `prepare` instead. | pnpm 12 fails installs on unreviewed build scripts. The hook installer runs lefthook's JS entry with `node`, so no shell is needed. |
+| Vercel framework | Project setting | `vercel.json` with `"framework": "nextjs"` | The project was created for the static site. A per-branch file avoids breaking `main` redeploys before Phase 16. |
 | `tsconfig.json` | Template | Added `allowImportingTsExtensions` | `scripts/check-preview-headers.mts` imports `../lib/security/headers.ts` with its extension, so Node 24 can run it with native type stripping. |
 
 ## Issues and fixes
@@ -50,3 +51,6 @@
 
   The probe file was unstaged and deleted, and was never committed.
 - The owner confirmed that Vercel is already connected to GitHub, with `main` as the production branch (plan 9.2).
+- PR #1 opened. On the first run `ci` (every step, confirmed in the log) and `gitleaks` passed.
+- **Vercel preview failed** with: `No Output Directory named "public" found`. The Vercel project still had the old static-site preset (`framework: null`). Fixed with a committed `vercel.json` (`"framework": "nextjs"`) rather than a project-wide setting change. `main` (still the static site) keeps its current behaviour until Phase 16, when `vercel.json` reaches it. Added to the deviations below.
+- Vercel CLI logged in by the owner. The project has `ssoProtection: all_except_custom_domains`, so previews need the bypass. An automation bypass was generated with `vercel api PATCH /v1/projects/{id}/protection-bypass` (note "GitHub Actions preview-headers check (Phase 0)") and piped straight into `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`. The value was never printed or written to disk (plan 9.3).
