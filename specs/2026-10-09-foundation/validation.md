@@ -34,9 +34,9 @@ Run each on a throwaway branch or as an uncommitted change, then revert.
 
 ## Preview manual check
 
-- [ ] The Vercel preview URL renders the placeholder page
-- [ ] DevTools → Network shows every header from spec scope 4 on the document response, including both CSP headers
-- [ ] The DevTools console has no errors. Report-only CSP reports are allowed (C5), and each one is noted in `implementation.md`.
+- [x] The Vercel preview URL renders the placeholder page (owner, 2026-10-09: shows "RedHat Media")
+- [x] DevTools → Network shows every header from spec scope 4 on the document response, including both CSP headers. **Verified by CI instead (owner-approved, 2026-10-09):** the owner's DevTools Network panel recorded no requests, so the check could not be completed by eye. The [`preview-headers` run](https://github.com/eonerhime/redhat-media/actions/runs/37973885902/job/113967124071) on commit `590971d` got HTTP 200 from the preview and reports `ok` for all 7 headers, with values compared against `lib/security/headers.ts`.
+- [x] The DevTools console has no errors. Report-only CSP reports are allowed (C5), and each one is noted in `implementation.md`. (Owner, 2026-10-09: no errors, one expected CSP message, logged.)
 - [x] ~~The securityheaders.com grade is recorded~~ **N/A for Phase 0.** Previews sit behind Vercel SSO protection, so securityheaders.com only sees Vercel's login response. The grade is first recorded at Phase 14 (enforced CSP), on an unprotected URL.
 
 ## Repository settings
@@ -50,4 +50,4 @@ Run each on a throwaway branch or as an uncommitted change, then revert.
 
 - [x] `tech-stack.md` amendments (plan group 1) are in the same PR (#1)
 - [x] README §5 matches `tech-stack.md` → *Schema decisions* (D2)
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations

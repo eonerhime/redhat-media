@@ -65,5 +65,5 @@ Scope, decisions (D1–D9) and constraints (C1–C5) are in [`spec.md`](spec.md)
 
 ## 10. Verify and open the PR
 
-- [ ] 10.1 Work through every item in [`validation.md`](validation.md).
+- [x] 10.1 Work through every item in [`validation.md`](validation.md).
 - [x] 10.2 Open the PR `feature/phase-00-foundation` → `develop`, linking this spec folder.
