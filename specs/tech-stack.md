@@ -31,8 +31,8 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 | Package manager | pnpm 12 (version pinned through `packageManager`). Dependency build scripts are denied by default; each one is listed in `pnpm-workspace.yaml` → `allowBuilds`. |
 | Lint / format | ESLint 10 (flat config, `eslint-config-next`, `typescript-eslint`) + Prettier |
 | Unit tests | Vitest (validation, utilities, video-URL parsing, rate limiter, server-action logic, auth guards) |
-| E2E / smoke tests | Playwright (portfolio → inquiry submit happy path; edit-mode happy path) |
-| Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). Typefaces are chosen in the Phase 1 spec. |
+| E2E / smoke tests | Playwright (`@playwright/test`, Chromium), run in the CI `ci` job after `pnpm build`. From Phase 1: layout at 360/768/1440px, rendered contrast, reduced motion and mobile nav. Later: smoke test (Phase 15), portfolio → inquiry submit and edit-mode happy paths. |
+| Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). **Archivo** (wordmark and headings) and **Inter** (body), both variable, `latin` subset, `display: swap`. |
 | Analytics | Vercel Analytics + Speed Insights |
 | Bot / spam protection | Turnstile (verified on the server) + honeypot + minimum time-to-submit + database-backed rate limit on every public form, from the first form (Phase 18). |
 | Edge protection | Vercel Firewall (managed bot rules, plus custom rate-limit rules where the plan allows) and an Attack Challenge Mode runbook. |
@@ -67,18 +67,31 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 
 ## Design tokens (carried over from the current site)
 
+Defined once in the `app/globals.css` `@theme` block. Tailwind's default colour palette is removed (`--color-*: initial`), so these are the only colours available.
+
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-brand` | `#ed1c24` | Accents, large display text, focus rings, primary buttons (see contrast note) |
-| `--color-ink` | `#1a1a1a` | Dark-theme base surface |
-| `--color-muted` | `#808285` | Secondary text on dark surfaces |
+| `--color-brand` | `#ed1c24` | Wordmark "RED", large display accents, focus rings |
+| `--color-brand-deep` | `#d0181f` | Primary button fills |
+| `--color-ink` | `#1a1a1a` | Page background (dark theme base) |
+| `--color-fg` | `#f5f5f5` | Body text, headings, button labels |
+| `--color-muted` | `#808285` | Wordmark "HAT", secondary text ≥ 16px, on `ink` only |
+| `--color-line` | `#2e2e2e` | Decorative dividers and borders only, never text |
 
-**Contrast note (calculated, not yet tested in a browser):**
-- Brand red on `#1a1a1a` is about **4.0:1**. That passes AA only for large text (≥ 24px, or ≥ 18.66px bold).
-- White on brand red is about **4.4:1**, just *below* AA for normal text. Primary buttons therefore use bold ≥ 18.66px labels or a darker red shade defined in `@theme`.
-- Muted grey on `#1a1a1a` is about **4.5:1**, which is borderline. Do not use it for text smaller than 16px.
+**Contrast (WCAG 2.x ratios, measured in Phase 1):**
 
-Phase 1 verifies every pairing with an automated contrast check. The logo file is still to be supplied (roadmap open question 1). Until then, the CSS wordmark from the current site stays.
+| Pairing | Ratio | Allowed use |
+| --- | --- | --- |
+| `fg` on `ink` | 15.96 | Any text |
+| `muted` on `ink` | 4.52 | Text ≥ 16px only. It drops to 4.03 on a lighter surface such as `#242424`, so it is never used off `ink`. |
+| `brand` on `ink` | 3.97 | Large text (≥ 24px, or ≥ 18.66px bold), focus rings and UI parts only |
+| `fg` on `brand` | 4.02 | Not for text. Buttons use `brand-deep`. |
+| `fg` on `brand-deep` | 5.03 | Button labels |
+| `brand-deep` against `ink` | 3.18 | Button edge (meets 3:1 for UI parts) |
+
+An automated check (a Vitest pairing test plus a Playwright test of every rendered text element) enforces these from Phase 1.
+
+**Logo:** there is no logo file (roadmap open question 1, answered 2026-10-09). The header keeps the CSS wordmark from the current site ("RED" in `brand`, "HAT" in `muted`, "MEDIA" underneath), set in Archivo. The favicon and Apple touch icon are generated with `next/og` `ImageResponse`.
 
 ## Security baseline (built in from Phase 0, not bolted on)
 
