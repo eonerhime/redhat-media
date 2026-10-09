@@ -1,0 +1,101 @@
+# Roadmap — RedHat Media Platform
+
+High-level build order in **very small, independently shippable phases**. Each phase ends with a Vercel preview deploy that can be checked against its "Done when" line.
+
+Before a phase is built, its detailed spec goes in `specs/YYYY-MM-DD-name/` (the phase start date plus the branch's short name, e.g. `specs/2026-10-12-foundation/`). That folder holds four files: `spec.md`, `plan.md` (the task tracker), `validation.md` and `implementation.md` (the build log).
+
+**Branching:**
+- Work happens on `feature/phase-NN-name`, branched from `develop`.
+- A phase merges into `develop` by PR once CI is green and the owner has reviewed it.
+- Releases go `develop` → `main` (production).
+
+`main` keeps serving the current static page until the Milestone 1 release (Phase 16), so the live site is never half-built.
+
+Strategy: **public site first.**
+1. Replace the static page with a credible multi-page site: services, portfolio, about and contact (Milestone 1).
+2. Add the scoped inquiry flow with email (Milestone 2).
+3. Add the in-place CMS with its **Editing: On/Off** toggle and the staff back office (Milestone 3).
+4. Harden continuously (Milestone 4).
+
+---
+
+## Milestone 1 — Public site (replace the static page)
+
+| # | Phase | Done when |
+| --- | --- | --- |
+| 0 | **Project foundation + security baseline.** Scaffold Next.js 16 + TS 6 strict + Tailwind 4 + ESLint/Prettier + pnpm on a new `develop` branch, with `CLAUDE.md`, `.env.example` and the pinned versions from `tech-stack.md`. Clean up `README.md`: remove the chat preamble and the stray code fence, and apply the *Schema decisions*. Security from the first commit:<br>• Zod env validation that fails the build when a variable is missing.<br>• **GitHub Actions CI**: typecheck, lint, test, `pnpm audit --prod` and a lockfile check.<br>• Dependabot, plus **gitleaks** in CI and as a pre-commit hook.<br>• A CI check that `main` only accepts PRs from `develop`.<br>• Security headers in `next.config.ts` and a **report-only CSP**.<br>• Lint bans on `dangerouslySetInnerHTML` and `*RawUnsafe`. | `pnpm build` passes and an empty page is deployed to a Vercel preview. CI is green on the PR. An automated test checks every required header and the report-only CSP directives. |
+| 1 | **Design tokens & layout shell.** `@theme` tokens (brand red, ink, muted, plus a darker red for button fills), type scale via `next/font`, container, dark theme, header with mobile nav and the CSS wordmark, footer with RC 1379619, email, phone and "Lagos, Nigeria". | The shell renders correctly at 360px, 768px and 1440px. An automated contrast check passes every token pairing used, and `prefers-reduced-motion` disables motion. |
+| 2 | **Content defaults + `block()` helper.** Add `content/defaults.ts` keyed by block key, plus `content/services.ts` (six services in three pillars), and port every string from the current `index.html` verbatim. | Unit tests show `block(key)` returns defaults and fails type-checking for unknown keys. |
+| 3 | **Homepage.** Hero ("If it's media, it's ours to handle."), the three pillars, a featured-work placeholder section, a process strip ("Spec → Build → Ship" for Build, "Brief → Shoot → Deliver" for Production) and an inquiry CTA linking to `/contact`. All copy goes through `block()`, with no invented metrics. | The homepage is live on preview with real copy, and every text string is keyed. |
+| 4 | **Services index.** `/services` lists the three pillars with their six services and links to each service page. | The page renders from `content/services.ts`. Adding a service to the config adds it to the page without other code changes. |
+| 5 | **Service detail pages.** `/services/[slug]` (static params) for each of the six services: what is included, the process, a deliverables list, a related-work slot (empty until Phase 10) and a CTA. | Six service pages are pre-rendered, each with its own metadata and `Service` JSON-LD. |
+| 6 | **About page.** RHM story, the "one team, every medium" positioning, how the three pillars work together, and Spec-Driven Development as the Build method. | `/about` is live, and all copy is keyed. |
+| 7 | **Database foundation.**<br>• Neon project and branches, Prisma 7 with `@prisma/adapter-neon`, and `prisma.config.ts`.<br>• `PortfolioItem` and `MediaItem` models, first migration and an empty seed script.<br>• **Shared rate-limit building block**: the `RateLimitHit` model and `rateLimit(bucket, key, { max, windowSec })`, with unit tests.<br>• **DB security**: `rhm_app` / `rhm_migrator` / `rhm_readonly` roles (SQL migration), TLS, a `server-only` client, migrations from CI only, Neon console 2FA, and the PITR window confirmed. Roles get `ALTER DEFAULT PRIVILEGES`, and rate-limit keys are salted SHA-256 hashes (`RATE_LIMIT_SALT`). | Prisma Studio shows the tables. Rate-limit tests show that request N+1 inside the window is blocked and that the window resets. A test proves `rhm_app` **cannot** run DDL, and the migrator credential is absent from Vercel env. |
+| 8 | **Media rendering.** Cloudinary account and folders, a `<MediaImage>` component (responsive sizes, blur placeholder), a `<VideoEmbed>` click-to-play facade, and a YouTube/Vimeo URL parser with unit tests. | A test page shows an optimised image, and a video that loads its iframe only on click. Parser tests cover every accepted URL shape and reject the others. |
+| 9 | **Portfolio seed: engineering case studies.** Seed SportsPred, HireFlow, toutMessage, Abara and AfroJamz from the content on `emo-onerhime.vercel.app` and each product's README: summary, highlights, tech stack, live URL, credit line and screenshots uploaded to Cloudinary. External links are `https:` only and rendered with `rel="noopener noreferrer"`. Seed media case studies **only where real assets exist** (open question 4). | `pnpm db:seed` loads the approved items (open question 5) with their media. `https:`-only link validation is tested. |
+| 10 | **Portfolio grid.** `/portfolio` is a server-rendered grid of published items with category badge, tech-stack pills, and hover lift and zoom micro-interactions. The service pages' related-work slots are filled. | All seeded items are listed, with loading, error and empty states. |
+| 11 | **Portfolio filtering.** Category tabs (`All`, `Web & Apps`, `Photography`, `Videography`, `Marketing`) stored in the URL. Tabs with no published items are hidden. | Filtered URLs are shareable and survive reload, and empty categories never show. |
+| 12 | **Portfolio detail page.** `/portfolio/[slug]` with a mixed image and video gallery, a lightbox, highlights, a tech stack, live link, credit line and CTA. Uses static params and ISR. | Each item has its own page, metadata and JSON-LD (`SoftwareApplication` or `CreativeWork`, plus `VideoObject` when it has videos). |
+| 13 | **Contact page (no form yet).** `/contact` with email, phone (tap to call), location and response expectations. The inquiry form arrives in Phase 18. | Every CTA on the site leads to `/contact`, and the links work on mobile. |
+| 14 | **SEO + CSP enforced.** Metadata on every route, OG images, `sitemap.ts`, `robots.ts`, and `Organization` / `LocalBusiness` JSON-LD. Assess hash-based alternatives to `'unsafe-inline'`, then switch the CSP from report-only to **enforced** (self, Cloudinary, YouTube/Vimeo). | Rich-results and OG validators pass. The enforced CSP raises no console violations across every template, and securityheaders.com rates the site A or better. |
+| 15 | **Launch readiness + security gate.** Custom 404/500 pages, Vercel Analytics and Speed Insights, accessibility pass, Playwright smoke test (home → services → portfolio → detail → contact), error alerting, Neon connection-saturation and query-volume alerts, the Firewall runbook, the rotation runbook and the pre-launch checklist from `tech-stack.md`. | Lighthouse scores ≥ 90 on mobile for every template, and the smoke test is green. Every applicable checklist item is ticked, and a test alert reaches the team. |
+| 16 | **🚀 Milestone 1 release.** Merge `develop` → `main`. Production env vars, a production Neon branch (**protected**), a **restore rehearsal** from PITR into a scratch branch, and Search Console with sitemap submission. The custom domain cuts over here if it is ready (open question 2). | The production URL serves the new site, a rehearsed restore is documented with its timing, and the old `index.html` is gone from `main`. |
+
+> Until Milestone 3, content changes are made by a developer, either by editing `content/defaults.ts` or by running the seed scripts.
+
+## Milestone 2 — Scoped inquiry flow
+
+| # | Phase | Done when |
+| --- | --- | --- |
+| 17 | **Inquiry data model.** The `Inquiry` model (per *Schema decisions*), the `BudgetRange` and timeline enums, a migration, and a shared Zod schema with length caps on every field. | Unit tests accept valid inquiries and reject each invalid field with a specific message. |
+| 18 | **Basic inquiry form + abuse protection.** A single-step form on `/contact` (name, email, phone, services, notes, consent checkbox linking to a privacy notice) and a server action that saves to the database. Abuse protection from day one:<br>• **Turnstile**, verified on the server, with the CSP updated.<br>• A honeypot field and a minimum time-to-submit.<br>• `rateLimit("inquiry", ip)` at 5 per 10 min and 20 per day.<br>• Generic error messages. | A submission appears in the database, and invalid input shows field errors. Bot, honeypot, too-fast and over-limit submissions are rejected (429 for over-limit), and tests cover each case. |
+| 19 | **Scope stepper.** The form becomes steps: services → package/tier per service → budget range → timeline → details. Progress is kept if the visitor goes back a step, and the stepper is keyboard and screen-reader friendly. | A multi-service inquiry is saved with its full scope. The Playwright test completes the stepper by keyboard only. |
+| 20 | **Resend emails.** Verify the domain (SPF, DKIM, DMARC), add React Email templates for the team notification and the client acknowledgment (user input escaped and never in headers or the subject line), and set `emailSentAt` / `ackSentAt`. Email failures are logged. | Both emails arrive and pass DMARC. With Resend unreachable, the inquiry is still saved and the failure is logged. |
+| 21 | **Contextual CTAs.** "Start a project" on service and portfolio pages pre-fills the stepper (`/contact?service=photography`). | Each service page opens the stepper with that service pre-selected. |
+| 22 | **Portfolio modal.** An intercepting route opens `/portfolio/[slug]` as a modal over the grid. Back closes it, and a direct load shows the full page. | Deep links, back/forward and focus trapping behave correctly, as tested in Playwright. |
+| 23 | **Homepage live data + Milestone 2 release.** Featured portfolio items come from the database. Schedule the retention job (closed inquiries anonymised after 24 months, rate-limit rows purged after 30 days), re-run the security checklist, and merge to `main`. | The homepage reflects the `featured` flags. A test inquiry succeeds in production, and the retention job runs on a schedule. |
+
+## Milestone 3 — In-place CMS & staff back office
+
+Pattern: see `tech-stack.md` → *In-place CMS* and *Security baseline*. Every phase that adds a mutation also adds:
+- tests that visitors who are not signed in, and users with the wrong role, are refused;
+- a per-user `rateLimit` on that mutation;
+- an `AuditEvent`.
+
+| # | Phase | Done when |
+| --- | --- | --- |
+| 24 | **Better Auth + roles, hardened from the first commit.** Auth tables through Prisma migrations, `role` (`admin` / `editor` / `sales`), sign-up disabled, an admin seed script and database rate-limit storage. Brute-force protection:<br>• Strict `customRules` on sign-in and password reset.<br>• Per-account lockout after 5 failures.<br>• Sign-in through the client API only.<br>• `haveIBeenPwned` and a minimum password length of 12.<br>• **TOTP 2FA for all staff**.<br>• 8h sessions, a fresh session for sensitive actions, revocation on password reset, and pinned `trustedOrigins`.<br><br>Hidden `/cms` entry with `noindex` headers and generic login errors. | A seeded admin logs in with 2FA and logs out at `/cms/login`. No public page links to `/cms`. Tests show 429 on repeated IP failures, lockout after 5 account failures, refusal of a breached password, and refusal of an expired session. |
+| 25 | **Guards, audit and session endpoint.** `requireRole(minRole)`, the `AuditEvent` model plus an `audit()` helper, `GET /api/cms/session` (no-store), auth test helpers, and the **CI check that fails on unguarded server actions**. | Guard tests pass, and the endpoint returns `null` for anonymous visitors. CI fails when a new unguarded action is added. |
+| 26 | **Edit-mode shell.** `EditModeProvider` and the floating staff pill (Editing: On/Off for editors and admins, plus CMS and Sign out), with `sessionStorage` persistence and one open popover at a time. | An editor sees the toggle, while sales staff and visitors do not. Public pages are still pre-rendered. |
+| 27 | **Editable text.** The `ContentBlock` model, `<Editable>` (popover, modal, bold-only rich text), and `updateContentBlock` (key pattern, length cap, empty value resets, route refresh). | An editor changes homepage and service copy in place, and an anonymous visitor sees the change after reload. |
+| 28 | **Image upload & replace.** `signCloudinaryUpload` (server-fixed folder, formats and size) and `attachMedia` (folder check), plus `<EditableImage slot>` with required alt text. | An editor replaces the homepage hero image, and the old Cloudinary asset is destroyed. |
+| 29 | **Galleries: images.** `<EditableGallery owner>` for adding, deleting, drag-reordering, and editing alt text and captions on portfolio and service pages. | An editor fully manages a portfolio item's image gallery in place. |
+| 30 | **Galleries: video by URL.** "Add video" plus `<EditableVideo slot>` through `attachVideo` (YouTube/Vimeo only, thumbnails fetched from fixed endpoints, optional custom poster). | An editor adds a YouTube and a Vimeo video, and both render as click-to-play. An unsupported URL is rejected with a clear message. |
+| 31 | **Portfolio editing in place.** Field pencils (`updateRecordField` with a fixed field list), Draft/Published and Featured toggles, an "Add item" modal, and delete with confirmation. | An editor creates, edits, publishes, features and deletes a portfolio item without leaving the public site. |
+| 32 | **Inquiry inbox (`/cms`).** List and detail views, status transitions (`NEW` → `REVIEWING` → `PROPOSAL_SENT` → `CLOSED`), a new-lead count and a scope summary. Available to `sales` and above. | Sales staff work leads end-to-end. Visitors who are not signed in are refused. |
+| 33 | **Audit log + staff management (admin only).** Audit log view, invites (single-use, 48h), role changes, 2FA reset, account unlock and session revocation. | An admin adds an editor and sees that editor's edits in the audit log. Deactivating a user ends their sessions. |
+| 34 | **CMS security gate + Milestone 3 release.** `/security-review` across Milestone 3, authorization tests on every action, upload abuse tests, SSRF tests for video URLs and a clean dependency audit. Then merge to `main`. | All tests are green, and review findings are resolved or accepted in writing. Staff use the CMS in production. |
+
+## Milestone 4 — Hardening (ongoing)
+
+| # | Phase | Done when |
+| --- | --- | --- |
+| 35 | **Recurring security upkeep.** Monthly dependency updates, a quarterly access review and restore drill, and a yearly external penetration test. | Each task has an owner and a calendar entry. |
+| 36 | **Operational visibility.** An admin view of failed email sends and failed Cloudinary deletes (with retry), plus a security events panel (lockouts, rate-limit spikes). | Failures are visible without reading logs. |
+| 37 | **Content/SEO iteration.** Location and industry landing pages, and possibly an Insights section, driven by Search Console data. | Each addition is justified by a query or conversion it targets. |
+
+---
+
+## Open questions (resolve before the phase noted)
+
+1. **Logo (Phase 1).** `assets/` is empty, and the current header uses a CSS wordmark. Is there a vector logo (SVG) and favicon?
+2. **Custom domain (Phases 16, 20).** The site lives on `redhat-media.vercel.app`, and the team uses Gmail. Resend cannot verify `vercel.app`, so emails in Phase 20 need a domain RHM controls (e.g. `redhatmedia.ng`). Is one owned, and who controls its DNS?
+3. **Notification inbox (Phase 20).** Should new inquiries go to `redhatmediang@gmail.com`, a shared domain mailbox, or both?
+4. **Media assets (Phase 9).** Which real photography, videography and campaign work can be shown, with client permission? Does RHM have a YouTube or Vimeo channel? Without assets, those categories stay hidden at launch (Phase 11).
+5. **Engineering case studies (Phase 9).** Confirm each product may be shown, which live URLs and repos are public, and whether SportsPred (betting predictions) fits the RHM brand. Also confirm the spelling: the README says "toutMessages" and the repo is `toutMessage`.
+6. **Branding service (Phases 2, 7).** The README enum includes `BRANDING`, but the current site does not offer it. Should it be added as a seventh service?
+7. **Packages and budget bands (Phases 17, 19).** What tiers or packages exist per service, and what budget ranges (NGN, with USD for international clients)?
+8. **Contact channels (Phases 13, 18).** Is phone required on the form, as in the README? Should WhatsApp click-to-chat be offered? It is common for Nigerian clients, but it needs a business number.
+9. **Hosting plans (Phases 7, 15, 16).** Neon protected branches and a longer PITR window, plus Vercel Firewall custom rules, depend on the paid tier. Confirm plans and budget before Phase 7.
+10. **Data protection (Phases 18, 23).** Who is RHM's data protection contact for the privacy notice (NDPA 2023)? Is 24 months the right retention for closed inquiries?
+11. **Proof points (Phase 3).** Are there real numbers (projects delivered, years operating, clients served) and testimonials with permission? Without them, the homepage shows none (mission principle 4).
