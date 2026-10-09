@@ -5,29 +5,30 @@
 > The shell renders correctly at 360px, 768px and 1440px. An automated contrast check passes every token pairing used, and `prefers-reduced-motion` disables motion.
 
 - [ ] The shell renders correctly at 360px, 768px and 1440px (Playwright layout tests green at all three widths, and the owner's check on the preview below)
-- [ ] An automated contrast check passes every token pairing used (Vitest pairing test and Playwright rendered-contrast test both green)
-- [ ] `prefers-reduced-motion` disables motion (Playwright reduced-motion test green, including the non-vacuous control)
+- [x] An automated contrast check passes every token pairing used (Vitest pairing test and Playwright rendered-contrast test both green, locally on 2026-10-09)
+- [x] `prefers-reduced-motion` disables motion (Playwright reduced-motion test green, including the non-vacuous control, locally on 2026-10-09)
 
 ## Local commands
 
-- [ ] `pnpm install --frozen-lockfile` succeeds
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] `pnpm format:check` passes
-- [ ] `pnpm test` passes
-- [ ] `pnpm build` passes, and its route table shows `/` prerendered (C5)
-- [ ] `pnpm test:e2e` passes (record whether bundled Chromium or Edge was used locally, C2)
-- [ ] `pnpm audit --prod --audit-level high` reports no high or critical findings
+- [x] `pnpm install --frozen-lockfile` succeeds
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm format:check` passes
+- [x] `pnpm test` passes (35/35)
+- [x] `pnpm build` passes, and its route table shows `/` prerendered (C5): `○ /`, revalidate 1d from the footer year cache
+- [x] `pnpm test:e2e` passes (13/13). Bundled Chromium worked locally; Device Guard did not block it (C2).
+- [x] `pnpm audit --prod --audit-level high` reports no known vulnerabilities
 
 ## Negative tests (each guard must bite)
 
 Run each as an uncommitted change, then revert.
 
-- [ ] **Token contrast:** changing `--color-muted` to `#666666` fails the Vitest pairing test and the Playwright rendered-contrast test
-- [ ] **Default palette removed:** a `text-gray-400` class produces no colour rule in the built CSS (D6)
-- [ ] **Overflow:** a `w-[500px]` element in the shell fails the 360px no-overflow test
-- [ ] **Reduced motion:** removing the global reduced-motion rule fails the reduced-motion test
-- [ ] **Mobile nav:** removing the Escape handler fails the mobile nav test
+- [x] **Token contrast:** changing `--color-muted` to `#666666` fails the Vitest pairing test and the Playwright rendered-contrast test (at all three widths)
+- [x] **Default palette removed:** a `text-gray-400` class produces no colour rule in the built CSS (D6). The same build did emit `.w-[500px]`, so the grep was looking in the right file.
+- [x] **Overflow:** a `w-[500px]` element in the shell fails the 360px no-overflow test (768px and 1440px still pass, as expected)
+- [x] **Reduced motion:** removing the global reduced-motion rule fails the reduced-motion test (the control still passes)
+- [x] **Mobile nav:** removing the Escape handler fails the mobile nav test
+- [x] **Token copies (added):** changing the `--color-brand-deep` copy in `lib/brand-icon.tsx` fails the token drift test
 
 ## Preview manual check (owner)
 
@@ -44,5 +45,5 @@ Run each as an uncommitted change, then revert.
 
 ## Spec hygiene
 
-- [ ] `tech-stack.md` and `roadmap.md` amendments (plan group 1) are in the same PR
+- [x] `tech-stack.md` and `roadmap.md` amendments (plan group 1) are in the same PR (commit `8efe6f5`)
 - [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations

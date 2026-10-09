@@ -5,7 +5,8 @@ import { ImageResponse } from "next/og";
 const FG = "#f5f5f5"; // --color-fg
 const BRAND_DEEP = "#d0181f"; // --color-brand-deep
 
-export function brandIcon(size: number) {
+// iOS masks the Apple touch icon itself, so it is drawn full-bleed (rounded: false).
+export function brandIcon(size: number, { rounded }: { rounded: boolean }) {
   return new ImageResponse(
     <div
       style={{
@@ -19,7 +20,7 @@ export function brandIcon(size: number) {
         fontSize: size * 0.5,
         fontWeight: 900,
         letterSpacing: -size * 0.02,
-        borderRadius: size * 0.18,
+        borderRadius: rounded ? size * 0.18 : 0,
       }}
     >
       RH
