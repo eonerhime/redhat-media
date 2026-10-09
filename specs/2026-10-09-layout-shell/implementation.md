@@ -49,6 +49,10 @@
   - The menu panel overlays the content under the header.
   - The footer stacks on phones and splits left/right on desktop.
 
+- **2026-10-09** — PR #3 opened after the owner approved the push. CI is green: `ci` (Vitest 35/35, Playwright 13/13 on CI Chromium), `gitleaks`, `preview-headers` (all 7 headers ok) and Vercel. Preview: `redhat-media-git-feature-phase-01-layout-shell-e1rhyme.vercel.app`.
+- **Owner preview check (2026-10-09):** every check passed: 360/768/1440 layout, phone menu plus mail and dialer links, keyboard-only use (skip link, focus ring, Escape), favicon, and console. `validation.md` is fully ticked.
+- **Close-out:** the owner set "cppm" for this repo: commit, push, PR, and merge into `develop` with a merge commit. There is no promote to `main` before the Phase 16 milestone release (roadmap). PR #3 is merged with a merge commit.
+
 ## Deviations from plan
 
 | Item | Planned | Actual | Reason |

@@ -4,7 +4,7 @@
 
 > The shell renders correctly at 360px, 768px and 1440px. An automated contrast check passes every token pairing used, and `prefers-reduced-motion` disables motion.
 
-- [ ] The shell renders correctly at 360px, 768px and 1440px (Playwright layout tests green at all three widths, and the owner's check on the preview below)
+- [x] The shell renders correctly at 360px, 768px and 1440px (Playwright layout tests green at all three widths, and the owner's check on the preview below, 2026-10-09)
 - [x] An automated contrast check passes every token pairing used (Vitest pairing test and Playwright rendered-contrast test both green, locally on 2026-10-09)
 - [x] `prefers-reduced-motion` disables motion (Playwright reduced-motion test green, including the non-vacuous control, locally on 2026-10-09)
 
@@ -32,18 +32,18 @@ Run each as an uncommitted change, then revert.
 
 ## Preview manual check (owner)
 
-- [ ] The Vercel preview renders the shell at 360px, 768px and 1440px (DevTools device mode), with nothing clipped or overlapping
-- [ ] On a real phone, the menu opens and closes, and the email and phone links open the mail and dialer apps
-- [ ] Keyboard only: the skip link appears on the first Tab, the focus ring is visible on every link and button, and Escape closes the mobile menu
-- [ ] The favicon shows "RH" in the browser tab
-- [ ] The DevTools console shows no errors. The only CSP message is the known `upgrade-insecure-requests` report-only notice (Phase 0 log). Any other report is noted in `implementation.md`.
+- [x] The Vercel preview renders the shell at 360px, 768px and 1440px (DevTools device mode), with nothing clipped or overlapping (owner, 2026-10-09: pass)
+- [x] On a real phone, the menu opens and closes, and the email and phone links open the mail and dialer apps (owner, 2026-10-09: pass)
+- [x] Keyboard only: the skip link appears on the first Tab, the focus ring is visible on every link and button, and Escape closes the mobile menu (owner, 2026-10-09: pass)
+- [x] The favicon shows "RH" in the browser tab (owner, 2026-10-09: pass)
+- [x] The DevTools console shows no errors. The only CSP message is the known `upgrade-insecure-requests` report-only notice (Phase 0 log). Any other report is noted in `implementation.md`. (owner, 2026-10-09: pass)
 
 ## CI
 
-- [ ] CI is green on the PR (`ci` including the Playwright step, `gitleaks`, `preview-headers`, Vercel)
-- [ ] The `preview-headers` job still reports `ok` for all 7 headers (no CSP or header change, C3)
+- [x] CI is green on the PR (`ci` including the Playwright step, `gitleaks`, `preview-headers`, Vercel). PR #3, run 38000662883: Vitest 35/35, Playwright 13/13 on CI Chromium.
+- [x] The `preview-headers` job still reports `ok` for all 7 headers (no CSP or header change, C3). Run 38000695372 passed.
 
 ## Spec hygiene
 
 - [x] `tech-stack.md` and `roadmap.md` amendments (plan group 1) are in the same PR (commit `8efe6f5`)
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations

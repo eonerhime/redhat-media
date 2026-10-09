@@ -56,5 +56,5 @@ Scope, decisions (D1–D13) and constraints (C1–C5) are in [`spec.md`](spec.md
 
 ## 9. Verify and open the PR
 
-- [ ] 9.1 Work through every item in [`validation.md`](validation.md).
-- [ ] 9.2 **Ask the owner first:** push the branch and open the PR `feature/phase-01-layout-shell` → `develop`, linking this spec folder.
+- [x] 9.1 Work through every item in [`validation.md`](validation.md).
+- [x] 9.2 **Ask the owner first:** push the branch and open the PR `feature/phase-01-layout-shell` → `develop`, linking this spec folder. (Owner approved the push; PR #3.)
