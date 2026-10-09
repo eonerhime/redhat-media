@@ -1,0 +1,33 @@
+name: preview-headers
+
+# Runs when Vercel reports a successful preview deployment and checks that the
+# deployed response carries every header from lib/security/headers.ts.
+on: deployment_status
+
+permissions:
+  contents: read
+
+jobs:
+  preview-headers:
+    name: preview-headers
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Check served security headers
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
+            exit 1
+          fi
+          node scripts/check-preview-headers.mts "$PREVIEW_URL"

@@ -1,0 +1,5 @@
+# Markdown is hand-formatted (specs tables, README).
+**/*.md
+pnpm-lock.yaml
+.next/
+lib/generated/
