@@ -54,3 +54,12 @@
 - PR #1 opened. On the first run `ci` (every step, confirmed in the log) and `gitleaks` passed.
 - **Vercel preview failed** with: `No Output Directory named "public" found`. The Vercel project still had the old static-site preset (`framework: null`). Fixed with a committed `vercel.json` (`"framework": "nextjs"`) rather than a project-wide setting change. `main` (still the static site) keeps its current behaviour until Phase 16, when `vercel.json` reaches it. Added to the deviations below.
 - Vercel CLI logged in by the owner. The project has `ssoProtection: all_except_custom_domains`, so previews need the bypass. An automation bypass was generated with `vercel api PATCH /v1/projects/{id}/protection-bypass` (note "GitHub Actions preview-headers check (Phase 0)") and piped straight into `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`. The value was never printed or written to disk (plan 9.3).
+- After the fix, the preview `redhat-media-rlhixds61-e1rhyme.vercel.app` deployed. On PR #1, `ci`, `gitleaks`, Vercel and **`preview-headers`** all pass. The job log shows `ok` for all 7 headers and HTTP 200 behind the bypass.
+- Rulesets created with `gh api`, both active with no bypass actors. Required checks use GitHub Actions app id 15368, which matches the check runs.
+  - `main: release from develop only` (id 24807725): deletion, non-fast-forward, PR (0 approvals), and the `ci`, `gitleaks` and `branch-check` checks.
+  - `develop: PR + green CI` (id 24807726): the same rules, with the `ci` and `gitleaks` checks.
+- Negative tests run against GitHub:
+  - Draft PR #2 (`feature/phase-00-foundation` → `main`): `branch-check` failed, the merge state was `BLOCKED`, and the PR was closed unmerged.
+  - A fake AWS key pair committed with `--no-verify` and pushed to `tmp/leak-probe` was **rejected by push protection (GH013)**. The branch never reached the remote, and the local branch was deleted.
+- securityheaders.com: N/A while previews are SSO-protected (see `validation.md`).
+- `vercel curl` returned `status=000` on Windows (CLI quirk, not investigated). The page being served is evidenced by the `preview-headers` HTTP 200.
