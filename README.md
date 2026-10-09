@@ -229,6 +229,8 @@ Requires Node 24, pnpm (pinned via `packageManager`; run `corepack enable`) and 
 pnpm install          # also installs the lefthook git hooks
 pnpm dev              # http://localhost:3000
 pnpm typecheck && pnpm lint && pnpm test && pnpm build
+pnpm exec playwright install chromium   # once, for the browser tests
+pnpm test:e2e         # Playwright against the production build (run `pnpm build` first)
 ```
 
 See `CLAUDE.md` for contributor rules and `specs/` for the mission, tech stack and roadmap.

@@ -45,3 +45,8 @@ next-env.d.ts
 
 # generated code
 /lib/generated/
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/

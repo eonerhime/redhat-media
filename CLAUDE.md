@@ -24,6 +24,7 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 | `pnpm lint` | ESLint |
 | `pnpm format` / `pnpm format:check` | Prettier |
 | `pnpm test` | Vitest |
+| `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. |
 | `pnpm build` | Production build. It also validates env vars (`lib/env.ts`). |
 
 ## Setup
