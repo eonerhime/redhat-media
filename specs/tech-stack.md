@@ -13,7 +13,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 | Runtime | **Node.js LTS** | 24.x | Same major on local machines, CI and Vercel (`engines` field). |
 | Framework | **Next.js (App Router)** + React | Next 16.4 / React 19.3 | Server Components by default, Server Actions for mutations. Turbopack is the default bundler for dev and build, so there is **no custom `webpack` config**. In Next 16 the request interceptor file is `proxy.ts` (formerly `middleware.ts`). |
 | Language | **TypeScript**, `strict: true` | 6.0.x | No implicit `any`. Every server action's input and output is typed with Zod. **Do not adopt TS 7 yet**: `typescript-eslint` currently supports `<6.1.0`. Revisit when its peer range includes 7. |
-| Styling | **Tailwind CSS** v4 | 4.3 | CSS-first configuration: `@import "tailwindcss"` plus an `@theme` block in `app/globals.css`, through `@tailwindcss/postcss`. There is no `tailwind.config.js`. Design tokens are defined once in `@theme`. |
+| Styling | **Tailwind CSS** v4 | 4.3 | CSS-first configuration: `@import "tailwindcss"` plus an `@theme` block in `app/globals.css`, compiled by the `@tailwindcss/turbopack` loader (the Next 16.4 template default, wired in `next.config.ts`). There is no `tailwind.config.js` or PostCSS config. Design tokens are defined once in `@theme`. |
 | Database | **Neon** (serverless PostgreSQL) | — | Separate branches for `main` (prod) and preview/dev. |
 | ORM | **Prisma 7** | 7.10 | npm's `latest` tag currently points at **8.0.0-rc**. Pin `prisma` and `@prisma/client` to `^7`. Prisma 7 style:<br>• Schema in `prisma/schema.prisma`, with generator `prisma-client` (output `lib/generated/prisma`, git-ignored and generated in CI).<br>• CLI/migration URL in `prisma.config.ts` (`MIGRATOR_DATABASE_URL`, CI only).<br>• Runtime client through `@prisma/adapter-neon` + `@neondatabase/serverless` with `DATABASE_URL`. The exact `PrismaNeon` constructor is confirmed in the Phase 7 spec.<br>• Migrations are committed. |
 | Validation | **Zod** | 4.6 | Shared schemas in `lib/validation/`, used by both forms and server actions. Env vars are validated with Zod at startup. |
@@ -28,7 +28,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 
 | Concern | Choice |
 | --- | --- |
-| Package manager | pnpm (version pinned through `packageManager` / Corepack) |
+| Package manager | pnpm 12 (version pinned through `packageManager`). Dependency build scripts are denied by default; each one is listed in `pnpm-workspace.yaml` → `allowBuilds`. |
 | Lint / format | ESLint 10 (flat config, `eslint-config-next`, `typescript-eslint`) + Prettier |
 | Unit tests | Vitest (validation, utilities, video-URL parsing, rate limiter, server-action logic, auth guards) |
 | E2E / smoke tests | Playwright (portfolio → inquiry submit happy path; edit-mode happy path) |
@@ -36,7 +36,8 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 | Analytics | Vercel Analytics + Speed Insights |
 | Bot / spam protection | Turnstile (verified on the server) + honeypot + minimum time-to-submit + database-backed rate limit on every public form, from the first form (Phase 18). |
 | Edge protection | Vercel Firewall (managed bot rules, plus custom rate-limit rules where the plan allows) and an Attack Challenge Mode runbook. |
-| Supply chain | Dependabot, **gitleaks** (CI + pre-commit), `pnpm audit --prod` in CI, pinned lockfile, GitHub Actions pinned to commit SHAs. |
+| Git hooks | **lefthook** pre-commit: `gitleaks git --pre-commit --staged` (`protect` is deprecated), plus Prettier and ESLint on staged files. Contributors install the gitleaks binary locally (see `CLAUDE.md`). |
+| Supply chain | Dependabot, **gitleaks** (CI + pre-commit), `pnpm audit --prod` in CI, pinned lockfile, GitHub Actions pinned to commit SHAs. The repo is **public**, so GitHub's native secret-scanning **push protection** and **rulesets** are used as well, with the CI checks kept as defence in depth. |
 
 ## Architectural rules
 
@@ -88,7 +89,8 @@ Every control below has a **"from" phase**. A phase is not done until its contro
 | Control | From |
 | --- | --- |
 | HTTPS only and HSTS (`max-age=63072000; includeSubDomains`). Add `preload` only once a custom domain exists and every subdomain is confirmed HTTPS. | 0 |
-| Headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, mic and geolocation off), `frame-ancestors 'none'` | 0 |
+| Headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, mic and geolocation off) | 0 |
+| Anti-framing, enforced from day one: browsers ignore `frame-ancestors` in a report-only policy, so a small **enforced** CSP (`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) and `X-Frame-Options: DENY` are sent alongside the report-only policy | 0 |
 | CSP: a **static header CSP** set in `next.config.ts`, with no nonces, so pages stay static/ISR. `script-src` allows `'unsafe-inline'` for the Next.js bootstrap; Phase 14 assesses hash-based alternatives before enforcing. Report-only from Phase 0. **Enforced** from Phase 14 (self, Cloudinary, YouTube/Vimeo frames). Turnstile is added in Phase 18 along with its test. | 0 → 14 → 18 |
 | Vercel Firewall bot rules, plus a runbook for Attack Challenge Mode during an attack | 15 |
 
@@ -146,8 +148,9 @@ Every control below has a **"from" phase**. A phase is not done until its contro
 | Control | From |
 | --- | --- |
 | Secrets only in Vercel env (separate values for Production and Preview), Zod-validated at startup, never `NEXT_PUBLIC_*` | 0 |
-| gitleaks secret scanning (CI + pre-commit hook), Dependabot, and `pnpm audit --prod` in CI (fails on high/critical findings) | 0 |
-| `main` only accepts PRs from `develop` (CI branch-name check). PRs into `develop` need green CI and owner review. | 0 |
+| gitleaks secret scanning (CI + lefthook pre-commit) and GitHub secret-scanning push protection. `pnpm audit --prod` in CI fails on high/critical findings. Dependabot is configured from Phase 0, but GitHub reads its config from the default branch (`main`), so it only becomes active at Phase 16. Until then `pnpm audit` is the dependency gate. | 0 / 16 |
+| GitHub **rulesets** on `main` and `develop`: a PR is required, required status checks must pass, and force-push and deletion are blocked. `main` additionally requires the CI `branch-check`, so only PRs from `develop` can merge. Required approvals are 0, because a sole owner cannot approve their own PR; the owner reviews by merging. | 0 |
+| Vercel preview responses are checked by CI for the required headers, using a "Protection Bypass for Automation" secret held only in GitHub Actions | 0 |
 | Secret rotation runbook (DB, Better Auth, Cloudinary, Resend, Turnstile) | 15 |
 
 ### Pre-launch security checklist (Phase 15 gate, repeated at 23 and 34)
@@ -213,6 +216,10 @@ These are deliberate departures from the README blueprint. README §5 is updated
 | `RateLimitHit`, `ContentBlock`, `MediaItem` and `AuditEvent` stay as in the README | Already match the Epenal-proven design. |
 
 ## Environment variables
+
+`lib/env.ts` validates variables with Zod at build time. The schema **grows per phase**: a variable becomes required in the phase that first uses it, never earlier. `NEXT_PUBLIC_SITE_URL` is required when `VERCEL_ENV=production`. On previews it falls back to `https://$VERCEL_BRANCH_URL`, and locally to `http://localhost:3000`.
+
+GitHub Actions-only secrets (never in Vercel): `MIGRATOR_DATABASE_URL` (Phase 7) and `VERCEL_AUTOMATION_BYPASS_SECRET` (Phase 0, used by the preview header check).
 
 ```dotenv
 NEXT_PUBLIC_SITE_URL=          # canonical origin, e.g. https://redhat-media.vercel.app
