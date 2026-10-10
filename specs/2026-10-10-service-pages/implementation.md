@@ -8,7 +8,7 @@
   - JSON-LD approach checked before design (D5). The Next.js 16 JSON-LD guide uses `dangerouslySetInnerHTML`, which is lint-banned here. On React 19.3, `renderToString(<script type="application/ld+json">{json}</script>)` writes the text raw: `&` and `"` are not entity-escaped, and `</script` becomes `</\u0073cript`. Escaping every `<` as `\u003c` first leaves nothing that can end the tag.
   - Spec folder written. The constitution amendment is the `tech-stack.md` row on `dangerouslySetInnerHTML`.
 - **2026-10-10** — Plan groups 1–5 built.
-  - Config: `includedKeys` and `deliverableKeys` on all six services. Copy: 44 **S** keys.
+  - Config: `includedKeys` and `deliverableKeys` on all six services. Copy: 44 **S** keys (45 after D9).
   - Helpers: `allServiceSlugs()`, `visibleServiceBySlug()` and `pillarOf()`, plus `lib/seo/json-ld.ts`.
   - Page: `app/(public)/services/[slug]/page.tsx`, with `ItemList`, `RelatedWork` (empty slot) and the shared `JsonLd`.
   - Tests: unit tests 198 → 347. `e2e/service-pages.spec.ts` covers the visible services plus the muted and unknown slugs. `e2e/shell.spec.ts` runs on 8 routes, and the keyed-text helper skips `<script>`.
@@ -28,6 +28,12 @@
   - Muted run, with Videography muted in the config and a fresh build:
     - `e2e/service-pages.spec.ts` and `e2e/services.spec.ts` passed 49/49, including "muted videography returns 404" and "shows no muted service".
     - The mute was reverted with a reverse edit.
+
+- **2026-10-10** — PR #8 opened (`d1a0e2c`). CI is green: `ci` (including Playwright and the audit), `gitleaks`, `preview-headers` and Vercel (preview Ready).
+  - Owner preview check: "/services/[...] all work, but there needs to be a back arrow to /services instead of clicking the back browser button".
+  - Added D9: "← All services" above the eyebrow, with one new **S** key, `services.detail.back` (45 in total), and an e2e test that follows the link to `/services`.
+  - The arrow is `brand` at 20px extra-bold, because `brand` on `ink` is a large-text pairing only (`lib/design/tokens.ts`).
+  - Local results: 350 unit tests pass, the build passes, and `e2e/service-pages.spec.ts` plus `e2e/shell.spec.ts` pass 131/131.
 
 ## Deviations from plan
 

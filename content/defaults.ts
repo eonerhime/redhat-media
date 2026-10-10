@@ -74,6 +74,7 @@ export const defaults = {
   "services.webApp.summary": "Websites and web apps built to work as hard as you do.",
 
   // Phase 5 sample copy for the service pages, for review on the preview (Phase 5 spec, D3).
+  "services.detail.back": "All services",
   "services.detail.included": "What's included",
   "services.detail.deliverables": "What you get",
 

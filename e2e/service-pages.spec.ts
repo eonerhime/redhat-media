@@ -57,6 +57,16 @@ for (const service of visible) {
       }
     });
 
+    test("links back to /services", async ({ page }) => {
+      const back = page.locator("main").getByRole("link", {
+        name: defaults["services.detail.back"],
+        exact: true,
+      });
+      await expect(back).toHaveAttribute("href", "/services");
+      await back.click();
+      await expect(page).toHaveURL(/\/services$/);
+    });
+
     test("sends the CTA to /contact", async ({ page }) => {
       const cta = page.locator("main").getByRole("link", { name: defaults["home.cta.button"] });
       await expect(cta).toHaveCount(1);

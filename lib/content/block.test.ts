@@ -107,6 +107,7 @@ describe("verbatim port of the legacy page", () => {
       "services.meta.description",
     ];
     const phase5Keys = [
+      "services.detail.back",
       "services.detail.included",
       "services.detail.deliverables",
       ...services.flatMap((s) => [...s.includedKeys, ...s.deliverableKeys]),

@@ -9,7 +9,7 @@ Scope, decisions (D1–D8) and constraints (C1–C5) are in [`spec.md`](spec.md)
 ## 2. Config and copy
 
 - [x] 2.1 `content/services.ts`: `includedKeys` and `deliverableKeys` on the `Service` type and on all six services (D2).
-- [x] 2.2 `content/defaults.ts`: the 44 **S** keys from the spec's key table (D3).
+- [x] 2.2 `content/defaults.ts`: the 45 **S** keys from the spec's key table (D3).
 - [x] 2.3 `lib/content/block.test.ts`: the "ported vs. new copy" test lists the Phase 5 keys.
 
 ## 3. Helpers

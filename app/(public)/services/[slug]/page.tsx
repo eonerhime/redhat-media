@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ItemList } from "@/components/services/item-list";
 import { RelatedWork } from "@/components/services/related-work";
@@ -34,7 +35,8 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   const service = await visibleServiceBySlug((await params).slug);
   if (!service) notFound();
   const pillar = pillarOf(service);
-  const [pillarName, name, summary, processHeading] = await Promise.all([
+  const [backLabel, pillarName, name, summary, processHeading] = await Promise.all([
+    block("services.detail.back"),
     block(pillar.nameKey),
     block(service.nameKey),
     block(service.summaryKey),
@@ -52,8 +54,21 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         })}
       />
       <section className="container-page py-16 md:py-24">
+        {/* A plain link, so it also works for visitors arriving from search (Phase 5 spec, D9). */}
+        <Link
+          href="/services"
+          className="inline-flex items-center gap-2 font-semibold underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:decoration-brand"
+        >
+          {/* brand on ink is a large-text pairing only, so the arrow is 20px extra-bold. */}
+          <span aria-hidden="true" className="text-xl leading-none font-extrabold text-brand">
+            ←
+          </span>
+          {backLabel}
+        </Link>
         {/* muted stays at ≥ 16px on ink (tech-stack.md → Design tokens). */}
-        <p className="text-base font-semibold tracking-widest text-muted uppercase">{pillarName}</p>
+        <p className="mt-8 text-base font-semibold tracking-widest text-muted uppercase">
+          {pillarName}
+        </p>
         <h1 className="mt-4 max-w-4xl font-display text-display-1 font-black tracking-tight">
           {name}
         </h1>
