@@ -31,6 +31,9 @@
     - `pnpm build` passes. The route table is `○ /` (1d / 1w), `/_not-found`, `/apple-icon` and `/icon`, all static, as in Phase 1 (C2).
     - `pnpm test:e2e`: 13 passed, unchanged (C2).
     - `pnpm audit --prod --audit-level high`: no known vulnerabilities.
+- **2026-10-10** — PR #4 opened (`8661c4f`). CI is green: `ci` (including Playwright e2e and the audit), `gitleaks`, `preview-headers` and Vercel.
+  - Owner checks: the Vercel preview looks the same as Phase 1. The ported wording, the pillar names and the six slugs are accepted. The owner notes that the pillar names can still change if the need arises (a `content/defaults.ts` edit).
+  - Every `validation.md` box is ticked.
 
 ## Deviations from plan
 

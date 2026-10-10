@@ -35,14 +35,14 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 ## Preview manual check (owner)
 
-- [ ] The Vercel preview looks the same as Phase 1 (no rendered change, C2)
-- [ ] The owner has read the key inventory and the services table in `spec.md`, and accepts the ported wording, the pillar names and the slugs
+- [x] The Vercel preview looks the same as Phase 1 (no rendered change, C2)
+- [x] The owner has read the key inventory and the services table in `spec.md`, and accepts the ported wording, the pillar names and the slugs
 
 ## CI
 
-- [ ] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
+- [x] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
 
 ## Spec hygiene
 
-- [ ] The `roadmap.md`, `tech-stack.md` and README amendments (plan group 1) are in the same PR
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] The `roadmap.md`, `tech-stack.md` and README amendments (plan group 1) are in the same PR
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
