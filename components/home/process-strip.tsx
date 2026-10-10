@@ -1,3 +1,4 @@
+import { StepList } from "@/components/shared/step-list";
 import { block } from "@/lib/content/block";
 import type { PillarGroup } from "@/lib/content/services";
 
@@ -5,13 +6,7 @@ import type { PillarGroup } from "@/lib/content/services";
 export async function ProcessStrip({ groups }: { groups: readonly PillarGroup[] }) {
   const heading = await block("home.process.heading");
   const rows = await Promise.all(
-    groups.map(async ({ pillar }) => ({
-      id: pillar.id,
-      name: await block(pillar.nameKey),
-      steps: await Promise.all(
-        pillar.stepKeys.map(async (key) => ({ key, label: await block(key) })),
-      ),
-    })),
+    groups.map(async ({ pillar }) => ({ pillar, name: await block(pillar.nameKey) })),
   );
   return (
     <section aria-labelledby="process-heading" className="border-y border-line">
@@ -21,21 +16,10 @@ export async function ProcessStrip({ groups }: { groups: readonly PillarGroup[] 
         </h2>
         <dl className="mt-10 grid gap-8 md:grid-cols-3">
           {rows.map((row) => (
-            <div key={row.id}>
+            <div key={row.pillar.id}>
               <dt className="text-base font-semibold text-muted uppercase">{row.name}</dt>
               <dd className="mt-3">
-                <ol className="flex flex-wrap items-center gap-x-3 gap-y-2 font-display text-2xl font-extrabold">
-                  {row.steps.map((step, i) => (
-                    <li key={step.key} className="flex items-center gap-3">
-                      {i > 0 && (
-                        <span aria-hidden="true" className="text-brand">
-                          →
-                        </span>
-                      )}
-                      {step.label}
-                    </li>
-                  ))}
-                </ol>
+                <StepList pillar={row.pillar} className="text-2xl" />
               </dd>
             </div>
           ))}

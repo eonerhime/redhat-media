@@ -100,8 +100,13 @@ describe("verbatim port of the legacy page", () => {
       "home.work.link",
       "home.process.heading",
     ];
+    const phase4Keys = [
+      "services.index.heading",
+      "services.index.intro",
+      "services.meta.description",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
-    expect(unported.sort()).toEqual([...pillarKeys, ...phase3Keys].sort());
+    expect(unported.sort()).toEqual([...pillarKeys, ...phase3Keys, ...phase4Keys].sort());
   });
 });
