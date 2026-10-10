@@ -54,5 +54,5 @@ Run each as an uncommitted change, then revert.
 - [x] `pnpm build` passes, and the route table lists `/icon.png` and `/apple-icon.png` in place of `/icon` and `/apple-icon`
 - [x] `pnpm test:e2e` passes
 - [x] The built `/` head links `icon.png` (32×32, `image/png`) and `apple-icon.png` (180×180)
-- [ ] CI is green on the PR
-- [ ] Owner: the Vercel preview shows the red-hat favicon in the browser tab
+- [x] CI is green on the PR
+- [x] Owner: the Vercel preview shows the red-hat favicon in the browser tab

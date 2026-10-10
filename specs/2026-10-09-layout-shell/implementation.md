@@ -80,3 +80,5 @@
 - Removed: `app/icon.tsx`, `app/apple-icon.tsx` and `lib/brand-icon.tsx`. The token-copy test now checks only `app/layout.tsx`. The Phase 1 deviations about the icon (rounded corners, font weight) no longer apply.
 - Local checks: typecheck, lint, format and `pnpm test` (34) pass. `pnpm build` lists `○ /icon.png` and `○ /apple-icon.png`, and the built `/` head links `/icon.png` (`sizes="32x32"`, `image/png`) and `/apple-icon.png` (`180x180`). `pnpm test:e2e` passes 13/13.
 - `public/MIRH.jpg` is committed as the source and is served at `/MIRH.jpg`. Its embedded metadata was checked first: only Photoshop history IDs and print settings, with no GPS, author or path. The generated PNGs carry no metadata.
+- PR #5 (`56d5675`) was updated with `develop` (`713c193`, after Phase 2 and Phase 3 merged). CI is green on both heads.
+- Owner check (2026-10-10): the red-hat favicon is visible in the browser tab on the deployment URL `redhat-media-6zootvyon-e1rhyme.vercel.app`. The #6 preview had not shown it, because #6 did not contain this change. The validation is fully ticked.
