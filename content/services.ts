@@ -37,6 +37,9 @@ export type Service = {
   muted: boolean;
   nameKey: BlockKey;
   summaryKey: BlockKey;
+  // The service page's lists, in order (Phase 5 spec, D2).
+  includedKeys: readonly [BlockKey, ...BlockKey[]];
+  deliverableKeys: readonly [BlockKey, ...BlockKey[]];
 };
 
 export const pillars = [
@@ -82,6 +85,17 @@ export const services = [
     muted: false,
     nameKey: "services.photography.name",
     summaryKey: "services.photography.summary",
+    includedKeys: [
+      "services.photography.included1",
+      "services.photography.included2",
+      "services.photography.included3",
+      "services.photography.included4",
+    ],
+    deliverableKeys: [
+      "services.photography.deliverable1",
+      "services.photography.deliverable2",
+      "services.photography.deliverable3",
+    ],
   },
   {
     category: "VIDEOGRAPHY",
@@ -91,6 +105,17 @@ export const services = [
     muted: false,
     nameKey: "services.videography.name",
     summaryKey: "services.videography.summary",
+    includedKeys: [
+      "services.videography.included1",
+      "services.videography.included2",
+      "services.videography.included3",
+      "services.videography.included4",
+    ],
+    deliverableKeys: [
+      "services.videography.deliverable1",
+      "services.videography.deliverable2",
+      "services.videography.deliverable3",
+    ],
   },
   {
     category: "DIGITAL_MARKETING",
@@ -100,6 +125,17 @@ export const services = [
     muted: false,
     nameKey: "services.digitalMarketing.name",
     summaryKey: "services.digitalMarketing.summary",
+    includedKeys: [
+      "services.digitalMarketing.included1",
+      "services.digitalMarketing.included2",
+      "services.digitalMarketing.included3",
+      "services.digitalMarketing.included4",
+    ],
+    deliverableKeys: [
+      "services.digitalMarketing.deliverable1",
+      "services.digitalMarketing.deliverable2",
+      "services.digitalMarketing.deliverable3",
+    ],
   },
   {
     category: "SOCIAL_MEDIA",
@@ -109,6 +145,17 @@ export const services = [
     muted: false,
     nameKey: "services.socialMedia.name",
     summaryKey: "services.socialMedia.summary",
+    includedKeys: [
+      "services.socialMedia.included1",
+      "services.socialMedia.included2",
+      "services.socialMedia.included3",
+      "services.socialMedia.included4",
+    ],
+    deliverableKeys: [
+      "services.socialMedia.deliverable1",
+      "services.socialMedia.deliverable2",
+      "services.socialMedia.deliverable3",
+    ],
   },
   {
     category: "ONLINE_PRESENCE",
@@ -118,6 +165,17 @@ export const services = [
     muted: false,
     nameKey: "services.onlinePresence.name",
     summaryKey: "services.onlinePresence.summary",
+    includedKeys: [
+      "services.onlinePresence.included1",
+      "services.onlinePresence.included2",
+      "services.onlinePresence.included3",
+      "services.onlinePresence.included4",
+    ],
+    deliverableKeys: [
+      "services.onlinePresence.deliverable1",
+      "services.onlinePresence.deliverable2",
+      "services.onlinePresence.deliverable3",
+    ],
   },
   {
     category: "WEB_APP",
@@ -127,5 +185,16 @@ export const services = [
     muted: false,
     nameKey: "services.webApp.name",
     summaryKey: "services.webApp.summary",
+    includedKeys: [
+      "services.webApp.included1",
+      "services.webApp.included2",
+      "services.webApp.included3",
+      "services.webApp.included4",
+    ],
+    deliverableKeys: [
+      "services.webApp.deliverable1",
+      "services.webApp.deliverable2",
+      "services.webApp.deliverable3",
+    ],
   },
 ] as const satisfies readonly Service[];

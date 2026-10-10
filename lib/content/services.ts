@@ -36,3 +36,20 @@ export async function visibleServices(): Promise<readonly Service[]> {
 export async function visiblePillars(): Promise<readonly PillarGroup[]> {
   return groupByPillar(await visibleServices());
 }
+
+export function pillarOf(service: Service): Pillar {
+  const pillar = pillars.find((p) => p.id === service.pillar);
+  if (!pillar) throw new Error(`Unknown pillar: ${service.pillar}`);
+  return pillar;
+}
+
+// Static params only: every slug, muted included, so unmuting needs no redeploy
+// (Architectural rules 3; Phase 5 spec, D1). Slugs only, never copy.
+export function allServiceSlugs(): readonly string[] {
+  return services.map((s) => s.slug);
+}
+
+// The service page's lookup. `undefined` for a muted or unknown slug, which the page turns into a 404.
+export async function visibleServiceBySlug(slug: string): Promise<Service | undefined> {
+  return (await visibleServices()).find((s) => s.slug === slug);
+}

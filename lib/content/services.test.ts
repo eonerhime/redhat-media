@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { pillars, serviceCategories, services, type Service } from "../../content/services";
-import { groupByPillar, resolveVisibility } from "./services";
+import { groupByPillar, pillarOf, resolveVisibility } from "./services";
 
 const camelCase = (category: string) =>
   category.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
@@ -33,10 +33,24 @@ describe("content/services.ts", () => {
     expect(s.summaryKey).toBe(`services.${s.id}.summary`);
   });
 
+  // Numbered from 1 with no gaps (Phase 5 spec, D2).
+  it.each(services)("$category has numbered included and deliverable keys", (s) => {
+    expect(s.includedKeys).toEqual(
+      s.includedKeys.map((_, i) => `services.${s.id}.included${i + 1}`),
+    );
+    expect(s.deliverableKeys).toEqual(
+      s.deliverableKeys.map((_, i) => `services.${s.id}.deliverable${i + 1}`),
+    );
+  });
+
   it.each(pillars)("pillar $id has matching name, summary and step keys", (p) => {
     expect(p.nameKey).toBe(`services.pillars.${p.id}.name`);
     expect(p.summaryKey).toBe(`services.pillars.${p.id}.summary`);
     expect(p.stepKeys).toEqual([1, 2, 3].map((n) => `services.pillars.${p.id}.step${n}`));
+  });
+
+  it.each(services)("$category resolves to its pillar", (s) => {
+    expect(pillarOf(s).id).toBe(s.pillar);
   });
 
   it("keeps at least one service visible", () => {
@@ -117,5 +131,39 @@ describe("visibleServices() and visiblePillars()", () => {
       "ONLINE_PRESENCE",
     ]);
     expect((await visiblePillars()).map((g) => g.pillar.id)).toEqual(["production", "growth"]);
+  });
+});
+
+describe("allServiceSlugs() and visibleServiceBySlug()", () => {
+  afterEach(() => {
+    vi.doUnmock("../../content/services");
+    vi.resetModules();
+  });
+
+  it("find every service by slug while nothing is muted, and nothing for an unknown slug", async () => {
+    const { allServiceSlugs, visibleServiceBySlug } = await import("./services");
+    expect(allServiceSlugs()).toEqual(services.map((s) => s.slug));
+    for (const s of services) expect(await visibleServiceBySlug(s.slug)).toEqual(s);
+    expect(await visibleServiceBySlug("branding")).toBeUndefined();
+    expect(await visibleServiceBySlug("")).toBeUndefined();
+  });
+
+  it("keep a muted slug in the static params but hide its service", async () => {
+    vi.resetModules();
+    vi.doMock("../../content/services", async (importOriginal) => {
+      const actual = await importOriginal<typeof import("../../content/services")>();
+      return {
+        ...actual,
+        services: actual.services.map((s) =>
+          s.category === "VIDEOGRAPHY" ? { ...s, muted: true } : s,
+        ),
+      };
+    });
+    const { allServiceSlugs, visibleServiceBySlug } = await import("./services");
+
+    expect(allServiceSlugs()).toContain("videography");
+    expect(allServiceSlugs()).toHaveLength(6);
+    expect(await visibleServiceBySlug("videography")).toBeUndefined();
+    expect((await visibleServiceBySlug("photography"))?.category).toBe("PHOTOGRAPHY");
   });
 });
