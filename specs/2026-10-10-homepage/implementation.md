@@ -25,6 +25,11 @@
   - Screenshots at 1440px and 390px were checked by eye. Desktop shows three cards in a row, and phones show them stacked. Nothing overflows.
   - **Raised with the owner:** the Build card's sample summary nearly repeats the ported Web & App Development summary below it. An alternative line was offered.
 
+- **2026-10-10** — PR #6 opened (`c0e3493`). CI is green: `ci` (including Playwright e2e and the audit), `gitleaks`, `preview-headers` and Vercel (preview Ready).
+  - Owner preview check: the build looks right, and the responsive check passes.
+  - All **S** sample copy is kept as-is, including the Build card line and the Growth strip "Audit → Plan → Grow". The owner notes that the CMS (Phase 27, as in `memories-r-us`) will let staff edit any copy later.
+  - Every `validation.md` box is ticked.
+
 ## Deviations from plan
 
 | Item | Planned | Actual | Reason |

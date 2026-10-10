@@ -4,7 +4,7 @@
 
 > The homepage is live on preview with real copy, and every text string is keyed.
 
-- [ ] The homepage is live on the Vercel preview with the copy in the spec's key table
+- [x] The homepage is live on the Vercel preview with the copy in the spec's key table
 - [x] Every text string is keyed: `e2e/home.spec.ts` passes the keyed-text check (D8)
 
 ## Local commands
@@ -26,9 +26,9 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 ## Owner checks (preview)
 
-- [ ] Layout looks right at phone and desktop widths, and the pillar cards read well
-- [ ] Each **S** string in the key table is accepted or replaced (D2)
-- [ ] The Growth process strip ("Audit → Plan → Grow") is accepted, changed or removed (D4)
+- [x] Layout looks right at phone and desktop widths, and the pillar cards read well
+- [x] Each **S** string in the key table is accepted or replaced (D2)
+- [x] The Growth process strip ("Audit → Plan → Grow") is accepted, changed or removed (D4)
 
 ## Release gate (carried into the Phase 16 spec)
 
@@ -36,9 +36,9 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 ## CI
 
-- [ ] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
+- [x] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
 
 ## Spec hygiene
 
-- [ ] The `roadmap.md`, `tech-stack.md` and README amendments are in the same PR
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] The `roadmap.md`, `tech-stack.md` and README amendments are in the same PR
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
