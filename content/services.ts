@@ -18,7 +18,13 @@ export type ServiceCategory = (typeof serviceCategories)[number];
 
 export type PillarId = "production" | "growth" | "build";
 
-export type Pillar = { id: PillarId; nameKey: BlockKey };
+export type Pillar = {
+  id: PillarId;
+  nameKey: BlockKey;
+  summaryKey: BlockKey;
+  // The homepage process strip, in order (Phase 3 spec, D4).
+  stepKeys: readonly [BlockKey, BlockKey, BlockKey];
+};
 
 export type Service = {
   category: ServiceCategory;
@@ -34,9 +40,36 @@ export type Service = {
 };
 
 export const pillars = [
-  { id: "production", nameKey: "services.pillars.production.name" },
-  { id: "growth", nameKey: "services.pillars.growth.name" },
-  { id: "build", nameKey: "services.pillars.build.name" },
+  {
+    id: "production",
+    nameKey: "services.pillars.production.name",
+    summaryKey: "services.pillars.production.summary",
+    stepKeys: [
+      "services.pillars.production.step1",
+      "services.pillars.production.step2",
+      "services.pillars.production.step3",
+    ],
+  },
+  {
+    id: "growth",
+    nameKey: "services.pillars.growth.name",
+    summaryKey: "services.pillars.growth.summary",
+    stepKeys: [
+      "services.pillars.growth.step1",
+      "services.pillars.growth.step2",
+      "services.pillars.growth.step3",
+    ],
+  },
+  {
+    id: "build",
+    nameKey: "services.pillars.build.name",
+    summaryKey: "services.pillars.build.summary",
+    stepKeys: [
+      "services.pillars.build.step1",
+      "services.pillars.build.step2",
+      "services.pillars.build.step3",
+    ],
+  },
 ] as const satisfies readonly Pillar[];
 
 // Display order.
