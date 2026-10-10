@@ -19,6 +19,30 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // Pages read copy through block() and services through visibleServices() / visiblePillars()
+    // (tech-stack.md → Architectural rules 3; Phase 3 spec, D7).
+    files: ["app/**", "components/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/content/defaults"],
+              message: "Read copy through block() from @/lib/content/block.",
+            },
+            {
+              group: ["**/content/services"],
+              importNames: ["services"],
+              allowTypeImports: true,
+              message: "Read services through visibleServices() / visiblePillars().",
+            },
+          ],
+        },
+      ],
+    },
+  },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lib/generated/**"]),
 ]);
 

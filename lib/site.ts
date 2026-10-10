@@ -1,4 +1,5 @@
-// Shell copy for Phase 1. Phase 2 moves these strings behind block() (Phase 1 spec, D12).
+// Site name, nav and contact details. These are data, not copy, so they stay here rather than
+// behind block() (Phase 2 spec, D9, which supersedes Phase 1 spec D12).
 
 export const siteName = "RedHat Media";
 

@@ -47,6 +47,14 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
    - **Production:** Photography, Videography.
    - **Growth:** Digital Marketing, Social Media Marketing, Online Presence Management.
    - **Build:** Web & App Development.
+
+   **Each service can be muted.** The config holds a `muted` default (false for all six), and from Phase 31 a `ServiceSetting` row overrides it, the same way `ContentBlock` overrides `content/defaults.ts`. Public code never filters the raw list; it reads services through one helper (`visibleServices()`, from Phase 2). From Phase 3, ESLint enforces this: `app/**` and `components/**` cannot import the raw `services` value or `content/defaults` (copy goes through `block()`). A muted service is hidden **everywhere** a visitor can reach:
+   - the homepage pillars, `/services` and any nav or footer listing (a pillar whose services are all muted is hidden too);
+   - its `/services/[slug]` page, which returns 404 (static params still list all six, so unmuting needs no redeploy);
+   - `sitemap.ts` and JSON-LD;
+   - the inquiry form and stepper choices, the `?service=` pre-fill (ignored), and **server-side inquiry validation**, which rejects a muted service.
+
+   Muting changes nothing else. Its copy, media, past inquiries and portfolio items are kept, so unmuting restores the service as it was. Portfolio items in a matching category stay published, and only their "Start a project" pre-fill drops the muted service. At least one service must stay visible.
 4. **Save first, then email.** The inquiry server action writes to Neon *before* calling Resend. An email failure is logged and shown to admins, and is never shown to the client as a lost submission.
 5. **Server-side authorisation everywhere.** Every mutation (server action or route handler) starts with `requireRole(minRole)` from `lib/auth/guards.ts`. The role hierarchy is `sales` < `editor` < `admin`. The check re-reads the session and role from the database and returns a typed 401/403 result. `proxy.ts` may redirect `/cms` for UX only. The role the browser receives only decides whether edit controls appear; it is never trusted.
 6. **Hidden staff entry at `/cms`.** The public site has **no login link, button or footer mention** of staff access.
@@ -186,7 +194,7 @@ This follows the same pattern as the Epenal Group platform, which fixed known ga
 | Role | Can do |
 | --- | --- |
 | `sales` | Inquiry inbox in `/cms`: view inquiries and change their status. No edit toggle. |
-| `editor` | Everything `sales` can, plus the edit toggle: text blocks, images, videos and portfolio items. |
+| `editor` | Everything `sales` can, plus the edit toggle: text blocks, images, videos, portfolio items and muting or unmuting services. |
 | `admin` | Everything `editor` can, plus staff user management and the audit log. |
 
 ### How it works
@@ -211,7 +219,12 @@ This follows the same pattern as the Epenal Group platform, which fixed known ga
    - Pencils on detail fields map to `updateRecordField`, with a fixed list of editable fields and a typed Zod schema per field.
    - Editors toggle Draft/Published and Featured on cards.
    - "Add item" opens a modal. Delete asks for confirmation and removes the item's Cloudinary assets.
-8. **After every change:** refresh the affected routes (rule 13) and write an `AuditEvent`.
+8. **Service muting in place** (rule 3):
+   - With editing on, each service card on `/services` and on the homepage pillars shows a **Mute** toggle. A muted service is no longer in the static page, so `/services` also shows a "Muted services" tray, which lists them with **Unmute**. The tray's data comes from a `no-store` endpoint that only editors and admins can read, so visitors' HTML never contains muted services.
+   - Server action `setServiceMuted(category, muted)` checks `requireRole("editor")` and validates `category` against the `ServiceCategory` enum with Zod. It refuses to mute the last visible service, then upserts the `ServiceSetting` row.
+   - The action refreshes every route that lists services: `/`, `/services`, the service's own page, `/contact` and the sitemap.
+   - Turning editing off shows exactly what a visitor sees (mission principle 10).
+9. **After every change:** refresh the affected routes (rule 13) and write an `AuditEvent`.
 
 ## Schema decisions (changes vs. README §5)
 
@@ -219,13 +232,14 @@ These are deliberate departures from the README blueprint. README §5 is updated
 
 | Change | Reason |
 | --- | --- |
-| `ServiceCategory` gains **`ONLINE_PRESENCE`**. `BRANDING` is kept out until confirmed (roadmap open question 6). | The current site sells Online Presence Management, and the README enum omitted it. Enums list only services RHM actually sells. |
+| `ServiceCategory` gains **`ONLINE_PRESENCE`**. **`BRANDING` is dropped**: the owner confirmed six services on 2026-10-10 (roadmap open question 6). Adding it later is an enum value plus one config entry. | The current site sells Online Presence Management, and the README enum omitted it. Enums list only services RHM actually sells. |
 | `Inquiry.selectedService` becomes **`services ServiceCategory[]`** (at least one) | The scope selector lets a client ask for several services at once (e.g. a launch video plus a website). |
 | `Inquiry.budgetRange` becomes a **`BudgetRange` enum**. Add `timeline` (enum), `consentAt` (DateTime) and `ackSentAt` (DateTime?); keep `emailSentAt` for the team notification. | Gives typed, reportable scope. Records consent under NDPA, and tracks both emails separately. |
 | `PortfolioItem` adds `client String?`, `credit String?` (e.g. "Technical lead: Emo Onerhime"), `highlights String[]` (architecture / outcome bullets) and `publishedAt DateTime?`. `repoUrl` is shown only for public repositories. | Supports the "RHM Web & App work, credited" framing and drafts before publishing. |
 | README's `StaffRole` enum is replaced by Better Auth's `user` / `session` / `account` / `verification` / `twoFactor` tables. The `role` text column is restricted to `admin`, `editor` or `sales` by a CHECK constraint and a TS union. Add `failedSignInCount`, `lockedUntil` and `deactivatedAt` on `user`. | These tables are generated by the Better Auth CLI, and the `admin` plugin stores the role as text. The lockout hook API is confirmed in the Phase 24 spec. |
 | `requireRole(minRole)` uses a **hierarchy** instead of the README's role arrays | One guard style that is simple to audit. `requireRole("sales")` lets editors and admins through as well. |
-| `MediaOwner.SERVICE` media uses `ownerId = ServiceCategory` value. There is **no `Service` model**. | Services are config (rule 3). Only their media and copy are editable. |
+| `MediaOwner.SERVICE` media uses `ownerId = ServiceCategory` value. There is **no `Service` model**. | Services are config (rule 3). Only their media, copy and muted state are editable. |
+| Add **`ServiceSetting`** (`category ServiceCategory @id`, `muted Boolean`, `updatedById String?`, `updatedAt`). It is created in Phase 31. With no row, the `content/services.ts` default applies. | Staff can mute a service from the CMS (rule 3, *In-place CMS* 8). It is one row per enum value, not a service table, so the config stays the source of truth for what a service *is*. |
 | `RateLimitHit`, `ContentBlock`, `MediaItem` and `AuditEvent` stay as in the README | Already match the Epenal-proven design. |
 
 ## Environment variables

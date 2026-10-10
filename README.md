@@ -36,7 +36,7 @@
 ```text
 ├── app/
 │   ├── (public)/          # Public marketing site and portfolio explorer (EditModeProvider mounted here)
-│   │   ├── page.tsx       # Homepage (Hero, core metrics, featured portfolio, service highlights)
+│   │   ├── page.tsx       # Homepage (hero, service pillars, featured work, process, CTA)
 │   │   ├── about/         # Agency story, mission, and multidisciplinary capabilities
 │   │   ├── services/      # Detailed service breakdowns (Photography, Videography, Web & App Dev, Digital Marketing)
 │   │   ├── portfolio/     # Combined showcase (Engineering products from emo-onerhime + Media/Production case studies)
@@ -83,7 +83,7 @@
 ### D. In-Place CMS ("Editing: On/Off") & Staff Back Office
 
 - **Hidden Staff Entry:** Public pages contain no login button. Staff sign in exclusively via `/cms`. Unauthenticated visitors hitting `/cms` are routed to `/cms/login`. All CMS routes are marked `noindex`.
-- **Edit Mode Toggle:** Authenticated `editor` and `admin` users see a floating toggle bar on the public site to modify text content inline, swap out Cloudinary images, reorder gallery items, or inject new video URLs on the fly.
+- **Edit Mode Toggle:** Authenticated `editor` and `admin` users see a floating toggle bar on the public site to modify text content inline, swap out Cloudinary images, reorder gallery items, inject new video URLs, or mute and unmute a service on the fly. A muted service disappears from every public listing, its page, the sitemap and the inquiry flow until it is unmuted.
 - **Secure Mutations:** Every inline change triggers a server action verifying user role permissions (`requireRole`), validating inputs via Zod, refreshing cached Vercel ISR views, and writing an immutable audit log entry.
 - **Back Office Dashboard (`/cms`):** Manage inbound client leads, view project booking statuses (`NEW`, `REVIEWING`, `PROPOSAL_SENT`, `CLOSED`), manage staff access roles, and inspect security audit trails.
 
@@ -103,7 +103,7 @@ generator client {
   output   = "../lib/generated/prisma"
 }
 
-// BRANDING is held back until roadmap open question 6 is answered.
+// Six services only: BRANDING is not offered (owner, 2026-10-10; roadmap open question 6).
 enum ServiceCategory { WEB_APP PHOTOGRAPHY VIDEOGRAPHY DIGITAL_MARKETING SOCIAL_MEDIA ONLINE_PRESENCE }
 enum InquiryStatus   { NEW REVIEWING PROPOSAL_SENT CLOSED }
 // BudgetRange and InquiryTimeline values are defined in the Phase 17 spec (roadmap open question 7).
@@ -160,6 +160,14 @@ model ContentBlock {
   value       String
   updatedById String?
   updatedAt   DateTime @updatedAt
+}
+
+// Staff mute or unmute a service from the CMS. With no row, the default in content/services.ts applies.
+model ServiceSetting {
+  category    ServiceCategory @id
+  muted       Boolean         @default(false)
+  updatedById String?
+  updatedAt   DateTime        @updatedAt
 }
 
 model Inquiry {
