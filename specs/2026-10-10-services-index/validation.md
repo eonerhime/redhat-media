@@ -25,14 +25,14 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 ## Owner checks (preview)
 
-- [ ] Layout looks right at phone and desktop widths, and the service cards read well
-- [ ] Each **S** string in the key table is accepted or replaced (D2)
+- [x] Layout looks right at phone and desktop widths, and the service cards read well
+- [x] Each **S** string in the key table is accepted or replaced (D2)
 
 ## CI
 
-- [ ] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
+- [x] CI is green on the PR (`ci` including Playwright, `gitleaks`, `preview-headers`, Vercel)
 
 ## Spec hygiene
 
 - [x] The README amendment is in the same PR
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations

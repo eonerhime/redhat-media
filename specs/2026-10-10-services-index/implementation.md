@@ -24,6 +24,10 @@
     - **Hard-coded text:** the 7th test, the keyed-text check, failed with exactly `["NEGTEST hard-coded line"]`, a literal added to the page.
     - **Raw list:** `import { services } from "@/content/services"` in the page failed lint (`no-restricted-imports`).
     - After the revert, `content/services.ts` showed no diff and no `NEGTEST` string remained.
+- **2026-10-10** — PR #7 opened (`e125396`). CI is green: `ci` (including Playwright e2e and the audit), `gitleaks`, `preview-headers` and Vercel (preview Ready).
+  - Owner preview check ("All's good"): the layout passes at phone and desktop widths.
+  - All three **S** strings are accepted as-is (D2).
+  - Every `validation.md` box is ticked.
 
 ## Deviations from plan
 
