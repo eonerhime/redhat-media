@@ -12,6 +12,16 @@ export const defaults = {
     "Photography. Videography. Digital & social media marketing. Online presence management. Websites & web apps. One team, every medium.",
   "home.services.heading": "What We Do",
 
+  // Phase 3 sample copy, adopted by the owner for review on the preview (Phase 3 spec, D2).
+  "home.cta.button": "Start a project",
+  "home.work.heading": "Featured work",
+  "home.work.body":
+    "Selected projects from across photography, video, marketing and software will appear here.",
+  "home.work.link": "See the portfolio",
+  "home.process.heading": "How we work",
+  "home.cta.heading": "Have a project in mind?",
+  "home.cta.body": "Tell us what you want built, shot or grown, and we'll take it from there.",
+
   "about.intro":
     "RedHat Media (RHM) is a registered Nigerian media company built on one simple idea: if it's media-related, we handle it. From the first shot to the final line of code, we cover the full spectrum of modern media production and digital presence — so our clients can focus on running their business, not juggling five different vendors.",
 
@@ -19,6 +29,24 @@ export const defaults = {
   "services.pillars.production.name": "Production",
   "services.pillars.growth.name": "Growth",
   "services.pillars.build.name": "Build",
+
+  // Pillar summaries are Phase 3 sample copy (D2). Production and Build steps come from the
+  // roadmap; Growth's are a Phase 3 sample (D4).
+  "services.pillars.production.summary":
+    "Photos and video that show your work at its best, from the first shot to the final cut.",
+  "services.pillars.growth.summary":
+    "Marketing, social and reputation management that keep you visible and trusted.",
+  "services.pillars.build.summary":
+    "Websites and web apps, planned first, then built to work as hard as you do.",
+  "services.pillars.production.step1": "Brief",
+  "services.pillars.production.step2": "Shoot",
+  "services.pillars.production.step3": "Deliver",
+  "services.pillars.growth.step1": "Audit",
+  "services.pillars.growth.step2": "Plan",
+  "services.pillars.growth.step3": "Grow",
+  "services.pillars.build.step1": "Spec",
+  "services.pillars.build.step2": "Build",
+  "services.pillars.build.step3": "Ship",
 
   "services.photography.name": "Photography",
   "services.photography.summary":

@@ -48,7 +48,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
    - **Growth:** Digital Marketing, Social Media Marketing, Online Presence Management.
    - **Build:** Web & App Development.
 
-   **Each service can be muted.** The config holds a `muted` default (false for all six), and from Phase 31 a `ServiceSetting` row overrides it, the same way `ContentBlock` overrides `content/defaults.ts`. Public code never filters the raw list; it reads services through one helper (`visibleServices()`, from Phase 2). A muted service is hidden **everywhere** a visitor can reach:
+   **Each service can be muted.** The config holds a `muted` default (false for all six), and from Phase 31 a `ServiceSetting` row overrides it, the same way `ContentBlock` overrides `content/defaults.ts`. Public code never filters the raw list; it reads services through one helper (`visibleServices()`, from Phase 2). From Phase 3, ESLint enforces this: `app/**` and `components/**` cannot import the raw `services` value or `content/defaults` (copy goes through `block()`). A muted service is hidden **everywhere** a visitor can reach:
    - the homepage pillars, `/services` and any nav or footer listing (a pillar whose services are all muted is hidden too);
    - its `/services/[slug]` page, which returns 404 (static params still list all six, so unmuting needs no redeploy);
    - `sitemap.ts` and JSON-LD;

@@ -84,15 +84,24 @@ describe("verbatim port of the legacy page", () => {
     expect(defaults[key]).toBe(decodeEntities(html));
   });
 
-  it("ports every default except the constitution's pillar names", () => {
+  // Every default is either ported or listed here as copy that never existed on the legacy page.
+  it("ports every default except the listed new copy", () => {
+    const pillarKeys = ["production", "growth", "build"].flatMap((id) =>
+      ["name", "summary", "step1", "step2", "step3"].map(
+        (field) => `services.pillars.${id}.${field}`,
+      ),
+    );
+    const phase3Keys = [
+      "home.cta.button",
+      "home.cta.heading",
+      "home.cta.body",
+      "home.work.heading",
+      "home.work.body",
+      "home.work.link",
+      "home.process.heading",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
-    expect(unported.sort()).toEqual(
-      [
-        "services.pillars.build.name",
-        "services.pillars.growth.name",
-        "services.pillars.production.name",
-      ].sort(),
-    );
+    expect(unported.sort()).toEqual([...pillarKeys, ...phase3Keys].sort());
   });
 });

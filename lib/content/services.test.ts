@@ -33,6 +33,12 @@ describe("content/services.ts", () => {
     expect(s.summaryKey).toBe(`services.${s.id}.summary`);
   });
 
+  it.each(pillars)("pillar $id has matching name, summary and step keys", (p) => {
+    expect(p.nameKey).toBe(`services.pillars.${p.id}.name`);
+    expect(p.summaryKey).toBe(`services.pillars.${p.id}.summary`);
+    expect(p.stepKeys).toEqual([1, 2, 3].map((n) => `services.pillars.${p.id}.step${n}`));
+  });
+
   it("keeps at least one service visible", () => {
     expect(resolveVisibility(services).length).toBeGreaterThan(0);
   });

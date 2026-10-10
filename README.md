@@ -36,7 +36,7 @@
 ```text
 ├── app/
 │   ├── (public)/          # Public marketing site and portfolio explorer (EditModeProvider mounted here)
-│   │   ├── page.tsx       # Homepage (Hero, core metrics, featured portfolio, service highlights)
+│   │   ├── page.tsx       # Homepage (hero, service pillars, featured work, process, CTA)
 │   │   ├── about/         # Agency story, mission, and multidisciplinary capabilities
 │   │   ├── services/      # Detailed service breakdowns (Photography, Videography, Web & App Dev, Digital Marketing)
 │   │   ├── portfolio/     # Combined showcase (Engineering products from emo-onerhime + Media/Production case studies)
