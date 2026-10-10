@@ -145,7 +145,7 @@ Every control below has a **"from" phase**. A phase is not done until its contro
 | `AuditEvent` on every mutation (actor, action, entity, diff) | 25 |
 | Uploads: server-signed Cloudinary uploads with a fixed folder, format and size limit. The folder is checked again before attaching. | 28 |
 | No fetches to user-supplied URLs (prevents SSRF). Video handling extracts the ID and calls only fixed endpoints (`img.youtube.com`, `vimeo.com/api/oembed.json?url=https://vimeo.com/{id}`). | 8 / 30 |
-| `dangerouslySetInnerHTML` is banned by lint; React escapes all rendered output, and the bold-only renderer builds elements, not HTML. Email templates escape user input and never place it in headers or the subject line. | 0 / 20 |
+| `dangerouslySetInnerHTML` is banned by lint; React escapes all rendered output, and the bold-only renderer builds elements, not HTML. JSON-LD goes through the shared `<JsonLd>` component: the JSON is the text child of `<script type="application/ld+json">`, with every `<` written as `\u003c`, so no markup can close the tag. As a data block it is never executed, so the CSP does not apply to it. Email templates escape user input and never place it in headers or the subject line. | 0 / 5 / 20 |
 | External portfolio links (`liveUrl`, `repoUrl`) must be `https:`, are validated with Zod, and are rendered with `rel="noopener noreferrer"` | 9 |
 
 ### Database security & data protection (Neon + Prisma)

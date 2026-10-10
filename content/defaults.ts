@@ -72,4 +72,58 @@ export const defaults = {
     "We manage the accounts and the reputation, so you can manage the business.",
   "services.webApp.name": "Web & App Development",
   "services.webApp.summary": "Websites and web apps built to work as hard as you do.",
+
+  // Phase 5 sample copy for the service pages, for review on the preview (Phase 5 spec, D3).
+  "services.detail.back": "All services",
+  "services.detail.included": "What's included",
+  "services.detail.deliverables": "What you get",
+
+  "services.photography.included1":
+    "A pre-shoot brief to agree the shot list, style and where the images will be used",
+  "services.photography.included2": "Product, event and portrait sessions",
+  "services.photography.included3": "Selection of the strongest frames",
+  "services.photography.included4": "Colour correction and retouching",
+  "services.photography.deliverable1": "Edited, high-resolution images",
+  "services.photography.deliverable2": "Web-ready versions sized for your site and social channels",
+  "services.photography.deliverable3": "Files delivered by download link",
+
+  "services.videography.included1": "Concept and script development",
+  "services.videography.included2": "Filming of promotional content, events and interviews",
+  "services.videography.included3": "Editing, colour grading and sound",
+  "services.videography.included4": "Titles and captions",
+  "services.videography.deliverable1": "A final cut in the formats your channels need",
+  "services.videography.deliverable2": "Short cut-downs for social media",
+  "services.videography.deliverable3": "Files delivered by download link",
+
+  "services.digitalMarketing.included1": "An audit of your current channels and results",
+  "services.digitalMarketing.included2": "A campaign plan with goals, audience and budget",
+  "services.digitalMarketing.included3": "Ad creative and copy",
+  "services.digitalMarketing.included4": "Campaign setup, monitoring and optimisation",
+  "services.digitalMarketing.deliverable1": "A written campaign plan",
+  "services.digitalMarketing.deliverable2": "Live campaigns on the agreed channels",
+  "services.digitalMarketing.deliverable3": "Regular performance reports",
+
+  "services.socialMedia.included1": "A content calendar for each platform",
+  "services.socialMedia.included2": "Post design and caption writing",
+  "services.socialMedia.included3": "Scheduling and publishing",
+  "services.socialMedia.included4": "Replies to comments and messages",
+  "services.socialMedia.deliverable1": "A monthly content calendar",
+  "services.socialMedia.deliverable2": "Published posts on your channels",
+  "services.socialMedia.deliverable3": "Monthly performance reports",
+
+  "services.onlinePresence.included1": "Setting up and tidying your business profiles and listings",
+  "services.onlinePresence.included2": "Keeping details, hours and photos up to date",
+  "services.onlinePresence.included3": "Monitoring and responding to reviews",
+  "services.onlinePresence.included4": "Account access and security checks",
+  "services.onlinePresence.deliverable1": "Complete, consistent business profiles",
+  "services.onlinePresence.deliverable2": "Review responses on your behalf",
+  "services.onlinePresence.deliverable3": "A monthly presence report",
+
+  "services.webApp.included1": "A written spec agreed before any code is written",
+  "services.webApp.included2": "Design and development of websites and web apps",
+  "services.webApp.included3": "Hosting, domain and security setup",
+  "services.webApp.included4": "Testing on phones, tablets and desktops",
+  "services.webApp.deliverable1": "A live, tested website or web app",
+  "services.webApp.deliverable2": "Documentation for running and updating it",
+  "services.webApp.deliverable3": "A handover session with your team",
 } as const satisfies Record<BlockKeyShape, string>;
