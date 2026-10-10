@@ -1,5 +1,5 @@
+import { ButtonLink } from "@/components/shared/button-link";
 import { block } from "@/lib/content/block";
-import { ButtonLink } from "./button-link";
 
 export async function Hero() {
   const [tagline, subtext, cta] = await Promise.all([

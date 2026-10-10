@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cta } from "@/components/home/cta";
+import { Cta } from "@/components/shared/cta";
 import { FeaturedWork } from "@/components/home/featured-work";
 import { Hero } from "@/components/home/hero";
 import { PillarCards } from "@/components/home/pillar-cards";

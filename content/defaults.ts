@@ -38,6 +38,14 @@ export const defaults = {
     "Marketing, social and reputation management that keep you visible and trusted.",
   "services.pillars.build.summary":
     "Websites and web apps, planned first, then built to work as hard as you do.",
+
+  // Phase 4 sample copy for the /services page, for review on the preview (Phase 4 spec, D2).
+  "services.index.heading": "Services",
+  "services.index.intro":
+    "Production, growth and build: one team for every medium your business needs.",
+  "services.meta.description":
+    "Photography, videography, digital and social media marketing, online presence management, and web and app development from RedHat Media in Lagos.",
+
   "services.pillars.production.step1": "Brief",
   "services.pillars.production.step2": "Shoot",
   "services.pillars.production.step3": "Deliver",

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { defaults } from "../content/defaults";
 import { pillars, services } from "../content/services";
+import { expectOnlyKeyedText } from "./keyed-text";
 
 test.describe("homepage", () => {
   test.beforeEach(async ({ page }) => {
@@ -45,19 +46,6 @@ test.describe("homepage", () => {
 
   // Roadmap "Done when": every text string is keyed (Phase 3 spec, D8).
   test("renders only text from content/defaults.ts in <main>", async ({ page }) => {
-    const texts = await page.locator("main").evaluate((main) => {
-      const found: string[] = [];
-      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
-      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        const text = (node.textContent ?? "").replace(/\s+/g, " ").trim();
-        const parent = node.parentElement;
-        if (!text || !parent || parent.closest('[aria-hidden="true"]')) continue;
-        found.push(text);
-      }
-      return found;
-    });
-    const values = new Set<string>(Object.values(defaults));
-    expect(texts.length).toBeGreaterThan(0);
-    expect(texts.filter((text) => !values.has(text))).toEqual([]);
+    await expectOnlyKeyedText(page);
   });
 });

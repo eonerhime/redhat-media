@@ -38,7 +38,7 @@
 │   ├── (public)/          # Public marketing site and portfolio explorer (EditModeProvider mounted here)
 │   │   ├── page.tsx       # Homepage (hero, service pillars, featured work, process, CTA)
 │   │   ├── about/         # Agency story, mission, and multidisciplinary capabilities
-│   │   ├── services/      # Detailed service breakdowns (Photography, Videography, Web & App Dev, Digital Marketing)
+│   │   ├── services/      # Services index and one page per service (six services in three pillars)
 │   │   ├── portfolio/     # Combined showcase (Engineering products from emo-onerhime + Media/Production case studies)
 │   │   └── contact/       # Project booking & inquiry form with rate limiting and Turnstile
 │   ├── cms/               # Staff area: unlinked from public navigation, noindex

@@ -5,6 +5,8 @@ import { contact, navItems } from "../lib/site";
 // Phase 1 "Done when": 360px, 768px and 1440px. The inline nav starts at md (768px).
 const widths = [360, 768, 1440] as const;
 const MD = 768;
+// Every built page gets the layout and contrast checks (Phase 4 spec, D6).
+const routes = ["/", "/services"] as const;
 
 type TextSample = {
   text: string;
@@ -48,63 +50,64 @@ function sampleText(page: Page): Promise<TextSample[]> {
   });
 }
 
-for (const width of widths) {
-  test.describe(`at ${width}px`, () => {
-    test.use({ viewport: { width, height: 900 } });
+for (const route of routes)
+  for (const width of widths) {
+    test.describe(`${route} at ${width}px`, () => {
+      test.use({ viewport: { width, height: 900 } });
 
-    test.beforeEach(async ({ page }) => {
-      await page.goto("/");
+      test.beforeEach(async ({ page }) => {
+        await page.goto(route);
+      });
+
+      test("has no horizontal overflow", async ({ page }) => {
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        expect(overflow).toBe(0);
+      });
+
+      test("shows the wordmark, nav mode and footer details", async ({ page }) => {
+        await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeVisible();
+
+        const menuButton = page.getByRole("button", { name: "Menu" });
+        const nav = page.getByRole("navigation", { name: "Main" });
+        if (width >= MD) {
+          await expect(menuButton).toBeHidden();
+          await expect(nav.getByRole("link")).toHaveText(navItems.map((item) => item.label));
+        } else {
+          await expect(menuButton).toBeVisible();
+          await expect(nav).toHaveCount(0);
+        }
+
+        const footer = page.getByRole("contentinfo");
+        await expect(footer.getByRole("link", { name: contact.email })).toHaveAttribute(
+          "href",
+          `mailto:${contact.email}`,
+        );
+        await expect(footer.getByRole("link", { name: contact.phoneDisplay })).toHaveAttribute(
+          "href",
+          contact.phoneHref,
+        );
+        await expect(footer).toContainText(contact.location);
+        await expect(footer).toContainText(
+          `${contact.registration} · © ${new Date().getFullYear()} RedHat Media`,
+        );
+      });
+
+      test("every visible text element meets its contrast ratio", async ({ page }) => {
+        const samples = await sampleText(page);
+        expect(samples.length).toBeGreaterThan(5);
+        const failures = samples
+          .map((s) => ({
+            ...s,
+            ratio: s.background === "none" ? 0 : contrastRatio(s.color, s.background),
+            required: requiredTextRatio(s.fontSize, s.fontWeight),
+          }))
+          .filter((s) => s.ratio < s.required);
+        expect(failures).toEqual([]);
+      });
     });
-
-    test("has no horizontal overflow", async ({ page }) => {
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      expect(overflow).toBe(0);
-    });
-
-    test("shows the wordmark, nav mode and footer details", async ({ page }) => {
-      await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeVisible();
-
-      const menuButton = page.getByRole("button", { name: "Menu" });
-      const nav = page.getByRole("navigation", { name: "Main" });
-      if (width >= MD) {
-        await expect(menuButton).toBeHidden();
-        await expect(nav.getByRole("link")).toHaveText(navItems.map((item) => item.label));
-      } else {
-        await expect(menuButton).toBeVisible();
-        await expect(nav).toHaveCount(0);
-      }
-
-      const footer = page.getByRole("contentinfo");
-      await expect(footer.getByRole("link", { name: contact.email })).toHaveAttribute(
-        "href",
-        `mailto:${contact.email}`,
-      );
-      await expect(footer.getByRole("link", { name: contact.phoneDisplay })).toHaveAttribute(
-        "href",
-        contact.phoneHref,
-      );
-      await expect(footer).toContainText(contact.location);
-      await expect(footer).toContainText(
-        `${contact.registration} · © ${new Date().getFullYear()} RedHat Media`,
-      );
-    });
-
-    test("every visible text element meets its contrast ratio", async ({ page }) => {
-      const samples = await sampleText(page);
-      expect(samples.length).toBeGreaterThan(5);
-      const failures = samples
-        .map((s) => ({
-          ...s,
-          ratio: s.background === "none" ? 0 : contrastRatio(s.color, s.background),
-          required: requiredTextRatio(s.fontSize, s.fontWeight),
-        }))
-        .filter((s) => s.ratio < s.required);
-      expect(failures).toEqual([]);
-    });
-  });
-}
+  }
 
 test.describe("mobile nav", () => {
   test.use({ viewport: { width: 360, height: 900 } });
