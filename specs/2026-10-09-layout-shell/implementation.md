@@ -71,3 +71,14 @@
   - Earlier evidence is still valid. The first green run started its own server on 3100 before epenal's server appeared at 23:23. In the negative-test run, the wordmark and footer tests passed and the RHM-specific Escape test failed, which is impossible against epenal's site.
 - **Token drift test regex:** the first version expected `"#hex",` and missed `"#hex";` in `brand-icon.tsx`, so it failed on clean code. The regex now accepts either. It was then probed: changing the `brand-deep` copy to `#d0181e` fails the test, and reverting passes 35/35.
 - **Lost edit during a probe revert:** reverting the drift probe with `git checkout -- lib/brand-icon.tsx` also discarded the uncommitted Apple-icon radius change. It was re-applied, and later probes are reverted with a reverse edit instead.
+
+## Amendment 2026-10-10: favicon from `MIRH.jpg`
+
+- The owner asked for the favicon to use `public/MIRH.jpg`, a 1000×1504 JPEG of a black silhouette in a red fedora on white.
+- Two square crops were previewed at 32px and 180px. The owner picked crop A (hat and head, `left 150, top 30, 540×540`) for both icons. Crop B (head and shoulders) read as a dark blob at 32px.
+- `app/icon.png` (32×32, 1.3 KB) and `app/apple-icon.png` (180×180, 9.6 KB) were rendered once with `sharp` (already installed by Next; not a dependency of this repo).
+- Removed: `app/icon.tsx`, `app/apple-icon.tsx` and `lib/brand-icon.tsx`. The token-copy test now checks only `app/layout.tsx`. The Phase 1 deviations about the icon (rounded corners, font weight) no longer apply.
+- Local checks: typecheck, lint, format and `pnpm test` (34) pass. `pnpm build` lists `○ /icon.png` and `○ /apple-icon.png`, and the built `/` head links `/icon.png` (`sizes="32x32"`, `image/png`) and `/apple-icon.png` (`180x180`). `pnpm test:e2e` passes 13/13.
+- `public/MIRH.jpg` is committed as the source and is served at `/MIRH.jpg`. Its embedded metadata was checked first: only Photoshop history IDs and print settings, with no GPS, author or path. The generated PNGs carry no metadata.
+- PR #5 (`56d5675`) was updated with `develop` (`713c193`, after Phase 2 and Phase 3 merged). CI is green on both heads.
+- Owner check (2026-10-10): the red-hat favicon is visible in the browser tab on the deployment URL `redhat-media-6zootvyon-e1rhyme.vercel.app`. The #6 preview had not shown it, because #6 did not contain this change. The validation is fully ticked.

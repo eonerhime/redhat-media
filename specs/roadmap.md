@@ -88,7 +88,7 @@ Pattern: see `tech-stack.md` → *In-place CMS* and *Security baseline*. Every p
 
 ## Open questions (resolve before the phase noted)
 
-1. ~~**Logo (Phase 1).** `assets/` is empty, and the current header uses a CSS wordmark. Is there a vector logo (SVG) and favicon?~~ **Answered (owner, 2026-10-09):** there is no logo file. The CSS wordmark stays, and the favicon is generated (Phase 1 spec, D1).
+1. ~~**Logo (Phase 1).** `assets/` is empty, and the current header uses a CSS wordmark. Is there a vector logo (SVG) and favicon?~~ **Answered (owner, 2026-10-09):** there is no logo file. The CSS wordmark stays, and the favicon is generated (Phase 1 spec, D1). **Update (owner, 2026-10-10):** the favicon now uses the red-hat silhouette `public/MIRH.jpg`.
 2. **Custom domain (Phases 16, 20).** The site lives on `redhat-media.vercel.app`, and the team uses Gmail. Resend cannot verify `vercel.app`, so emails in Phase 20 need a domain RHM controls (e.g. `redhatmedia.ng`). Is one owned, and who controls its DNS?
 3. **Notification inbox (Phase 20).** Should new inquiries go to `redhatmediang@gmail.com`, a shared domain mailbox, or both?
 4. **Media assets (Phase 9).** Which real photography, videography and campaign work can be shown, with client permission? Does RHM have a YouTube or Vimeo channel? Without assets, those categories stay hidden at launch (Phase 11).

@@ -17,17 +17,14 @@ describe("design tokens in app/globals.css", () => {
     );
   });
 
-  // ImageResponse and the viewport themeColor cannot read CSS variables, so these files
-  // repeat token values as `"#hex", // --color-name` and must stay in sync.
-  it.each(["../brand-icon.tsx", "../../app/layout.tsx"])(
-    "%s repeats token values exactly",
-    (file) => {
-      const source = readFileSync(new URL(file, import.meta.url), "utf8");
-      const copies = [...source.matchAll(/"(#[0-9a-fA-F]{3,6})"[,;]?\s*\/\/\s*--color-([a-z-]+)/g)];
-      expect(copies.length).toBeGreaterThan(0);
-      for (const [, hex, name] of copies) expect(hex.toLowerCase()).toBe(colors.get(name));
-    },
-  );
+  // The viewport themeColor cannot read CSS variables, so these files repeat token values
+  // as `"#hex", // --color-name` and must stay in sync.
+  it.each(["../../app/layout.tsx"])("%s repeats token values exactly", (file) => {
+    const source = readFileSync(new URL(file, import.meta.url), "utf8");
+    const copies = [...source.matchAll(/"(#[0-9a-fA-F]{3,6})"[,;]?\s*\/\/\s*--color-([a-z-]+)/g)];
+    expect(copies.length).toBeGreaterThan(0);
+    for (const [, hex, name] of copies) expect(hex.toLowerCase()).toBe(colors.get(name));
+  });
 
   it.each(tokenPairings)("$fg on $bg meets $min:1 ($use)", ({ fg, bg, min }) => {
     const ratio = contrastRatio(colors.get(fg)!, colors.get(bg)!);

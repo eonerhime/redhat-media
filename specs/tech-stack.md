@@ -99,7 +99,7 @@ Defined once in the `app/globals.css` `@theme` block. Tailwind's default colour 
 
 An automated check (a Vitest pairing test plus a Playwright test of every rendered text element) enforces these from Phase 1.
 
-**Logo:** there is no logo file (roadmap open question 1, answered 2026-10-09). The header keeps the CSS wordmark from the current site ("RED" in `brand`, "HAT" in `muted`, "MEDIA" underneath), set in Archivo. The favicon and Apple touch icon are generated with `next/og` `ImageResponse`.
+**Logo:** there is no logo file (roadmap open question 1, answered 2026-10-09). The header keeps the CSS wordmark from the current site ("RED" in `brand`, "HAT" in `muted`, "MEDIA" underneath), set in Archivo. The favicon and Apple touch icon are static PNGs (`app/icon.png`, `app/apple-icon.png`) cut from the owner's red-hat silhouette, `public/MIRH.jpg` (Phase 1 spec, D1 as amended 2026-10-10).
 
 ## Security baseline (built in from Phase 0, not bolted on)
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-// CSS wordmark carried over from the static site; no logo file exists (Phase 1 spec, D1).
+// CSS wordmark carried over from the static site; there is no wordmark logo file (Phase 1 spec, D1).
 // "RED" stays ≥ 24px so brand red on ink counts as large text (3.97:1).
 export function Wordmark() {
   return (
