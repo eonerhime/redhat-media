@@ -30,7 +30,7 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 - [ ] Layout looks right at phone and desktop widths
 - [ ] The header stays visible while scrolling, on a phone and on a desktop (D10)
-- [x] The founder line and founding year are correct (D2)
+- [ ] The founder line and founding year are correct (D2)
 - [ ] Each **S** string in the key table is accepted or replaced (D3)
 
 ## CI
