@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaults } from "../../content/defaults";
-import { services } from "../../content/services";
+import { pillars, services } from "../../content/services";
 import { block, type BlockKey } from "./block";
 import { BLOCK_KEY_PATTERN } from "./keys";
 
@@ -112,10 +112,31 @@ describe("verbatim port of the legacy page", () => {
       "services.detail.deliverables",
       ...services.flatMap((s) => [...s.includedKeys, ...s.deliverableKeys]),
     ];
+    const phase6Keys = [
+      "about.meta.description",
+      "about.heading",
+      "about.story.heading",
+      "about.story.body",
+      "about.facts.founded",
+      "about.founded.year",
+      "about.facts.leadership",
+      "about.founder.name",
+      "about.founder.title",
+      "about.facts.registered",
+      "about.facts.based",
+      "about.oneTeam.heading",
+      "about.oneTeam.body",
+      "about.pillars.heading",
+      "about.pillars.intro",
+      ...pillars.map((p) => p.roleKey),
+      "about.sdd.heading",
+      "about.sdd.body",
+      "about.sdd.link",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
-      [...pillarKeys, ...phase3Keys, ...phase4Keys, ...phase5Keys].sort(),
+      [...pillarKeys, ...phase3Keys, ...phase4Keys, ...phase5Keys, ...phase6Keys].sort(),
     );
   });
 });

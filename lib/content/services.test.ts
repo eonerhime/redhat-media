@@ -43,7 +43,8 @@ describe("content/services.ts", () => {
     );
   });
 
-  it.each(pillars)("pillar $id has matching name, summary and step keys", (p) => {
+  it.each(pillars)("pillar $id has matching name, summary, step and role keys", (p) => {
+    expect(p.roleKey).toBe(`about.pillars.${p.id}.role`);
     expect(p.nameKey).toBe(`services.pillars.${p.id}.name`);
     expect(p.summaryKey).toBe(`services.pillars.${p.id}.summary`);
     expect(p.stepKeys).toEqual([1, 2, 3].map((n) => `services.pillars.${p.id}.step${n}`));
