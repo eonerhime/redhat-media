@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaults } from "../../content/defaults";
+import { services } from "../../content/services";
 import { block, type BlockKey } from "./block";
 import { BLOCK_KEY_PATTERN } from "./keys";
 
@@ -105,8 +106,16 @@ describe("verbatim port of the legacy page", () => {
       "services.index.intro",
       "services.meta.description",
     ];
+    const phase5Keys = [
+      "services.detail.back",
+      "services.detail.included",
+      "services.detail.deliverables",
+      ...services.flatMap((s) => [...s.includedKeys, ...s.deliverableKeys]),
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
-    expect(unported.sort()).toEqual([...pillarKeys, ...phase3Keys, ...phase4Keys].sort());
+    expect(unported.sort()).toEqual(
+      [...pillarKeys, ...phase3Keys, ...phase4Keys, ...phase5Keys].sort(),
+    );
   });
 });

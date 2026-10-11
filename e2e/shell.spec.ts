@@ -1,12 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
+import { services } from "../content/services";
+import { resolveVisibility } from "../lib/content/services";
 import { contrastRatio, requiredTextRatio } from "../lib/design/contrast";
 import { contact, navItems } from "../lib/site";
 
 // Phase 1 "Done when": 360px, 768px and 1440px. The inline nav starts at md (768px).
 const widths = [360, 768, 1440] as const;
 const MD = 768;
-// Every built page gets the layout and contrast checks (Phase 4 spec, D6).
-const routes = ["/", "/services"] as const;
+// Every built page gets the layout and contrast checks (Phase 4 spec, D6), including each
+// visible service page (Phase 5 spec, D8).
+const routes = ["/", "/services", ...resolveVisibility(services).map((s) => `/services/${s.slug}`)];
 
 type TextSample = {
   text: string;
