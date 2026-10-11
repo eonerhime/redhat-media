@@ -29,7 +29,7 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 ## Owner checks (preview)
 
 - [ ] Layout looks right at phone and desktop widths on at least two service pages
-- [ ] Each **S** string in the key table is accepted or replaced (D3)
+- [x] Each **S** string in the key table is accepted or replaced (D3). The owner accepted all 45 as-is on 2026-10-11.
 
 ## CI
 

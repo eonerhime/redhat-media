@@ -35,6 +35,11 @@
   - The arrow is `brand` at 20px extra-bold, because `brand` on `ink` is a large-text pairing only (`lib/design/tokens.ts`).
   - Local results: 350 unit tests pass, the build passes, and `e2e/service-pages.spec.ts` plus `e2e/shell.spec.ts` pass 131/131.
 
+- **2026-10-11** — Owner answers on the `3b7bd2f` preview:
+  - Back link: "yes, it works and looks right".
+  - Sample copy: "the sample copy is okay but the headers seem too large; they scream out: maybe a size smaller". All 45 **S** strings are kept as-is. The two list headings went from 30px (`text-3xl`) to 24px (`text-2xl`), matching the `/services` card headings. D4 is updated. The headings are `fg` on `ink`, so the smaller size does not change their contrast requirement.
+  - Banned-prop substitute evidence: "if it fits the design and will have no repercussion, then that's fine". `react/no-danger` is at error level, and CI runs `pnpm lint` on every PR.
+
 ## Deviations from plan
 
 | Item | Planned | Actual | Reason |

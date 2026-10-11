@@ -21,7 +21,7 @@ export async function ItemList({
       aria-labelledby={headingId}
       className="rounded-xl border border-t-4 border-line border-t-brand bg-ink p-6 md:p-8"
     >
-      <h2 id={headingId} className="font-display text-3xl font-extrabold">
+      <h2 id={headingId} className="font-display text-2xl font-extrabold">
         {heading}
       </h2>
       <ul className="mt-6 list-disc space-y-3 pl-5 text-lg marker:text-brand">
