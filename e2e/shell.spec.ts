@@ -8,8 +8,20 @@ import { contact, navItems } from "../lib/site";
 const widths = [360, 768, 1440] as const;
 const MD = 768;
 // Every built page gets the layout and contrast checks (Phase 4 spec, D6), including each
-// visible service page (Phase 5 spec, D8).
-const routes = ["/", "/services", ...resolveVisibility(services).map((s) => `/services/${s.slug}`)];
+// visible service page (Phase 5 spec, D8) and /about (Phase 6 spec, D9).
+const routes = [
+  "/",
+  "/services",
+  ...resolveVisibility(services).map((s) => `/services/${s.slug}`),
+  "/about",
+];
+
+/** Scrolls to the bottom and returns the header's top edge relative to the viewport. */
+async function headerTopAfterScroll(page: Page) {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  return page.getByRole("banner").evaluate((el) => el.getBoundingClientRect().top);
+}
 
 type TextSample = {
   text: string;
@@ -97,6 +109,11 @@ for (const route of routes)
         );
       });
 
+      test("keeps the header at the top after scrolling", async ({ page }) => {
+        expect(await headerTopAfterScroll(page)).toBe(0);
+        await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeInViewport();
+      });
+
       test("every visible text element meets its contrast ratio", async ({ page }) => {
         const samples = await sampleText(page);
         expect(samples.length).toBeGreaterThan(5);
@@ -129,6 +146,15 @@ test.describe("mobile nav", () => {
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await expect(nav).toHaveCount(0);
     await expect(button).toBeFocused();
+  });
+
+  test("opens in view after scrolling (Phase 6 spec, D10)", async ({ page }) => {
+    await page.goto("/");
+    expect(await headerTopAfterScroll(page)).toBe(0);
+    await page.getByRole("button", { name: "Menu" }).click();
+    const links = page.getByRole("navigation", { name: "Main" }).getByRole("link");
+    for (const item of navItems)
+      await expect(links.filter({ hasText: item.label })).toBeInViewport();
   });
 
   test("closes when a link is followed", async ({ page }) => {

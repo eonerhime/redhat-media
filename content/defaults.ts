@@ -126,4 +126,35 @@ export const defaults = {
   "services.webApp.deliverable1": "A live, tested website or web app",
   "services.webApp.deliverable2": "Documentation for running and updating it",
   "services.webApp.deliverable3": "A handover session with your team",
+  // Phase 6 sample copy for /about, for the company to accept or replace (Phase 6 spec, D3).
+  // The founder and the founding year are owner facts (D2).
+  "about.meta.description":
+    "Who RedHat Media is: a Lagos media company where one team handles photography, video, marketing and software.",
+  "about.heading": "About us",
+  "about.story.heading": "Our story",
+  "about.story.body":
+    "Emo Onerhime founded RedHat Media in Lagos as a photography and video studio. As clients asked for more, first campaigns to share their content and then websites to hold it, the studio grew into a full media company. One idea has stayed the same throughout: a business should have one dependable partner for all of its media, not a different supplier for every job. It still shapes how we work: one brief, one team and one standard across everything we make.",
+  "about.facts.founded": "Founded",
+  "about.founded.year": "2019",
+  "about.facts.leadership": "Leadership",
+  "about.founder.name": "Emo Onerhime",
+  "about.founder.title": "Founder, Managing Director and CEO",
+  "about.facts.registered": "Registered",
+  "about.facts.based": "Based in",
+  "about.oneTeam.heading": "One team, every medium",
+  "about.oneTeam.body":
+    "Most businesses need more than one kind of media work. Hiring a photographer, a video crew, a marketing agency and a developer separately means four briefs, four timelines and nobody who sees the whole picture. At RHM one team holds the brief from start to finish, so your photos, videos, campaigns and website look and sound like the same business.",
+  "about.pillars.heading": "How the pillars work together",
+  "about.pillars.intro":
+    "Our services fall into pillars. Each stands on its own, and they work best together.",
+  "about.pillars.production.role":
+    "Production creates the photos and video that show what your business does.",
+  "about.pillars.growth.role":
+    "Growth puts that content in front of the right people and keeps your presence active.",
+  "about.pillars.build.role":
+    "Build gives it all a home: a fast, secure website or app that turns visitors into inquiries.",
+  "about.sdd.heading": "How we build: Spec-Driven Development",
+  "about.sdd.body":
+    "Every website and app we build starts with a written spec: what it must do, who it is for and how we will know it works. You agree the spec before any code is written. We then build in small steps, check each one against the spec, and ship only when it passes. This website was built the same way.",
+  "about.sdd.link": "See Web & App Development",
 } as const satisfies Record<BlockKeyShape, string>;

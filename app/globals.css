@@ -40,6 +40,8 @@
 @layer base {
   html {
     color-scheme: dark;
+    /* Clears the sticky header (about 80px tall) when jumping to an anchor (Phase 1 spec, D14). */
+    scroll-padding-top: 6rem;
   }
 
   body {

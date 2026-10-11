@@ -24,6 +24,8 @@ export type Pillar = {
   summaryKey: BlockKey;
   // The homepage process strip, in order (Phase 3 spec, D4).
   stepKeys: readonly [BlockKey, BlockKey, BlockKey];
+  // The pillar's part in the whole, on /about (Phase 6 spec, D4).
+  roleKey: BlockKey;
 };
 
 export type Service = {
@@ -52,6 +54,7 @@ export const pillars = [
       "services.pillars.production.step2",
       "services.pillars.production.step3",
     ],
+    roleKey: "about.pillars.production.role",
   },
   {
     id: "growth",
@@ -62,6 +65,7 @@ export const pillars = [
       "services.pillars.growth.step2",
       "services.pillars.growth.step3",
     ],
+    roleKey: "about.pillars.growth.role",
   },
   {
     id: "build",
@@ -72,6 +76,7 @@ export const pillars = [
       "services.pillars.build.step2",
       "services.pillars.build.step3",
     ],
+    roleKey: "about.pillars.build.role",
   },
 ] as const satisfies readonly Pillar[];
 

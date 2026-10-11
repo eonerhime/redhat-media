@@ -39,6 +39,7 @@ Give every later page the same frame: brand colour tokens, typefaces, a type sca
    - The **CSS wordmark** from the current site: "RED" in `brand`, "HAT" in `muted`, "MEDIA" letter-spaced underneath in `fg`, set in Archivo at heavy weight. It links to `/` with the accessible name "RedHat Media home". It stays at least 24px tall so its brand red counts as large text (3.97:1).
    - **Navigation** from a typed list in `lib/site.ts`: Services, Portfolio, About and Contact (D3). The current page gets `aria-current="page"`.
    - From `md` (768px) up, the links sit inline. Below `md`, a menu button opens the mobile nav (D13).
+   - **Amended 2026-10-11:** the header is sticky, so it stays at the top of the viewport while the page scrolls (D14).
 8. **Footer:** "RedHat Media", the email `redhatmediang@gmail.com` (`mailto:`), the phone "0802 658 1200" (`tel:+2348026581200`), "Lagos, Nigeria", and "RC 1379619 · © {year} RedHat Media". The year comes from a cached function (D10). The strings live in `lib/site.ts` until Phase 2 (D12).
 9. **Favicon** (D1). `app/icon.tsx` (32×32) and `app/apple-icon.tsx` (180×180) are drawn with `ImageResponse` from `next/og` (part of Next, so no new library): "RH" in `fg` on a `brand-deep` square. The default `app/favicon.ico` is deleted. **Amended 2026-10-10:** the icons are now static files cut from the owner's brand image (see D1).
 10. **Home placeholder.** `/` renders inside the shell with an `<h1>` "RedHat Media" in the display style. Real homepage content arrives in Phase 3.
@@ -80,6 +81,7 @@ Give every later page the same frame: brand colour tokens, typefaces, a type sca
 | D11 | **Reduced motion:** a global `@media (prefers-reduced-motion: reduce)` rule in `@layer base` sets every animation and transition duration to `0.01ms` and `scroll-behavior` to `auto`. Components also use `motion-safe:` where it reads naturally. | The global rule also catches motion added in later phases. Playwright checks it from the computed styles. | Kickoff analysis |
 | D12 | Footer and nav strings sit in `lib/site.ts` for Phase 1. Phase 2 moves the copy behind `block()` (the `footer.*` keys). | Phase 2 owns the content system, and Phase 1 should not pre-empt its key design. | Kickoff analysis |
 | D13 | **Mobile nav (below 768px)** is a small client component:<br>• a menu button with `aria-expanded` and `aria-controls`;<br>• a panel listing the nav links;<br>• Escape closes it and returns focus to the button, and following a link closes it.<br>The panel's open and close transition is the shell's only motion. | It is keyboard- and screen-reader-friendly with no library. Everything else in the header and footer stays a Server Component (*Architectural rules* 1). | Kickoff analysis |
+| D14 | **Sticky header (added 2026-10-11, Phase 6).** The header is `sticky top-0 z-40` with an opaque `bg-ink`, and `html` has `scroll-padding-top: 6rem` (just over the header height) so in-page anchors land below it. It is CSS only, and it adds no motion. | Owner request. CSS keeps the header a Server Component, and the mobile panel still opens below it. | Owner, 2026-10-11; Phase 6 spec, D10 |
 
 ## Constraints
 
