@@ -39,6 +39,7 @@
   - Back link: "yes, it works and looks right".
   - Sample copy: "the sample copy is okay but the headers seem too large; they scream out: maybe a size smaller". All 45 **S** strings are kept as-is. The two list headings went from 30px (`text-3xl`) to 24px (`text-2xl`), matching the `/services` card headings. D4 is updated. The headings are `fg` on `ink`, so the smaller size does not change their contrast requirement.
   - Banned-prop substitute evidence: "if it fits the design and will have no repercussion, then that's fine". `react/no-danger` is at error level, and CI runs `pnpm lint` on every PR.
+  - `6e97e98` (smaller headings) has green CI. The owner checked it on the preview ("done. go ahead") and ticked the banned-prop box by hand. Every validation box is ticked, and the PR is merged into `develop`.
 
 ## Deviations from plan
 
