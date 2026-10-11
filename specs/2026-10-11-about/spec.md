@@ -60,11 +60,11 @@ No constitution file changes. The Phase 1 spec gets a dated amendment for the st
 | `about.meta.description` | Who RedHat Media is: a Lagos media company where one team handles photography, video, marketing and software. | S |
 | `about.heading` | About us | S |
 | `about.story.heading` | Our story | S |
-| `about.story.body` | Ebi Inala founded RedHat Media in Lagos as a photography and video studio. As clients asked for more, first campaigns to share their content and then websites to hold it, the studio grew into a full media company. One idea has stayed the same throughout: a business should have one dependable partner for all of its media, not a different supplier for every job. It still shapes how we work: one brief, one team and one standard across everything we make. | S |
+| `about.story.body` | Emo Onerhime founded RedHat Media in Lagos as a photography and video studio. As clients asked for more, first campaigns to share their content and then websites to hold it, the studio grew into a full media company. One idea has stayed the same throughout: a business should have one dependable partner for all of its media, not a different supplier for every job. It still shapes how we work: one brief, one team and one standard across everything we make. | S |
 | `about.facts.founded` | Founded | S |
-| `about.founded.year` | 1999 | O |
+| `about.founded.year` | 2019 | O |
 | `about.facts.leadership` | Leadership | S |
-| `about.founder.name` | Ebi Inala | O |
+| `about.founder.name` | Emo Onerhime | O |
 | `about.founder.title` | Founder, Managing Director and CEO | O |
 | `about.facts.registered` | Registered | S |
 | `about.facts.based` | Based in | S |
@@ -86,7 +86,7 @@ Pillar names and steps come from Phases 2 and 3, the registration number and loc
 | # | Decision | Reason | Source |
 | --- | --- | --- | --- |
 | D1 | **One static route, `/about`.** It renders as `○` in the build. | Nothing on it varies per request. | `tech-stack.md` → *Architectural rules* 1 |
-| D2 | **The founder is a fact, not sample copy.** Ebi Inala, Founder, Managing Director and CEO, and the founding year come from the owner. They are keyed (`about.founder.*`, `about.founded.year`) rather than put in `lib/site.ts`, so staff can update them in place from Phase 27. Copy refers to the founder by name and title, never by pronoun. | Mission principle 4 allows only real facts. Keying them keeps them editable and ready for Phase 14's `Organization` JSON-LD. | Owner, 2026-10-11 |
+| D2 | **The founder is a fact, not sample copy.** Emo Onerhime, Founder, Managing Director and CEO, and the founding year come from the owner. They are keyed (`about.founder.*`, `about.founded.year`) rather than put in `lib/site.ts`, so staff can update them in place from Phase 27. Copy refers to the founder by name and title, never by pronoun. | Mission principle 4 allows only real facts. Keying them keeps them editable and ready for Phase 14's `Organization` JSON-LD. | Owner, 2026-10-11 (corrected the same day: Emo Onerhime, 2019) |
 | D3 | **New copy is sample copy, reviewed on the preview.** The 18 **S** strings are proposed for the company to accept or replace. As in Phases 3–5, the page shows no "sample" label, and the validation records the owner's decision. The owner expects the company to edit them. | This keeps the phase moving while the owner decides. | Owner, 2026-10-11; Phase 3 D2 |
 | D4 | **One card per visible pillar, each with its own role sentence.** `Pillar` gains `roleKey` (`about.pillars.<id>.role`, checked by a unit test). Cards come from `visiblePillars()`, so a fully muted pillar loses its card and its sentence together. No copy names all three pillars or counts them. Each card is the Phase 4 surface (`ink`, `line` border, `brand` top edge) with the pillar name as an `h3`, the role sentence and the pillar's `StepList`. | A shared paragraph naming all three would be wrong once a pillar is muted. A typed key means a new pillar cannot type-check without its sentence. | `tech-stack.md` → *Architectural rules* 3; Phase 3 D4; Phase 4 D1 |
 | D5 | **Layout.** The header matches `/services`: `display-1` `h1`, then the intro in `text-lg muted`. Each `h2` section sits in its own `border-t` band and is a labelled region. The pillar cards are a grid, three columns from `md`. The only button is the CTA; the SDD link is a text link. | It uses the same visual language as `/services` and `/services/[slug]`, with one primary button. The labelled regions let the e2e tests find each section by name. | Phase 3 D9; Phase 4 D1 |

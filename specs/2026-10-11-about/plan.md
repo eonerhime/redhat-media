@@ -27,5 +27,5 @@ Scope, decisions (D1–D9) and constraints (C1–C5) are in [`spec.md`](spec.md)
 
 ## 4. Verify and open the PR
 
-- [ ] 4.1 Work through every item in [`validation.md`](validation.md).
+- [x] 4.1 Work through every item in [`validation.md`](validation.md).
 - [x] 4.2 Push the branch and open the PR `feature/phase-06-about` → `develop`. PR #9.
