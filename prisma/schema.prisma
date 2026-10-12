@@ -1,0 +1,92 @@
+// Phase 7 spec, D5. Models match README §5; each later model arrives in the
+// phase that first needs it. Connection URLs live in prisma.config.ts (CLI)
+// and lib/db.ts (runtime), never here.
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+// Six services only: BRANDING is not offered (owner, 2026-10-10; roadmap open question 6).
+enum ServiceCategory {
+  WEB_APP
+  PHOTOGRAPHY
+  VIDEOGRAPHY
+  DIGITAL_MARKETING
+  SOCIAL_MEDIA
+  ONLINE_PRESENCE
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+}
+
+enum VideoProvider {
+  YOUTUBE
+  VIMEO
+}
+
+enum MediaOwner {
+  PORTFOLIO_ITEM
+  SERVICE
+  PAGE
+}
+
+model PortfolioItem {
+  id          String          @id @default(cuid())
+  title       String
+  slug        String          @unique
+  category    ServiceCategory
+  summary     String
+  description String
+  client      String?
+  credit      String? // e.g. "Technical lead: Emo Onerhime"
+  highlights  String[] // architecture / outcome bullets
+  liveUrl     String? // https only
+  repoUrl     String? // public repositories only
+  techStack   String[] // e.g. ["Next.js", "TypeScript", "Tailwind CSS"]
+  featured    Boolean         @default(false)
+  published   Boolean         @default(false)
+  publishedAt DateTime?
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  // media: MediaItem rows with ownerType = PORTFOLIO_ITEM, ownerId = id
+}
+
+model MediaItem {
+  id            String         @id @default(cuid())
+  ownerType     MediaOwner
+  ownerId       String // portfolio item id, ServiceCategory value, or page slot key
+  kind          MediaKind
+  cloudinaryId  String?
+  videoProvider VideoProvider?
+  videoId       String?
+  videoUrl      String?
+  thumbnailUrl  String?
+  alt           String?
+  title         String?
+  caption       String?
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([ownerType, ownerId, sortOrder])
+}
+
+// Shared fixed-window rate limiter (lib/security/rate-limit.ts, Phase 7 spec D8).
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  bucket    String // e.g. "redhat.inquiry", "redhat.cms.mutation"
+  keyHash   String // SHA-256(RATE_LIMIT_SALT + key), 64 hex characters
+  windowEnd DateTime
+  count     Int      @default(1)
+
+  @@unique([bucket, keyHash, windowEnd])
+  @@index([windowEnd])
+}
