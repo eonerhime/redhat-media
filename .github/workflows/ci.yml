@@ -11,7 +11,9 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Pushes to develop run migrate-preview; never cut a migration off mid-run
+  # (Phase 7 spec, D11).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
@@ -35,6 +37,81 @@ jobs:
       - run: pnpm test:e2e
       - name: Dependency audit (fails on high/critical)
         run: pnpm audit --prod --audit-level high
+
+  db:
+    name: db
+    # Database tests on a throwaway Postgres: bootstrap the roles, apply the
+    # migrations as rhm_migrator, check for drift, then run pnpm test:db as
+    # each role (Phase 7 spec, D9). No production secret is involved.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rhm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rhm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Bootstrap roles
+        env:
+          BOOTSTRAP_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rhm
+        run: |
+          node scripts/db-bootstrap.mts --branch ci --out "$RUNNER_TEMP/roles.env"
+          set -a; . "$RUNNER_TEMP/roles.env"; set +a
+          node -e 'for (const k of ["DATABASE_URL", "MIGRATOR_DATABASE_URL", "READONLY_DATABASE_URL"]) console.log("::add-mask::" + decodeURIComponent(new URL(process.env[k]).password))'
+          {
+            echo "MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
+            echo "TEST_APP_DATABASE_URL=$DATABASE_URL"
+            echo "TEST_MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
+            echo "TEST_READONLY_DATABASE_URL=$READONLY_DATABASE_URL"
+          } >> "$GITHUB_ENV"
+      - name: Apply migrations as rhm_migrator
+        run: pnpm db:deploy
+      - name: Drift check (migrations match schema.prisma)
+        run: pnpm exec prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - run: pnpm test:db
+
+  migrate-preview:
+    name: migrate-preview
+    # Migrations reach Neon only from CI (Phase 7 spec, D11): the preview
+    # branch, after every push to develop that passes ci and db.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: [ci, db]
+    runs-on: ubuntu-latest
+    environment: neon-preview
+    concurrency:
+      group: migrate-preview
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: prisma migrate deploy (Neon preview)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+        run: |
+          if [ -z "$MIGRATOR_DATABASE_URL" ]; then
+            echo "::error::Secret MIGRATOR_DATABASE_URL is not set in environment neon-preview"
+            exit 1
+          fi
+          pnpm db:deploy
 
   gitleaks:
     name: gitleaks

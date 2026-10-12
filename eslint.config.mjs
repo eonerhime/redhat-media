@@ -38,6 +38,17 @@ const eslintConfig = defineConfig([
               allowTypeImports: true,
               message: "Read services through visibleServices() / visiblePillars().",
             },
+            {
+              // Database access goes through server modules in lib/ (Phase 7 spec, D6).
+              // Model types may still be imported.
+              group: ["**/lib/generated/**"],
+              allowTypeImports: true,
+              message: "Query the database through a server module in lib/ (getDb()).",
+            },
+            {
+              group: ["@prisma/*", "@neondatabase/serverless", "pg"],
+              message: "Database drivers stay in lib/db.ts (Phase 7 spec, D6).",
+            },
           ],
         },
       ],

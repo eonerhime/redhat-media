@@ -24,6 +24,9 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 | `pnpm lint` | ESLint |
 | `pnpm format` / `pnpm format:check` | Prettier |
 | `pnpm test` | Vitest |
+| `pnpm test:db` | Database tests (`*.db.test.ts`) against a real Postgres. Needs the `TEST_*_DATABASE_URL` vars (see `lib/db/test-client.ts`). |
+| `pnpm db:migrate` | `prisma migrate dev`. **Neon `dev` branch only.** Every other branch is migrated by CI. |
+| `pnpm db:studio` | Prisma Studio on the branch in `MIGRATOR_DATABASE_URL` |
 | `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. |
 | `pnpm build` | Production build. It also validates env vars (`lib/env.ts`). |
 

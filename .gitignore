@@ -50,3 +50,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# neon CLI link context (org/project/branch ids from `neon link`)
+/.neon
