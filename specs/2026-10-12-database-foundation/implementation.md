@@ -90,4 +90,10 @@
 - **The `CREATE SCHEMA` permission error** (above). It was found on the first `migrate deploy` against the container, and `_prisma_migrations` recorded the failed `init`. The container was recreated, and the clean run passed.
 - **Node module-type warning.** Node reparsed `lib/db/bootstrap.ts` as ESM with a warning. Renamed to `.mts`, rather than setting `"type": "module"` for the whole package.
 - **The env test regex** expected the variable name before the message. Zod's `prettifyError` prints the message first, so the regex order was swapped.
+- **The Vercel build failed on cached installs** (PR #10, commit `1df4995`).
+  - Cause: Vercel restored the previous build cache, pnpm reported "Already up to date" and skipped `postinstall`, so the git-ignored `lib/generated/prisma` was missing and type-checking failed (`TS2307 Cannot find module '@/lib/generated/prisma/client'`). The first preview (`6557259`) had passed only because its cache was cold.
+  - Fix: `"build": "prisma generate && next build"`, the setup Prisma recommends for Vercel. `postinstall` stays, for `typecheck` and `dev`.
+- **Vercel stopped reporting to GitHub after 2026-10-11.** No commit statuses, GitHub deployments or PR comments appear on PR #10, so `preview-headers` (triggered by `deployment_status`) never ran. Builds are still triggered from Git.
+  - Checked: the repository connection in Vercel (connected); the GitHub App's repository access (All repositories, not suspended).
+  - The app has a pending permission update (Actions read, Workflows read and write). The owner was asked whether to approve it.
 - **Probe objects left in the container.** The "grant too wide" negative test let `rhm_app` actually create `rhm_probe`. It was dropped afterwards, and a check confirmed that `rhm_app` owns 0 objects.
