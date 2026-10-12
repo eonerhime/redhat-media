@@ -57,5 +57,5 @@ Scope, decisions (D1–D11) and constraints (C1–C5) are in [`spec.md`](spec.md
 
 ## 8. Verify and open the PR
 
-- [ ] 8.1 Work through every item in [`validation.md`](validation.md).
-- [ ] 8.2 Push the branch and open the PR `feature/phase-07-database-foundation` → `develop`.
+- [x] 8.1 Work through every item in [`validation.md`](validation.md).
+- [x] 8.2 Push the branch and open the PR `feature/phase-07-database-foundation` → `develop`. PR #10.

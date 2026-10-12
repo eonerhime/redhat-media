@@ -75,6 +75,11 @@
     - `pg_stat_ssl` reported `ssl = false`, because on Neon it describes the proxy/pooler's internal connection to Postgres, not the client's;
     - proven instead: `pg` with SSL off is **refused** on both the pooled and direct hosts ("connection is insecure (try using `sslmode=require`)"); `pg` with TLS and `rejectUnauthorized: true` connects; the Neon driver has `useSecureWebSocket: true`.
 
+- **2026-10-12** — CI green and close-out.
+  - `76a3d82` fixed the cached-install build (see Issues). `7f778e1` (empty) retriggered the preview after the Vercel permission update.
+  - `db` was added to the `develop` ruleset's required checks (`ci`, `gitleaks`, `db`), with `gh api`.
+  - PR #10: `ci`, `db`, `gitleaks`, `preview-headers` and Vercel all pass. Merged into `develop` with a merge commit. `migrate-preview` on the `develop` push is the post-merge check.
+
 ## Deviations
 
 - **The TLS validation check changed** from "`pg_stat_ssl` reports `ssl = true`" to "Neon refuses plaintext; verified TLS succeeds". The original check cannot pass on Neon (see 7.2 above). This is a stronger proof: no plaintext path exists.
@@ -95,5 +100,5 @@
   - Fix: `"build": "prisma generate && next build"`, the setup Prisma recommends for Vercel. `postinstall` stays, for `typecheck` and `dev`.
 - **Vercel stopped reporting to GitHub after 2026-10-11.** No commit statuses, GitHub deployments or PR comments appear on PR #10, so `preview-headers` (triggered by `deployment_status`) never ran. Builds are still triggered from Git.
   - Checked: the repository connection in Vercel (connected); the GitHub App's repository access (All repositories, not suspended).
-  - The app has a pending permission update (Actions read, Workflows read and write). The owner was asked whether to approve it.
+  - The app had a pending permission update (Actions read, Workflows read and write). **The owner approved it on 2026-10-12, and reporting resumed at once:** on `7f778e1` the Vercel status, the PR comment (Ready) and `preview-headers` all pass. The `develop` and `main` rulesets still require a PR and green checks for every actor, Vercel included.
 - **Probe objects left in the container.** The "grant too wide" negative test let `rhm_app` actually create `rhm_probe`. It was dropped afterwards, and a check confirmed that `rhm_app` owns 0 objects.

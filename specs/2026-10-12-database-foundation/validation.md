@@ -15,7 +15,7 @@
 - [x] **Default privileges:** `rhm_app` can use tables that were never granted to it explicitly (D4)
 - [x] **TLS:** every URL has `sslmode=require`, the env check rejects one without it, Neon **refuses a plaintext connection** on both the pooled and direct hosts, a TLS connection with certificate verification succeeds, and the Neon driver uses `wss://` (D7). `pg_stat_ssl` is not a valid check on Neon, because it reports the proxy's internal hop to Postgres.
 - [x] **`server-only`:** importing `lib/db.ts` from a client component fails the build (negative test)
-- [ ] **Migrations from CI only:** after the merge, `migrate-preview` applies both migrations to `preview` (D11)
+- [ ] **Migrations from CI only:** after the merge, `migrate-preview` applies both migrations to `preview` (D11). Post-merge check: it can only run on the `develop` push, and is confirmed in the close-out.
 - [x] **Console 2FA:** Neon and Vercel sign-ins use 2FA (owner check) (owner, 2026-10-12)
 - [x] **Restore window confirmed:** 6 hours on Free, recorded in `tech-stack.md` (D10)
 
@@ -43,13 +43,13 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 - [x] Neon project, region and branches as in D1 and D2 (verified with the CLI: `aws-eu-west-2`, Postgres 17, `production` / `preview` / `dev`, no expiry; app roles on `preview` and `dev` only)
 - [x] Secrets placed as in *Owner setup* (GitHub `neon-preview`, Vercel Preview, `.env.local`). Two values reached the chat through IDE selections or pastes; both were rotated (preview re-bootstrapped, preview `neondb_owner` reset) before use. See implementation.md.
-- [ ] `db` is a required check on `develop`
+- [x] `db` is a required check on `develop` (added with `gh api` on 2026-10-12; the ruleset now requires `ci`, `gitleaks` and `db`)
 - [x] The Free-plan trade-offs (D10) are accepted, and a date is noted for the Launch decision (owner, 2026-10-12: accepted; decide on Neon Launch before Phase 18)
 
 ## CI
 
-- [ ] CI is green on the PR (`ci`, `db`, `gitleaks`, `preview-headers`, Vercel)
+- [x] CI is green on the PR (`ci`, `db`, `gitleaks`, `preview-headers`, Vercel) (PR #10 at `7f778e1`, after the Vercel GitHub app permission update)
 
 ## Spec hygiene
 
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
