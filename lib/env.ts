@@ -39,6 +39,10 @@ const envSchema = z
     RATE_LIMIT_SALT: optional(z.string().min(32, "Must be at least 32 characters")),
     MIGRATOR_DATABASE_URL: optional(z.string()),
     BOOTSTRAP_DATABASE_URL: optional(z.string()),
+    // Public: it appears in every image URL (Phase 8 spec, D4).
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optional(
+      z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/, "Must be a Cloudinary cloud name"),
+    ),
   })
   .superRefine((env, ctx) => {
     if (env.VERCEL_ENV === "production" && !env.NEXT_PUBLIC_SITE_URL) {
@@ -49,7 +53,11 @@ const envSchema = z
       });
     }
     if (env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview") {
-      for (const key of ["DATABASE_URL", "RATE_LIMIT_SALT"] as const) {
+      for (const key of [
+        "DATABASE_URL",
+        "RATE_LIMIT_SALT",
+        "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      ] as const) {
         if (!env[key]) {
           ctx.addIssue({
             code: "custom",
@@ -79,6 +87,10 @@ export type Env = {
   databaseUrl?: string;
   /** Salt for rate-limit key hashes (lib/security/rate-limit.ts). */
   rateLimitSalt?: string;
+  /** Cloudinary cloud name; read by <MediaImage> (components/media/). */
+  cloudinaryCloudName?: string;
+  /** Vercel deployment target; unset locally and in CI. */
+  vercelEnv?: "production" | "preview" | "development";
 };
 
 export function parseEnv(source: Record<string, string | undefined>): Env {
@@ -87,7 +99,14 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     // Messages name the variable and the rule, never the value.
     throw new Error(`Invalid environment variables:\n${z.prettifyError(result.error)}`);
   }
-  const { NEXT_PUBLIC_SITE_URL, VERCEL_BRANCH_URL, DATABASE_URL, RATE_LIMIT_SALT } = result.data;
+  const {
+    NEXT_PUBLIC_SITE_URL,
+    VERCEL_ENV,
+    VERCEL_BRANCH_URL,
+    DATABASE_URL,
+    RATE_LIMIT_SALT,
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  } = result.data;
   const siteUrl =
     NEXT_PUBLIC_SITE_URL ??
     (VERCEL_BRANCH_URL ? `https://${VERCEL_BRANCH_URL}` : "http://localhost:3000");
@@ -95,6 +114,8 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     siteUrl: siteUrl.replace(/\/+$/, ""),
     databaseUrl: DATABASE_URL,
     rateLimitSalt: RATE_LIMIT_SALT,
+    cloudinaryCloudName: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    vercelEnv: VERCEL_ENV,
   };
 }
 

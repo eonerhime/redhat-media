@@ -6,17 +6,28 @@ const APP_URL =
   "postgresql://rhm_app:pw@ep-x-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
 const SALT = "s".repeat(32);
 const db = { DATABASE_URL: APP_URL, RATE_LIMIT_SALT: SALT };
+const cloud = { NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "test-cloud" };
 
 describe("parseEnv", () => {
   it("uses NEXT_PUBLIC_SITE_URL when set, without a trailing slash", () => {
     expect(
-      parseEnv({ NEXT_PUBLIC_SITE_URL: "https://example.com/", VERCEL_ENV: "production", ...db }),
+      parseEnv({
+        NEXT_PUBLIC_SITE_URL: "https://example.com/",
+        VERCEL_ENV: "production",
+        ...db,
+        ...cloud,
+      }),
     ).toMatchObject({ siteUrl: "https://example.com" });
   });
 
   it("falls back to the branch URL on previews", () => {
     expect(
-      parseEnv({ VERCEL_ENV: "preview", VERCEL_BRANCH_URL: "rhm-git-x.vercel.app", ...db }),
+      parseEnv({
+        VERCEL_ENV: "preview",
+        VERCEL_BRANCH_URL: "rhm-git-x.vercel.app",
+        ...db,
+        ...cloud,
+      }),
     ).toMatchObject({ siteUrl: "https://rhm-git-x.vercel.app" });
   });
 
@@ -103,4 +114,34 @@ describe("parseEnv: database (Phase 7 spec, D7)", () => {
       expect((error as Error).message).not.toContain(secret);
     }
   });
+});
+
+describe("parseEnv: Cloudinary (Phase 8 spec, D4)", () => {
+  const site = { NEXT_PUBLIC_SITE_URL: "https://example.com" };
+
+  it("returns the cloud name and the Vercel environment", () => {
+    expect(parseEnv({ VERCEL_ENV: "preview", ...db, ...cloud })).toMatchObject({
+      cloudinaryCloudName: "test-cloud",
+      vercelEnv: "preview",
+    });
+  });
+
+  it("leaves it optional locally and in CI", () => {
+    expect(parseEnv({}).cloudinaryCloudName).toBeUndefined();
+  });
+
+  it.each(["preview", "production"])("requires it on Vercel %s", (VERCEL_ENV) => {
+    expect(() => parseEnv({ VERCEL_ENV, ...site, ...db })).toThrow(
+      /Required when VERCEL_ENV[\s\S]*NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME/,
+    );
+  });
+
+  it.each(["Lezxe6hz", "-abc", "has space", "a/b", "res.cloudinary.com", "a".repeat(65)])(
+    "rejects %j",
+    (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) => {
+      expect(() => parseEnv({ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME })).toThrow(
+        /Must be a Cloudinary cloud name/,
+      );
+    },
+  );
 });

@@ -15,7 +15,7 @@
 - [x] **Default privileges:** `rhm_app` can use tables that were never granted to it explicitly (D4)
 - [x] **TLS:** every URL has `sslmode=require`, the env check rejects one without it, Neon **refuses a plaintext connection** on both the pooled and direct hosts, a TLS connection with certificate verification succeeds, and the Neon driver uses `wss://` (D7). `pg_stat_ssl` is not a valid check on Neon, because it reports the proxy's internal hop to Postgres.
 - [x] **`server-only`:** importing `lib/db.ts` from a client component fails the build (negative test)
-- [ ] **Migrations from CI only:** after the merge, `migrate-preview` applies both migrations to `preview` (D11). Post-merge check: it can only run on the `develop` push, and is confirmed in the close-out.
+- [x] **Migrations from CI only:** after the merge, `migrate-preview` applies both migrations to `preview` (D11). Post-merge check: it can only run on the `develop` push, and is confirmed in the close-out. (Met: `develop` push run 38300618439 on `98035f5`; `ci`, `db`, `gitleaks` and `migrate-preview` all succeeded. Ticked in the Phase 8 branch, because `develop` only accepts PRs.)
 - [x] **Console 2FA:** Neon and Vercel sign-ins use 2FA (owner check) (owner, 2026-10-12)
 - [x] **Restore window confirmed:** 6 hours on Free, recorded in `tech-stack.md` (D10)
 
