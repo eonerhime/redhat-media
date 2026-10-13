@@ -25,9 +25,9 @@ export function testUrl(role: TestRole): string {
   return url;
 }
 
-/** Prisma client as rhm_app, the runtime role. */
-export function testPrisma(): PrismaClient {
-  return new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl("app") }) });
+/** Prisma client for one role; rhm_app (the runtime role) by default. */
+export function testPrisma(role: TestRole = "app"): PrismaClient {
+  return new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl(role) }) });
 }
 
 /** A connected `pg` client for one role, for privilege probes. */

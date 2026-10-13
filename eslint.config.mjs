@@ -12,6 +12,14 @@ const cloudinaryImport = {
   message: "Render images through <MediaImage> from @/components/media/media-image.",
 };
 
+// The server SDK holds the API secret: local scripts only until Phase 28
+// (Phase 9 spec, D6). A path, not a pattern: "cloudinary" as a pattern would
+// also match @/lib/media/cloudinary.
+const cloudinarySdk = {
+  name: "cloudinary",
+  message: "The cloudinary SDK is for scripts/ only until Phase 28 (Phase 9 spec, D6).",
+};
+
 // Pages read copy through block() and services through visibleServices() / visiblePillars()
 // (tech-stack.md → Architectural rules 3; Phase 3 spec, D7).
 const appImports = [
@@ -38,6 +46,19 @@ const appImports = [
   },
 ];
 
+// Videos go through <VideoEmbed>, so no iframe loads before a click (Phase 8 spec, D10).
+const iframeRule = {
+  selector: "JSXOpeningElement[name.name='iframe']",
+  message: "Embed videos with <VideoEmbed> from @/components/media/video-embed.",
+};
+
+// Off-site links go through <ExternalLink>, which checks https and sets
+// rel="noopener noreferrer" (Phase 9 spec, D4).
+const targetBlankRule = {
+  selector: "JSXAttribute[name.name='target'][value.value='_blank']",
+  message: "Link off-site with <ExternalLink> from @/components/shared/external-link.",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -53,31 +74,37 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    rules: { "no-restricted-imports": ["error", { patterns: [cloudinaryImport] }] },
+    rules: {
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [cloudinaryImport] }],
+    },
   },
   {
     files: ["app/**", "components/**"],
     rules: {
-      "no-restricted-imports": ["error", { patterns: [...appImports, cloudinaryImport] }],
+      "no-restricted-imports": [
+        "error",
+        { paths: [cloudinarySdk], patterns: [...appImports, cloudinaryImport] },
+      ],
     },
   },
   {
     files: ["components/media/**"],
-    rules: { "no-restricted-imports": ["error", { patterns: appImports }] },
+    rules: {
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: appImports }],
+    },
   },
   {
-    // Videos go through <VideoEmbed>, so no iframe loads before a click (Phase 8 spec, D10).
+    files: ["scripts/**"],
+    rules: { "no-restricted-imports": ["error", { patterns: [cloudinaryImport] }] },
+  },
+  {
     files: ["**/*.tsx", "**/*.jsx"],
     ignores: ["components/media/video-facade.tsx"],
-    rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "JSXOpeningElement[name.name='iframe']",
-          message: "Embed videos with <VideoEmbed> from @/components/media/video-embed.",
-        },
-      ],
-    },
+    rules: { "no-restricted-syntax": ["error", iframeRule, targetBlankRule] },
+  },
+  {
+    files: ["components/shared/external-link.tsx"],
+    rules: { "no-restricted-syntax": ["error", iframeRule] },
   },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lib/generated/**"]),
 ]);
