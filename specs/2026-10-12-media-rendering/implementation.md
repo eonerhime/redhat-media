@@ -28,6 +28,6 @@
 
 - `pnpm add` failed once on Windows with `os error 183` (directory already exists) while linking `@cloudinary/url-gen`; a retry succeeded.
 - e2e: splitting `srcset` on commas broke on Cloudinary URLs (`c_fill,w_640,…`); split only before each `https:`.
-- **Open — Fetched URL not restricted:** on 2026-10-13 a fresh `res.cloudinary.com/lezxe6hz/image/fetch/<wikimedia URL>` returned 200 (`desc=miss`), so Cloudinary fetched and served a third-party image. The owner needs to recheck Settings → Security → *Restricted media types* → *Fetched URL*, and save.
+- **Fetched URL not restricted (fixed):** on 2026-10-13 a fresh `res.cloudinary.com/lezxe6hz/image/fetch/<wikimedia URL>` returned 200 (`desc=miss`). The owner re-ticked and saved the setting; the same kind of request then returned `401` with `X-Cld-Error: Images of type fetch are restricted in this account`.
 - **Open — sample photo:** the owner placed `public/RedHat.Media 2 Lines.jpg` (the RedHat Media logo, 882×539) in the repo. It is not committed: `public/` is served from the site, and uploading from code needs the API secret (C3).
-- **Open — Vercel env:** `vercel env add` was blocked by the session permission check; the owner runs it or approves it.
+- **Vercel env (done):** the owner asked me to run `vercel env add`. Production took the documented form. For Preview, CLI 54.4.1 kept asking for a branch (`git_branch_required`) even with none given, until an explicit empty branch `""` was passed. `vercel env ls` now lists `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` on Preview and Production, beside `DATABASE_URL` and `RATE_LIMIT_SALT` (Preview); there is no Cloudinary key or secret.

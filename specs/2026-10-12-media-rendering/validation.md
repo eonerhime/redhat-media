@@ -12,7 +12,7 @@
 
 ## Security
 
-- [ ] **Fetched URL restricted:** a `res.cloudinary.com/{cloud}/image/fetch/https://…` request is refused (D2)
+- [x] **Fetched URL restricted:** a `res.cloudinary.com/{cloud}/image/fetch/https://…` request is refused (D2)
 - [ ] **Cloudinary 2FA:** the console sign-in uses 2FA (owner check)
 - [ ] **No Cloudinary secret anywhere:** `vercel env ls` shows `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` only, and gitleaks is green (C3)
 - [x] **Public IDs only:** unit tests show that `<MediaImage>`'s check rejects full URLs and IDs outside `rhm/{portfolio_item|service|page}/…` (D6)

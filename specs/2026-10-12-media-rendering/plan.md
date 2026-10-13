@@ -51,8 +51,8 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 ## 8. Owner setup and preview
 
 - [ ] 8.1 The owner completes *Owner setup* steps 1–5. I add the env var to Vercel Preview and Production (step 6).
-- [ ] 8.2 Check `res.cloudinary.com/{cloud}/image/fetch/…` is refused (D2).
-- [ ] 8.3 `vercel env ls` lists the cloud name and no Cloudinary key or secret (names only).
+- [x] 8.2 Check `res.cloudinary.com/{cloud}/image/fetch/…` is refused (D2).
+- [x] 8.3 `vercel env ls` lists the cloud name and no Cloudinary key or secret (names only).
 
 ## 9. Verify and open the PR
 
