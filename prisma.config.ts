@@ -10,7 +10,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
-    seed: "node prisma/seed.mts",
+    seed: "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON prisma/seed.mts",
   },
   datasource: {
     // Read directly rather than through env(), which throws when unset:
