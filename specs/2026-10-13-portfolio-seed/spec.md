@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 1, Phase 9
 - **Branch:** `feature/phase-09-portfolio-seed` (from `develop` at `0ab945d`)
 - **Started:** 2026-10-13
-- **Status:** approved by the owner, 2026-10-13 (credit line wording pending, question A)
+- **Status:** approved by the owner, 2026-10-13
 
 ## What and why
 
@@ -40,7 +40,7 @@ Given 2026-10-13:
 
 Given later on 2026-10-13, answering the questions asked with the draft:
 
-- **A. Credit line:** pending. The owner asked what "Engineering:" means; options were offered. Until answered, the draft value `Engineering: Emo Onerhime` stands.
+- **A. Credit line:** `Design & Engineering: Emo Onerhime`, for all five items.
 - **B. Featured:** SportsPred, toutMessages and AfroJamz, as drafted.
 - **C. Screenshots:** use the five files in `emo-onerhime/public/projects/` as they are. The phone number on the Abara cover is the owner's own business number and may be shown.
 - **D. Spec and Appendix A approved.** The owner created the Cloudinary API key and stored the key and secret in `.env.local` (*Owner setup* 2).
@@ -84,7 +84,7 @@ Given later on 2026-10-13, answering the questions asked with the draft:
 
 | # | Decision | Reason | Source |
 | --- | --- | --- | --- |
-| D1 | **Five items, all `WEB_APP`, all `published`.**<br>• **Order (`sortOrder`):** SportsPred, HireFlow, AfroJamz, toutMessages, Abara, which is the order on `emo-onerhime.vercel.app`.<br>• **Featured (owner question B):** SportsPred, toutMessages and AfroJamz. Phase 23 is the first phase to read the flag.<br>• **`publishedAt`:** a fixed date in the content file (2026-10-13), not `now()`, so re-runs change nothing.<br>• **Credit (owner question A):** `Engineering: Emo Onerhime`, matching the schema comment's example.<br>• **`client`:** empty. These are RHM's own products.<br>• **Live URLs:** the ones on `emo-onerhime.vercel.app`, each checked on 2026-10-13 (HTTP 200): `https://sportspred.ng`, `https://hireflow-track.vercel.app`, `https://afro-jamz.vercel.app`, `https://toutmessages.vercel.app` and `https://abara.vercel.app`.<br>• **Repo URL:** HireFlow only (`https://github.com/eonerhime/hireflow-track`). `gh repo view` shows the other four repositories are private.<br>• **Content:** Appendix A. Every highlight traces to a line in that product's README or to the text on `emo-onerhime.vercel.app`, and no metric is invented. Where the two sources disagree, the README wins. For example, AfroJamz's front end is React and Vite, not Next.js, and its "100+ tests" claim is left out because its own test table sums to 76. | Only real, checkable claims (*Guiding principles* 2). Private repositories cannot be linked. | Owner answers 1–2; READMEs (2026-10-13); `gh repo view` |
+| D1 | **Five items, all `WEB_APP`, all `published`.**<br>• **Order (`sortOrder`):** SportsPred, HireFlow, AfroJamz, toutMessages, Abara, which is the order on `emo-onerhime.vercel.app`.<br>• **Featured (owner question B):** SportsPred, toutMessages and AfroJamz. Phase 23 is the first phase to read the flag.<br>• **`publishedAt`:** a fixed date in the content file (2026-10-13), not `now()`, so re-runs change nothing.<br>• **Credit (owner question A):** `Design & Engineering: Emo Onerhime`.<br>• **`client`:** empty. These are RHM's own products.<br>• **Live URLs:** the ones on `emo-onerhime.vercel.app`, each checked on 2026-10-13 (HTTP 200): `https://sportspred.ng`, `https://hireflow-track.vercel.app`, `https://afro-jamz.vercel.app`, `https://toutmessages.vercel.app` and `https://abara.vercel.app`.<br>• **Repo URL:** HireFlow only (`https://github.com/eonerhime/hireflow-track`). `gh repo view` shows the other four repositories are private.<br>• **Content:** Appendix A. Every highlight traces to a line in that product's README or to the text on `emo-onerhime.vercel.app`, and no metric is invented. Where the two sources disagree, the README wins. For example, AfroJamz's front end is React and Vite, not Next.js, and its "100+ tests" claim is left out because its own test table sums to 76. | Only real, checkable claims (*Guiding principles* 2). Private repositories cannot be linked. | Owner answers 1–2; READMEs (2026-10-13); `gh repo view` |
 | D2 | **`isHttpsUrl(input)` and `httpsUrlSchema`** (`lib/validation/https-url.ts`):<br>• The input is trimmed and must be at most 2,048 characters. It is parsed with `new URL()`.<br>• The protocol must be `https:`. There must be no username or password, and no port other than the default.<br>• The host must be a domain name: at least one dot, not an IP literal and not `localhost`, and every label a valid DNS label (the URL parser alone accepts `a..b` and `a_b.com`; amended 2026-10-13).<br>• The schema outputs the normalised `url.href`.<br>• The rejection message names the reason (for example "Links must start with https://"). | One rule, used by the seed now and by the CMS later (Phase 31). An `http:` or `javascript:` link, or one carrying credentials, can never be stored. | Roadmap Phase 9; `tech-stack.md` → *Security baseline* |
 | D3 | **Content schemas** (`lib/portfolio/schema.ts`):<br>• `title` 1–80 characters; `slug` `^[a-z0-9]+(-[a-z0-9]+)*$`, at most 60;<br>• `summary` at most 200; `description` at most 1,200;<br>• `highlights` 3–6 entries, each at most 160; `techStack` 1–10 entries, each at most 40;<br>• `liveUrl` `httpsUrlSchema`; `repoUrl` optional, `httpsUrlSchema` with host `github.com`;<br>• `credit` at most 120;<br>• `cover`: a `source` file name (`.webp`, `.png`, `.jpg` or `.avif`) and `alt` text of 10–200 characters. The public ID is derived (D5), never written by hand.<br>The seed validates every item **before** opening a transaction, so bad content writes nothing. | The caps keep the Phase 10 cards and Phase 12 pages predictable, and Phase 31's `updateRecordField` reuses the same field rules. | `README.md` §5; `tech-stack.md` → *In-place CMS* |
 | D4 | **`<ExternalLink href>`** (`components/shared/external-link.tsx`, a server component):<br>• When `isHttpsUrl(href)` passes, it renders `<a href target="_blank" rel="noopener noreferrer">`. A visually hidden "(opens in a new tab)" follows the children.<br>• Otherwise it renders the children as plain text and logs a warning. It never renders the link.<br>• **Lint guard:** a JSX `target="_blank"` attribute is allowed only in `external-link.tsx` and `video-facade.tsx`, the Phase 8 facade (`no-restricted-syntax`). | The roadmap asks for `rel="noopener noreferrer"`. A single component, enforced by lint, makes that structural rather than a review checklist item. The render check protects against rows written before validation existed or edited directly in Studio. | Roadmap Phase 9 |
@@ -119,7 +119,7 @@ Do not paste the API secret, or any other secret, into the chat, and do not sele
 
 ## Appendix A — Seed content (for approval)
 
-All items: category `WEB_APP`, published, `publishedAt` 2026-10-13, credit `Engineering: Emo Onerhime` (question A).
+All items: category `WEB_APP`, published, `publishedAt` 2026-10-13, credit `Design & Engineering: Emo Onerhime` (question A).
 
 ### 1. SportsPred — featured
 

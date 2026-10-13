@@ -5,7 +5,7 @@
 
 import type { PortfolioSeedItem } from "../../lib/portfolio/schema.ts";
 
-const credit = "Engineering: Emo Onerhime";
+const credit = "Design & Engineering: Emo Onerhime";
 const publishedAt = "2026-10-13";
 
 export const portfolioSeed: readonly PortfolioSeedItem[] = [
