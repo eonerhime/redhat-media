@@ -46,7 +46,7 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 ## 7. End-to-end
 
 - [x] 7.1 `e2e/media.spec.ts`, with the routed stubs for the player hosts and `i.ytimg.com` (D12).
-- [ ] 7.2 The full `pnpm test:e2e` locally with `--workers=1`.
+- [x] 7.2 The full `pnpm test:e2e` locally with `--workers=1`.
 
 ## 8. Owner setup and preview
 
