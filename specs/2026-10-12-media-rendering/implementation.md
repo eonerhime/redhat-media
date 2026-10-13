@@ -14,6 +14,8 @@
   - **Plan 3.4:** the built `/dev/media` HTML has `<link rel="preload" as="image" imageSrcSet=…>` with `f_auto`/`q_auto` Cloudinary URLs, and the hero `<img>` has `fetchPriority="high"` and no `loading`. The second image has `loading="lazy"`. Thumbnails render from `i.ytimg.com` and `i.vimeocdn.com`; the robots meta is `noindex, nofollow`.
   - Route table: `develop` plus `/dev/media` (revalidate 1m / expire 1h while the blur lookup fails; it becomes static once the sample photo exists).
   - e2e (`--workers=1`): 196 passed, 2 failed. Both failures are the hero tests that need the sample photo in Cloudinary (`naturalWidth` 0, no blur placeholder).
+- PR #11 opened; CI green on the first run (`ci` 1m54s, `db`, `gitleaks`, `preview-headers`, Vercel Ready). Owner checked the preview: the photo is sharp at mobile and desktop widths, the blur shows on a throttled reload, and both videos play after one click.
+  - 2FA: on for Cloudinary email/password sign-in. The owner uses Google OAuth, where the Google account's 2-Step Verification applies instead.
 
 ## Deviations
 
