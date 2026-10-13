@@ -42,5 +42,6 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 - Never put a secret in a `NEXT_PUBLIC_*` variable.
 - `dangerouslySetInnerHTML`, `$queryRawUnsafe` and `$executeRawUnsafe` are banned by lint.
 - Security headers and the CSP live in `lib/security/headers.ts`. Change them only together with their test and `specs/tech-stack.md`.
+- Images go through `<MediaImage>` (Cloudinary public IDs under `rhm/…`) and videos through `<VideoEmbed>` (`components/media/`). Lint blocks direct `next-cloudinary` imports and `<iframe>` elsewhere.
 - No custom `webpack` config, because Turbopack is the default bundler.
 - TypeScript stays on 6.0.x until `typescript-eslint` supports 7.

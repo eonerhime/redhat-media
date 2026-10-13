@@ -5,6 +5,39 @@ import nextTs from "eslint-config-next/typescript";
 const rawUnsafe =
   "Use Prisma's tagged $queryRaw / $executeRaw templates instead (specs/tech-stack.md).";
 
+// Images go through <MediaImage>, which checks the public ID and adds the blur
+// placeholder (Phase 8 spec, D10).
+const cloudinaryImport = {
+  group: ["next-cloudinary", "next-cloudinary/*"],
+  message: "Render images through <MediaImage> from @/components/media/media-image.",
+};
+
+// Pages read copy through block() and services through visibleServices() / visiblePillars()
+// (tech-stack.md → Architectural rules 3; Phase 3 spec, D7).
+const appImports = [
+  {
+    group: ["**/content/defaults"],
+    message: "Read copy through block() from @/lib/content/block.",
+  },
+  {
+    group: ["**/content/services"],
+    importNames: ["services"],
+    allowTypeImports: true,
+    message: "Read services through visibleServices() / visiblePillars().",
+  },
+  {
+    // Database access goes through server modules in lib/ (Phase 7 spec, D6).
+    // Model types may still be imported.
+    group: ["**/lib/generated/**"],
+    allowTypeImports: true,
+    message: "Query the database through a server module in lib/ (getDb()).",
+  },
+  {
+    group: ["@prisma/*", "@neondatabase/serverless", "pg"],
+    message: "Database drivers stay in lib/db.ts (Phase 7 spec, D6).",
+  },
+];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -20,36 +53,28 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // Pages read copy through block() and services through visibleServices() / visiblePillars()
-    // (tech-stack.md → Architectural rules 3; Phase 3 spec, D7).
+    rules: { "no-restricted-imports": ["error", { patterns: [cloudinaryImport] }] },
+  },
+  {
     files: ["app/**", "components/**"],
     rules: {
-      "no-restricted-imports": [
+      "no-restricted-imports": ["error", { patterns: [...appImports, cloudinaryImport] }],
+    },
+  },
+  {
+    files: ["components/media/**"],
+    rules: { "no-restricted-imports": ["error", { patterns: appImports }] },
+  },
+  {
+    // Videos go through <VideoEmbed>, so no iframe loads before a click (Phase 8 spec, D10).
+    files: ["**/*.tsx", "**/*.jsx"],
+    ignores: ["components/media/video-facade.tsx"],
+    rules: {
+      "no-restricted-syntax": [
         "error",
         {
-          patterns: [
-            {
-              group: ["**/content/defaults"],
-              message: "Read copy through block() from @/lib/content/block.",
-            },
-            {
-              group: ["**/content/services"],
-              importNames: ["services"],
-              allowTypeImports: true,
-              message: "Read services through visibleServices() / visiblePillars().",
-            },
-            {
-              // Database access goes through server modules in lib/ (Phase 7 spec, D6).
-              // Model types may still be imported.
-              group: ["**/lib/generated/**"],
-              allowTypeImports: true,
-              message: "Query the database through a server module in lib/ (getDb()).",
-            },
-            {
-              group: ["@prisma/*", "@neondatabase/serverless", "pg"],
-              message: "Database drivers stay in lib/db.ts (Phase 7 spec, D6).",
-            },
-          ],
+          selector: "JSXOpeningElement[name.name='iframe']",
+          message: "Embed videos with <VideoEmbed> from @/components/media/video-embed.",
         },
       ],
     },
