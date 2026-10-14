@@ -16,7 +16,7 @@
 - [x] **Links safe:** every live link has `target="_blank"` and `rel="noopener noreferrer"` (D4) — asserted per card in `portfolio.spec.ts`
 - [x] **Motion:** the hover lift and zoom run normally and are absent under `prefers-reduced-motion` (D4) — hover test: `translate`/`scale` set with motion allowed, `none` under reduce
 - [x] **Keyed text:** every visible string on `/portfolio` is a content key or seeded database content (D9) — `portfolio.spec.ts` and `service-pages.spec.ts` keyed-text checks
-- [ ] **Owner preview check:** the owner viewed `/portfolio` and the Web & App service page on the preview and approved them (owner check)
+- [x] **Owner preview check:** the owner viewed `/portfolio` and the Web & App service page on the preview and approved them (owner check) — owner confirmed 2026-10-14: five cards with the hover lift, and related work showing SportsPred, AfroJamz and toutMessages
 
 ## Accessibility and layout
 
@@ -35,4 +35,4 @@
 ## Spec hygiene
 
 - [x] The `tech-stack.md`, Phase 5 and Phase 8 spec, and `CLAUDE.md` amendments are in the same PR — commit 81c20c4
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations — plan 0.1–4.4 ticked; deviations in the 2026-10-14 log entries
