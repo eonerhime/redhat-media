@@ -33,7 +33,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 | Unit tests | Vitest (validation, utilities, video-URL parsing, rate limiter, server-action logic, auth guards) |
 | Database tests | `pnpm test:db` runs the `*.db.test.ts` files (rate limiter, role privileges) against a real Postgres 17: a service container in the CI `db` job, Docker locally, or the Neon `dev` branch. They connect through **`@prisma/adapter-pg` + `pg`** (devDependencies, used by tests and scripts only; the runtime stays on `@prisma/adapter-neon`). |
 | E2E / smoke tests | Playwright (`@playwright/test`, Chromium), run in the CI `ci` job after `pnpm build`. From Phase 1: layout at 360/768/1440px, rendered contrast, reduced motion and mobile nav. Later: smoke test (Phase 15), portfolio → inquiry submit and edit-mode happy paths. |
-| Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). **Archivo** (wordmark and headings) and **Inter** (body), both variable, `latin` subset, `display: swap`. |
+| Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). **Archivo** (headings) and **Inter** (body), both variable, `latin` subset, `display: swap`. |
 | Analytics | Vercel Analytics + Speed Insights |
 | Bot / spam protection | Turnstile (verified on the server) + honeypot + minimum time-to-submit + database-backed rate limit on every public form, from the first form (Phase 18). |
 | Edge protection | Vercel Firewall (managed bot rules, plus custom rate-limit rules where the plan allows) and an Attack Challenge Mode runbook. |
@@ -80,11 +80,11 @@ Defined once in the `app/globals.css` `@theme` block. Tailwind's default colour 
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-brand` | `#ed1c24` | Wordmark "RED", large display accents, focus rings |
+| `--color-brand` | `#ed1c24` | Large display accents, focus rings |
 | `--color-brand-deep` | `#d0181f` | Primary button fills |
 | `--color-ink` | `#1a1a1a` | Page background (dark theme base) |
 | `--color-fg` | `#f5f5f5` | Body text, headings, button labels |
-| `--color-muted` | `#808285` | Wordmark "HAT", secondary text ≥ 16px, on `ink` only |
+| `--color-muted` | `#808285` | Secondary text ≥ 16px, on `ink` only |
 | `--color-line` | `#2e2e2e` | Decorative dividers and borders only, never text |
 
 **Contrast (WCAG 2.x ratios, measured in Phase 1):**
@@ -100,7 +100,7 @@ Defined once in the `app/globals.css` `@theme` block. Tailwind's default colour 
 
 An automated check (a Vitest pairing test plus a Playwright test of every rendered text element) enforces these from Phase 1.
 
-**Logo:** there is no logo file (roadmap open question 1, answered 2026-10-09). The header keeps the CSS wordmark from the current site ("RED" in `brand`, "HAT" in `muted`, "MEDIA" underneath), set in Archivo. The favicon and Apple touch icon are static PNGs (`app/icon.png`, `app/apple-icon.png`) cut from the owner's red-hat silhouette, `public/MIRH.jpg` (Phase 1 spec, D1 as amended 2026-10-10).
+**Logo:** the header shows the owner's RedHat Media logo as a light-on-dark variant, `public/brand/logo.png` (transparent; "MEDIA" and the silhouette in `fg`, the red and grey as designed), rendered with `next/image` and `loading="eager"`. It replaced the CSS wordmark on 2026-10-14 (roadmap open question 1). It is the one image that does not go through `<MediaImage>` or Cloudinary, so the header makes no third-party request. The owner's source files are not committed. A redesign means re-rendering that file (Phase 1 spec, D1 as amended 2026-10-14). The favicon and Apple touch icon are static PNGs (`app/icon.png`, `app/apple-icon.png`) cut from the owner's red-hat silhouette, `public/MIRH.jpg` (Phase 1 spec, D1 as amended 2026-10-10).
 
 ## Security baseline (built in from Phase 0, not bolted on)
 

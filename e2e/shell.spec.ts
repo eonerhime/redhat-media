@@ -81,8 +81,14 @@ for (const route of routes)
         expect(overflow).toBe(0);
       });
 
-      test("shows the wordmark, nav mode and footer details", async ({ page }) => {
-        await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeVisible();
+      test("shows the logo, nav mode and footer details", async ({ page }) => {
+        // The owner's logo, not a CSS wordmark (Phase 1 spec, D1 as amended 2026-10-14).
+        const logo = page.getByRole("link", { name: "RedHat Media home" }).getByRole("img");
+        await expect(logo).toBeVisible();
+        await expect(logo).not.toHaveAttribute("loading", "lazy");
+        await expect
+          .poll(() => logo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth))
+          .toBeGreaterThan(0);
 
         const menuButton = page.getByRole("button", { name: "Menu" });
         const nav = page.getByRole("navigation", { name: "Main" });

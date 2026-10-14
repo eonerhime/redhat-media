@@ -56,3 +56,13 @@ Run each as an uncommitted change, then revert.
 - [x] The built `/` head links `icon.png` (32×32, `image/png`) and `apple-icon.png` (180×180)
 - [x] CI is green on the PR
 - [x] Owner: the Vercel preview shows the red-hat favicon in the browser tab
+
+## Amendment 2026-10-14: logo replaces the CSS wordmark
+
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check` and `pnpm test` pass (679)
+- [x] `pnpm build` passes, with the same route table as `develop`
+- [x] `pnpm test:e2e` passes, including the logo checks (visible, not lazy, loaded) at 360, 768 and 1440px — 198/198 (`--workers=1`)
+- [x] The header link "RedHat Media home" wraps an `<img>` served from `/_next/image` (`'self'`, so no CSP change) — `pnpm start`: 1x `w=128` and 2x `w=256` in the `srcset`, both 200 `image/webp` (4.9 KB, 9.6 KB), `loading="eager"`
+- [x] The owner's source files (`public/RedHat.Media 2 Lines.jpg`, `public/RedHat.Media 2L Gmail Profile - png.png`) are not in the diff
+- [x] CI is green on the PR — PR #13, run 38561892803 (`ci`, `db`, `gitleaks`), `preview-headers`, Vercel Ready
+- [x] Owner: the Vercel preview shows the logo on the dark header at phone and desktop widths (owner, 2026-10-14: pass)

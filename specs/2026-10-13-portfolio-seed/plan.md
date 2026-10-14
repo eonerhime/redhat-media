@@ -40,5 +40,5 @@ Scope, decisions (D1–D11) and constraints (C1–C5) are in [`spec.md`](spec.md
 
 - [x] 5.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1`. — all pass; unit 679/679, e2e 198/198.
 - [x] 5.2 `pnpm test:db` locally against the dev branch URLs, if available, otherwise in CI. — run against a local `postgres:17` container that replicates the CI `db` job: 23 passed.
-- [ ] 5.3 PR into `develop`, CI green, every `validation.md` box ticked.
-- [ ] 5.4 After the merge, the `develop` push runs `migrate-preview`, which seeds `preview`. Tick "Preview seeded" on the next phase's first commit if it lands after the merge (as with Phase 7).
+- [x] 5.3 PR into `develop`, CI green, every `validation.md` box ticked.
+- [x] 5.4 After the merge, the `develop` push runs `migrate-preview`, which seeds `preview`. Tick "Preview seeded" on the next phase's first commit if it lands after the merge (as with Phase 7).

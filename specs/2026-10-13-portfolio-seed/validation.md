@@ -14,7 +14,7 @@
 
 - [x] **Idempotent:** `seed.db.test.ts` shows a second run creates nothing and leaves a row created outside the seed untouched. A second `pnpm db:seed` on `dev` reports 0 created (D7, D9)
 - [x] **Validated before writing:** a unit test shows that invalid content throws before any database call (D3) — `schema.test.ts` (parse throws) and `seed.db.test.ts` (row count unchanged)
-- [ ] **Preview seeded:** after the merge, the `develop` push run of `migrate-preview` passes its `pnpm db:seed` step (D8)
+- [x] **Preview seeded:** after the merge, the `develop` push run of `migrate-preview` passes its `pnpm db:seed` step (D8) — run 38474994416 (`develop` push of `5bb3cee`), step "Seed the Neon preview branch" passed
 
 ## Security
 
@@ -34,4 +34,4 @@
 ## Spec hygiene
 
 - [x] The `tech-stack.md`, `roadmap.md` and `CLAUDE.md` amendments are in the same PR
-- [ ] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+- [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
