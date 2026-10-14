@@ -30,5 +30,5 @@ Scope, decisions (D1–D9) and constraints (C1–C6) are in [`spec.md`](spec.md)
 
 - [x] 4.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then unavailable). — unit 758/758; e2e ready 240 + 1 skipped, unavailable 233 + 8 skipped.
 - [x] 4.2 `pnpm test:db` against a local `postgres:17` container (unchanged suite; confirms C3). — 24 passed.
-- [ ] 4.3 PR into `develop`: CI green, `preview-e2e` green on the Vercel preview.
+- [x] 4.3 PR into `develop`: CI green, `preview-e2e` green on the Vercel preview. — PR #15; runs 38617768204 and 38617874084 (`preview-e2e` 18 passed, 1 skipped).
 - [ ] 4.4 Owner check on the preview (filter bar, shared link, reload), then every `validation.md` box ticked.
