@@ -16,7 +16,7 @@ export type TokenPairing = {
 export const tokenPairings: readonly TokenPairing[] = [
   { fg: "fg", bg: "ink", min: TEXT_MIN_RATIO, use: "body text and headings" },
   { fg: "muted", bg: "ink", min: TEXT_MIN_RATIO, use: "secondary text ≥ 16px" },
-  { fg: "brand", bg: "ink", min: LARGE_TEXT_MIN_RATIO, use: "wordmark and large accents" },
+  { fg: "brand", bg: "ink", min: LARGE_TEXT_MIN_RATIO, use: "large accents" },
   { fg: "brand", bg: "ink", min: UI_MIN_RATIO, use: "focus ring" },
   { fg: "fg", bg: "brand-deep", min: TEXT_MIN_RATIO, use: "button labels" },
   { fg: "brand-deep", bg: "ink", min: UI_MIN_RATIO, use: "button edge" },

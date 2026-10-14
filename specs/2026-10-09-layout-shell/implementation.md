@@ -82,3 +82,15 @@
 - `public/MIRH.jpg` is committed as the source and is served at `/MIRH.jpg`. Its embedded metadata was checked first: only Photoshop history IDs and print settings, with no GPS, author or path. The generated PNGs carry no metadata.
 - PR #5 (`56d5675`) was updated with `develop` (`713c193`, after Phase 2 and Phase 3 merged). CI is green on both heads.
 - Owner check (2026-10-10): the red-hat favicon is visible in the browser tab on the deployment URL `redhat-media-6zootvyon-e1rhyme.vercel.app`. The #6 preview had not shown it, because #6 did not contain this change. The validation is fully ticked.
+
+## Amendment 2026-10-14: logo replaces the CSS wordmark
+
+- The owner asked for the real RedHat Media logo in place of the CSS wordmark (Phase 9 spec, D11). The source, `public/RedHat.Media 2 Lines.jpg` (882×539), is designed for white: "MEDIA" and the silhouette are black, and would vanish on `ink`.
+- The owner chose a **light-on-dark variant** over a white panel or waiting for a designer SVG, and a **committed derived file** over Cloudinary.
+- `public/brand/logo.png` (480×275, 27 KB, transparent, no metadata) was rendered once with `sharp` (already installed by Next). The logo has three inks: red `#ff0000`, grey `#797979` and black. Pixels next to the white background are un-mixed from white into alpha. Neutral pixels are assigned to grey or black by the nearest solid region. Black becomes `fg` (`#f5f5f5`). Interior black–grey and red–black edges stay opaque, so the silhouette over the "T" has no dark fringe. The result was trimmed to its content. It was previewed on `ink` at 56px, 112px and 4× zoom on the silhouette before it was committed.
+- `components/wordmark.tsx` became `components/logo.tsx`. It uses `next/image` with a static import, `width={98} height={56}`, `h-12` below `md` and `h-14` from `md`, and `loading="eager"` rather than `preload`, because the logo is not the LCP element. The alt text "RedHat Media home" is now the link's accessible name, so the link's `aria-label` was removed.
+- The header padding changed from `py-4` to `py-3`, so the header's height is about the same (72px on phones, 80px from `md`, against 70 and 78 before).
+- `lib/design/tokens.ts`: the `brand` on `ink` pairing's label no longer mentions the wordmark. The pairing itself is unchanged.
+- `e2e/shell.spec.ts`: the shell test now checks that the logo image is visible, not lazy, and loaded (`naturalWidth > 0`) at every width.
+- Constitution: `tech-stack.md` (the logo note, token uses, fonts row), `roadmap.md` (Phase 1 row, open question 1 done) and `CLAUDE.md` (the `<MediaImage>` rule names the logo as its one exception).
+- The owner's source files stay untracked in `public/` and are not part of this PR.
