@@ -39,6 +39,10 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+        env:
+          # The build has no database, so /portfolio prerenders its unavailable
+          # state; the ready state is checked on the Vercel preview (Phase 10 spec, D11).
+          E2E_PORTFOLIO_STATE: unavailable
       - name: Dependency audit (fails on high/critical)
         run: pnpm audit --prod --audit-level high
 

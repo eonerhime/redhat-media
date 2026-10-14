@@ -133,10 +133,29 @@ describe("verbatim port of the legacy page", () => {
       "about.sdd.body",
       "about.sdd.link",
     ];
+    const phase10Keys = [
+      "services.detail.work.heading",
+      "services.detail.work.link",
+      "portfolio.meta.description",
+      "portfolio.heading",
+      "portfolio.intro",
+      "portfolio.tech",
+      "portfolio.live",
+      "portfolio.loading",
+      "portfolio.empty",
+      "portfolio.unavailable",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
-      [...pillarKeys, ...phase3Keys, ...phase4Keys, ...phase5Keys, ...phase6Keys].sort(),
+      [
+        ...pillarKeys,
+        ...phase3Keys,
+        ...phase4Keys,
+        ...phase5Keys,
+        ...phase6Keys,
+        ...phase10Keys,
+      ].sort(),
     );
   });
 });

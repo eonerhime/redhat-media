@@ -43,6 +43,14 @@ export function pillarOf(service: Service): Pillar {
   return pillar;
 }
 
+// Every service, muted included, by category: portfolio items keep their category label while
+// their service is muted (Architectural rules 3; Phase 10 spec, D4). Labels only, never visibility.
+export function serviceByCategory(category: ServiceCategory): Service {
+  const service = services.find((s) => s.category === category);
+  if (!service) throw new Error(`Unknown service category: ${category}`);
+  return service;
+}
+
 // Static params only: every slug, muted included, so unmuting needs no redeploy
 // (Architectural rules 3; Phase 5 spec, D1). Slugs only, never copy.
 export function allServiceSlugs(): readonly string[] {

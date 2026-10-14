@@ -36,6 +36,7 @@ describe("isRhmPublicId (Phase 8 spec, D6)", () => {
 describe("heightFor", () => {
   it.each([
     ["16/9", 900],
+    ["16/10", 1000],
     ["4/3", 1200],
     ["3/2", 1067],
     ["1/1", 1600],
@@ -46,7 +47,7 @@ describe("heightFor", () => {
   });
 
   it("covers every aspect", () => {
-    expect(Object.keys(ASPECTS)).toHaveLength(6);
+    expect(Object.keys(ASPECTS)).toHaveLength(7);
   });
 });
 

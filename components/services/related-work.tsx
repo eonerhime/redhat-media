@@ -1,8 +1,37 @@
+import Link from "next/link";
+import { PortfolioGrid } from "@/components/portfolio/portfolio-grid";
 import type { ServiceCategory } from "@/content/services";
+import { block } from "@/lib/content/block";
+import { relatedTo } from "@/lib/portfolio/read-core";
+import { getPublishedPortfolio } from "@/lib/portfolio/read";
 
-// The service page's related-work slot (roadmap Phase 5). It renders nothing until Phase 10 fills
-// it with published portfolio items in this category and adds its heading key (Phase 5 spec, D6).
+// The service page's related-work slot (Phase 5 spec, D6; filled by Phase 10 spec, D8): up to three
+// published items in this category, featured first. It renders nothing when the category has none
+// or the read failed, so a service page never shows placeholder work or breaks.
 export async function RelatedWork({ category }: { category: ServiceCategory }) {
-  void category;
-  return null;
+  const result = await getPublishedPortfolio();
+  const cards = result.ok ? relatedTo(result.cards, category) : [];
+  if (cards.length === 0) return null;
+
+  const [heading, link] = await Promise.all([
+    block("services.detail.work.heading"),
+    block("services.detail.work.link"),
+  ]);
+  return (
+    <section aria-labelledby="work-heading" className="container-page border-t border-line py-16">
+      <h2 id="work-heading" className="font-display text-display-2 font-extrabold">
+        {heading}
+      </h2>
+      <div className="mt-8">
+        <PortfolioGrid cards={cards} headingLevel={3} />
+      </div>
+      {/* Phase 11 points this at the filtered URL. */}
+      <Link
+        href="/portfolio"
+        className="mt-8 inline-block font-semibold underline decoration-brand decoration-2 underline-offset-8"
+      >
+        {link}
+      </Link>
+    </section>
+  );
 }

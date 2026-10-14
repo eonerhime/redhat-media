@@ -11,6 +11,8 @@ export function isRhmPublicId(id: string): boolean {
 /** The slots images are cropped to, so layout never shifts (D5). */
 export const ASPECTS = {
   "16/9": [16, 9],
+  // The seeded portfolio covers are 1200×750 (Phase 10 spec, D4).
+  "16/10": [16, 10],
   "4/3": [4, 3],
   "3/2": [3, 2],
   "1/1": [1, 1],

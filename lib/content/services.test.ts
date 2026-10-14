@@ -149,6 +149,26 @@ describe("allServiceSlugs() and visibleServiceBySlug()", () => {
     expect(await visibleServiceBySlug("")).toBeUndefined();
   });
 
+  it("serviceByCategory() finds every category, muted ones included", async () => {
+    vi.resetModules();
+    vi.doMock("../../content/services", async (importOriginal) => {
+      const actual = await importOriginal<typeof import("../../content/services")>();
+      return {
+        ...actual,
+        services: actual.services.map((s) =>
+          s.category === "WEB_APP" ? { ...s, muted: true } : s,
+        ),
+      };
+    });
+    const { serviceByCategory } = await import("./services");
+
+    for (const category of serviceCategories) {
+      expect(serviceByCategory(category).category).toBe(category);
+    }
+    expect(serviceByCategory("WEB_APP").muted).toBe(true);
+    expect(() => serviceByCategory("BRANDING" as never)).toThrow("Unknown service category");
+  });
+
   it("keep a muted slug in the static params but hide its service", async () => {
     vi.resetModules();
     vi.doMock("../../content/services", async (importOriginal) => {
