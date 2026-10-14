@@ -2,6 +2,14 @@ import { expect, type Page } from "@playwright/test";
 import { defaults } from "../content/defaults";
 import { services } from "../content/services";
 import { resolveVisibility } from "../lib/content/services";
+import {
+  ALL,
+  applyFilter,
+  filterForCategory,
+  filterHref,
+  parseFilter,
+  visibleFilters,
+} from "../lib/portfolio/filters";
 import { siteName } from "../lib/site";
 import { expectOnlyKeyedText } from "./keyed-text";
 import { cardTexts, expectedRelated, portfolioState, seedCards, test } from "./portfolio-expect";
@@ -99,6 +107,100 @@ test.describe("/portfolio", () => {
   });
 });
 
+// Phase 11 "Done when": filtered URLs are shareable and survive reload, and empty categories
+// never show (Phase 11 spec, D3, D4, D9).
+const filterBar = (page: Page) =>
+  page.getByRole("navigation", { name: defaults["portfolio.filter.label"], exact: true });
+const webApps = parseFilter("web-apps");
+const titlesFor = (slug: string | null) =>
+  applyFilter(seedCards, slug ? parseFilter(slug) : ALL).map((card) => card.title);
+
+async function expectFilter(page: Page, slug: string | null) {
+  await expect(listing(page)).toHaveAttribute("data-filter", slug ?? "all");
+  const current = filterBar(page).locator("[aria-current=page]");
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveAttribute("href", filterHref(slug ? parseFilter(slug) : ALL));
+  await expect(cards(page).getByRole("heading", { level: 2 })).toHaveText(titlesFor(slug));
+}
+
+test.describe("/portfolio filters (Phase 11)", () => {
+  test("shows only All and the filters that have items", async ({ page }) => {
+    test.skip((await portfolioState(page)) !== "ready", "needs published items");
+    await expect(filterBar(page).getByRole("link")).toHaveText(
+      visibleFilters(seedCards).map((filter) => defaults[filter.labelKey]),
+    );
+    await expectFilter(page, null);
+  });
+
+  test("a chosen filter is in the URL, keeps focus and scroll, and survives a reload", async ({
+    page,
+  }) => {
+    test.skip((await portfolioState(page)) !== "ready", "needs published items");
+    await page.setViewportSize({ width: 1440, height: 600 });
+    const link = filterBar(page).getByRole("link", {
+      name: defaults[webApps.labelKey],
+      exact: true,
+    });
+    await link.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 100));
+    const scrollY = await page.evaluate(() => window.scrollY);
+    expect(scrollY).toBeGreaterThan(0);
+
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/portfolio\?category=web-apps$/);
+    await expectFilter(page, "web-apps");
+    await expect(
+      filterBar(page).getByRole("link", { name: defaults[webApps.labelKey], exact: true }),
+    ).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
+
+    await page.reload();
+    await expectFilter(page, "web-apps");
+  });
+
+  // With JavaScript off, the server HTML is what a crawler or a shared link first receives. The
+  // streamed listing sits in a hidden node until React's inline script reveals it, so these are
+  // CSS locators, which also match hidden elements (Phase 11 spec, D2).
+  test.describe("server HTML", () => {
+    test.use({ javaScriptEnabled: false });
+
+    test("a shared filtered URL arrives already filtered", async ({ page }) => {
+      test.skip((await portfolioState(page)) !== "ready", "needs published items");
+      await page.goto(filterHref(webApps));
+      const html = page.locator("[data-testid=portfolio-listing]");
+      await expect(html).toHaveAttribute("data-filter", "web-apps");
+      await expect(html.locator("nav a[aria-current=page]")).toHaveAttribute(
+        "href",
+        filterHref(webApps),
+      );
+      expect(await html.locator("article h2").allTextContents()).toEqual(titlesFor("web-apps"));
+    });
+  });
+
+  for (const query of [
+    "category=photography",
+    "category=nope",
+    "category=Web-Apps",
+    "category=web-apps&category=photography",
+  ]) {
+    test(`?${query} shows All`, async ({ page }) => {
+      test.skip((await portfolioState(page)) !== "ready", "needs published items");
+      await page.goto(`/portfolio?${query}`);
+      await expectFilter(page, null);
+    });
+  }
+
+  test("no bar when the portfolio is unavailable or empty, whatever the URL", async ({ page }) => {
+    const state = await portfolioState(page);
+    test.skip(state === "ready", "needs the unavailable or empty state");
+    await page.goto(filterHref(webApps));
+    await expect(listing(page)).toHaveAttribute("data-state", state);
+    await expect(filterBar(page)).toHaveCount(0);
+    await expect(cards(page)).toHaveCount(0);
+  });
+});
+
 test.describe("related work on service pages (D8)", () => {
   for (const service of resolveVisibility(services)) {
     test(`/services/${service.slug}`, async ({ page }) => {
@@ -115,7 +217,7 @@ test.describe("related work on service pages (D8)", () => {
       await expect(section.getByRole("heading", { level: 3 })).toHaveText(titles);
       await expect(
         section.getByRole("link", { name: defaults["services.detail.work.link"], exact: true }),
-      ).toHaveAttribute("href", "/portfolio");
+      ).toHaveAttribute("href", filterHref(filterForCategory(service.category)));
     });
   }
 });

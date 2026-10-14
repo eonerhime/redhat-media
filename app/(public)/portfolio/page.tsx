@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PortfolioListing } from "@/components/portfolio/portfolio-grid";
+import { PortfolioSkeleton } from "@/components/portfolio/portfolio-skeleton";
 import { Cta } from "@/components/shared/cta";
 import { block } from "@/lib/content/block";
+import { parseFilter } from "@/lib/portfolio/filters";
 import { getPublishedPortfolio } from "@/lib/portfolio/read";
 import { siteName } from "@/lib/site";
 
+// Metadata does not read searchParams, so it stays static for every filter (Phase 11 spec, D2).
 export async function generateMetadata(): Promise<Metadata> {
   const description = await block("portfolio.meta.description");
   return { title: `Portfolio | ${siteName}`, description };
 }
 
-// Every published item, prerendered from one cached read (Phase 10 spec, D2, D3). An unreachable
-// database gives the unavailable state rather than a failed build.
-export default async function PortfolioPage() {
-  const [heading, intro, result] = await Promise.all([
+// The heading, intro and CTA are the static shell. The listing reads ?category= inside
+// <Suspense>, so it renders per request from the one cached read (Phase 11 spec, D2; Phase 10
+// spec, D2, D3). An unreachable database gives the unavailable state, not a failed render.
+export default async function PortfolioPage({ searchParams }: PageProps<"/portfolio">) {
+  const [heading, intro] = await Promise.all([
     block("portfolio.heading"),
     block("portfolio.intro"),
-    getPublishedPortfolio(),
   ]);
   return (
     <>
@@ -27,11 +31,18 @@ export default async function PortfolioPage() {
         <p className="mt-6 max-w-2xl text-lg text-muted">{intro}</p>
       </section>
       <div className="container-page pb-16 md:pb-24">
-        <PortfolioListing result={result} />
+        <Suspense fallback={<PortfolioSkeleton filterBar />}>
+          <PortfolioResults searchParams={searchParams} />
+        </Suspense>
       </div>
       <div className="border-t border-line">
         <Cta />
       </div>
     </>
   );
+}
+
+async function PortfolioResults({ searchParams }: Pick<PageProps<"/portfolio">, "searchParams">) {
+  const [{ category }, result] = await Promise.all([searchParams, getPublishedPortfolio()]);
+  return <PortfolioListing result={result} filter={parseFilter(category)} />;
 }

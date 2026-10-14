@@ -145,6 +145,14 @@ describe("verbatim port of the legacy page", () => {
       "portfolio.empty",
       "portfolio.unavailable",
     ];
+    const phase11Keys = [
+      "portfolio.filter.label",
+      "portfolio.filter.all",
+      "portfolio.filter.webApps",
+      "portfolio.filter.photography",
+      "portfolio.filter.videography",
+      "portfolio.filter.marketing",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -155,6 +163,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase5Keys,
         ...phase6Keys,
         ...phase10Keys,
+        ...phase11Keys,
       ].sort(),
     );
   });
