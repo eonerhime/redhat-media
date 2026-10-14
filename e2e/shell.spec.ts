@@ -8,14 +8,15 @@ import { contact, navItems } from "../lib/site";
 const widths = [360, 768, 1440] as const;
 const MD = 768;
 // Every built page gets the layout and contrast checks (Phase 4 spec, D6), including each
-// visible service page (Phase 5 spec, D8), /about (Phase 6 spec, D9) and /portfolio (Phase 10
-// spec, D10).
+// visible service page (Phase 5 spec, D8), /about (Phase 6 spec, D9), /portfolio (Phase 10
+// spec, D10) and a filtered /portfolio (Phase 11 spec, D9).
 const routes = [
   "/",
   "/services",
   ...resolveVisibility(services).map((s) => `/services/${s.slug}`),
   "/about",
   "/portfolio",
+  "/portfolio?category=web-apps",
 ];
 
 /** Scrolls to the bottom and returns the header's top edge relative to the viewport. */

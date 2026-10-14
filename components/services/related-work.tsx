@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PortfolioGrid } from "@/components/portfolio/portfolio-grid";
 import type { ServiceCategory } from "@/content/services";
 import { block } from "@/lib/content/block";
+import { filterForCategory, filterHref } from "@/lib/portfolio/filters";
 import { relatedTo } from "@/lib/portfolio/read-core";
 import { getPublishedPortfolio } from "@/lib/portfolio/read";
 
@@ -25,9 +26,9 @@ export async function RelatedWork({ category }: { category: ServiceCategory }) {
       <div className="mt-8">
         <PortfolioGrid cards={cards} headingLevel={3} />
       </div>
-      {/* Phase 11 points this at the filtered URL. */}
+      {/* The filtered view of this category; it has items, so its filter is shown (Phase 11 spec, D7). */}
       <Link
-        href="/portfolio"
+        href={filterHref(filterForCategory(category))}
         className="mt-8 inline-block font-semibold underline decoration-brand decoration-2 underline-offset-8"
       >
         {link}

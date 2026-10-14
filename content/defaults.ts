@@ -175,4 +175,12 @@ export const defaults = {
   "portfolio.empty": "No projects are published yet. Tell us about yours.",
   "portfolio.unavailable":
     "The portfolio could not be loaded just now. Please try again in a few minutes.",
+
+  // Phase 11 filter bar (owner-approved, Phase 11 spec, Appendix A).
+  "portfolio.filter.label": "Filter by category",
+  "portfolio.filter.all": "All",
+  "portfolio.filter.webApps": "Web & Apps",
+  "portfolio.filter.photography": "Photography",
+  "portfolio.filter.videography": "Videography",
+  "portfolio.filter.marketing": "Marketing",
 } as const satisfies Record<BlockKeyShape, string>;

@@ -1,7 +1,9 @@
 import { block } from "@/lib/content/block";
+import { ALL, applyFilter, resolveFilter, type PortfolioFilter } from "@/lib/portfolio/filters";
 import type { PortfolioCard as Card } from "@/lib/portfolio/read-core";
 import type { PortfolioResult } from "@/lib/portfolio/read";
 import { PortfolioCard } from "./portfolio-card";
+import { PortfolioFilters } from "./portfolio-filters";
 
 export type ListingState = "ready" | "empty" | "unavailable";
 
@@ -36,20 +38,32 @@ export function PortfolioGrid({
 }
 
 /**
- * The /portfolio listing in one of its three states (Phase 10 spec, D3).
- * `data-state` lets the e2e tests check which one rendered.
+ * The /portfolio listing in one of its three states (Phase 10 spec, D3), filtered by `filter`
+ * (Phase 11 spec, D3, D5). Only the ready state has the filter bar, and a filter with no cards
+ * shows All. `data-state` and `data-filter` let the e2e tests check what rendered.
  */
-export async function PortfolioListing({ result }: { result: PortfolioResult }) {
+export async function PortfolioListing({
+  result,
+  filter = ALL,
+}: {
+  result: PortfolioResult;
+  filter?: PortfolioFilter;
+}) {
   const state = listingState(result);
-  return (
-    <div data-state={state} data-testid="portfolio-listing">
-      {result.ok && state === "ready" ? (
-        <PortfolioGrid cards={result.cards} headingLevel={2} preloadFirst />
-      ) : (
+  if (!result.ok || state !== "ready") {
+    return (
+      <div data-state={state} data-testid="portfolio-listing">
         <p role="status" className="max-w-2xl text-lg text-muted">
           {await block(state === "empty" ? "portfolio.empty" : "portfolio.unavailable")}
         </p>
-      )}
+      </div>
+    );
+  }
+  const { filters, current } = resolveFilter(result.cards, filter);
+  return (
+    <div data-state={state} data-filter={current.slug ?? "all"} data-testid="portfolio-listing">
+      {filters.length > 1 && <PortfolioFilters filters={filters} current={current} />}
+      <PortfolioGrid cards={applyFilter(result.cards, current)} headingLevel={2} preloadFirst />
     </div>
   );
 }

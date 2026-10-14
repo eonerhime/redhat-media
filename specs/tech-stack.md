@@ -42,8 +42,8 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 
 ## Architectural rules
 
-1. **Server-first rendering.** Public pages are Server Components, statically generated or ISR. **Public server components never read the login session**, so the pages stay static (see *In-place CMS*). Use client components only where interaction requires them: filters, the inquiry stepper, the lightbox, video facades and edit controls.
-2. **Filter state lives in the URL** (`/portfolio?category=web-apps`). Filtered views can then be shared and indexed. Portfolio items have real pages at `/portfolio/[slug]`; the in-grid modal (Phase 22) is an intercepting route over the same URL, so deep links always work.
+1. **Server-first rendering.** Public pages are Server Components, statically generated or ISR. `/portfolio` is partially prerendered: its shell is static, and the filtered listing renders per request from the cached portfolio read (Phase 11 spec, D2). **Public server components never read the login session**, so the pages stay static (see *In-place CMS*). Use client components only where interaction requires them: filters, the inquiry stepper, the lightbox, video facades and edit controls.
+2. **Filter state lives in the URL** (`/portfolio?category=web-apps`). Filtered views can then be shared and indexed. The filters are plain links: no parameter means All, then `web-apps` (`WEB_APP`), `photography`, `videography` and `marketing` (`DIGITAL_MARKETING`, `SOCIAL_MEDIA` and `ONLINE_PRESENCE`). A filter with no published items is hidden, and an unknown or empty `category` value shows All (Phase 11 spec, D1, D3). Portfolio items have real pages at `/portfolio/[slug]`; the in-grid modal (Phase 22) is an intercepting route over the same URL, so deep links always work.
 3. **Services are configuration, not database rows.** The six services are a typed config in `content/services.ts`, keyed by `ServiceCategory`, grouped into three pillars, with their copy read through `block()`:
    - **Production:** Photography, Videography.
    - **Growth:** Digital Marketing, Social Media Marketing, Online Presence Management.
