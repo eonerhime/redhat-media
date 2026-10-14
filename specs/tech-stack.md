@@ -32,7 +32,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 | Lint / format | ESLint 10 (flat config, `eslint-config-next`, `typescript-eslint`) + Prettier |
 | Unit tests | Vitest (validation, utilities, video-URL parsing, rate limiter, server-action logic, auth guards) |
 | Database tests | `pnpm test:db` runs the `*.db.test.ts` files (rate limiter, role privileges) against a real Postgres 17: a service container in the CI `db` job, Docker locally, or the Neon `dev` branch. They connect through **`@prisma/adapter-pg` + `pg`** (devDependencies, used by tests and scripts only; the runtime stays on `@prisma/adapter-neon`). |
-| E2E / smoke tests | Playwright (`@playwright/test`, Chromium), run in the CI `ci` job after `pnpm build`. From Phase 1: layout at 360/768/1440px, rendered contrast, reduced motion and mobile nav. Later: smoke test (Phase 15), portfolio → inquiry submit and edit-mode happy paths. |
+| E2E / smoke tests | Playwright (`@playwright/test`, Chromium), run in the CI `ci` job after `pnpm build`. From Phase 10, `e2e/portfolio.spec.ts` also runs against each Vercel preview (`preview-e2e`, with `PW_BASE_URL` and the `VERCEL_AUTOMATION_BYPASS_SECRET` already used by `preview-headers`), because the CI build has no database (Phase 10 spec, D11). From Phase 1: layout at 360/768/1440px, rendered contrast, reduced motion and mobile nav. Later: smoke test (Phase 15), portfolio → inquiry submit and edit-mode happy paths. |
 | Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). **Archivo** (headings) and **Inter** (body), both variable, `latin` subset, `display: swap`. |
 | Analytics | Vercel Analytics + Speed Insights |
 | Bot / spam protection | Turnstile (verified on the server) + honeypot + minimum time-to-submit + database-backed rate limit on every public form, from the first form (Phase 18). |
@@ -64,7 +64,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
    - Login errors are generic ("Invalid email or password").
    - Hiding the path only reduces bot noise and is **not** a security control. Rule 5 still applies.
 7. **Secrets** live only in Vercel environment variables. `.env.example` is committed and `.env*` files are git-ignored. Nothing prefixed `NEXT_PUBLIC_` may be a secret.
-8. **Errors.** Every data-fetching route has a `loading.tsx` and an `error.tsx`. Server actions return typed `{ ok, error }` results and do not throw to the client. The client **always** checks the result, keeps the editor or form open on failure, and shows the error.
+8. **Errors.** Every data-fetching route has a `loading.tsx` and an `error.tsx`. One `app/(public)/error.tsx` serves every public route; its copy is fixed text in `lib/site.ts`, not content blocks, so it still renders when the content store is what failed (Phase 10 spec, D6). Cached data reads return a failure result instead of throwing, because a throw inside `"use cache"` fails the prerender. Server actions return typed `{ ok, error }` results and do not throw to the client. The client **always** checks the result, keeps the editor or form open on failure, and shows the error.
 9. **SEO.** Use the Metadata API on every route, plus:
    - dynamic OpenGraph images for portfolio items and services;
    - `sitemap.ts` and `robots.ts`;
@@ -72,7 +72,7 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
 10. **Accessibility.** Semantic HTML, visible focus states, WCAG 2.2 AA contrast and `prefers-reduced-motion` respected. Every image has alt text, and the editor requires it. Every edit control is keyboard-reachable and labelled.
 11. **Performance budget.** Mobile Lighthouse ≥ 90 on every public template. The LCP image is prioritised, every other image is lazy-loaded through Cloudinary responsive transforms, and no iframe loads before a click.
 12. **Content Security Policy.** `img-src` allows Cloudinary and video-thumbnail hosts. `frame-src` allows only `www.youtube-nocookie.com`, `player.vimeo.com` and, from Phase 18, `challenges.cloudflare.com`.
-13. **Cache refresh after writes.** Every CMS mutation refreshes the affected routes with `revalidatePath` / tag APIs. Next 16 offers `updateTag` for read-your-own-writes inside Server Actions; the exact API is confirmed in the Phase 27 spec.
+13. **Cache refresh after writes.** Every CMS mutation refreshes the affected routes with `revalidatePath` / tag APIs. Next 16 offers `updateTag` for read-your-own-writes inside Server Actions; the exact API is confirmed in the Phase 27 spec. Public portfolio reads go through one cached function tagged `portfolio` (`cacheLife("hours")`, `lib/portfolio/read.ts`); Phase 31's portfolio mutations refresh that tag (Phase 10 spec, D2).
 
 ## Design tokens (carried over from the current site)
 
