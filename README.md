@@ -122,6 +122,7 @@ model PortfolioItem {
   description  String
   client       String?
   credit       String?         // e.g. "Technical lead: Emo Onerhime"
+  creditUrl    String?         // https only; links the credit (Phase 12)
   highlights   String[]        // architecture / outcome bullets
   liveUrl      String?         // https only
   repoUrl      String?         // public repositories only

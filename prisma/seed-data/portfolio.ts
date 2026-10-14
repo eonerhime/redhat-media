@@ -6,6 +6,8 @@
 import type { PortfolioSeedItem } from "../../lib/portfolio/schema.ts";
 
 const credit = "Design & Engineering: Emo Onerhime";
+// The mission links engineering credits to the personal portfolio (Phase 12 spec, D8).
+const creditUrl = "https://emo-onerhime.vercel.app";
 const publishedAt = "2026-10-13";
 
 export const portfolioSeed: readonly PortfolioSeedItem[] = [
@@ -17,6 +19,7 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     description:
       "A prediction platform that blends Poisson, Elo and form/head-to-head models across 13 football leagues. It ships an accumulator builder, a betting history tracker with real payout maths, 13-currency auto-detection and Paystack subscription tiers.",
     credit,
+    creditUrl,
     highlights: [
       "Predictions across 13 football leagues from a three-model engine: Poisson, Elo and form/head-to-head.",
       "A backtested weighted blend of the three models: Poisson 10%, Elo 60%, form/head-to-head 30%.",
@@ -50,6 +53,7 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     description:
       "A six-stage Kanban pipeline for tracking job applications, contacts and follow-up reminders, built entirely in the open. Every feature starts as a written spec before any code ships.",
     credit,
+    creditUrl,
     highlights: [
       "Six-stage Kanban pipeline for applications, contacts and follow-up reminders.",
       "A browser extension that saves job postings from LinkedIn Easy Apply or any job page.",
@@ -83,6 +87,7 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     description:
       "A full-stack beat marketplace where producers upload and license beats and buyers purchase and download them. It has role-based access, Google sign-in and a Fiverr-style escrow wallet with a seven-day withdrawal hold.",
     credit,
+    creditUrl,
     highlights: [
       "Escrow-style wallet that holds producer earnings for seven days before withdrawal.",
       "A 30% platform commission enforced on the server for every transaction.",
@@ -115,6 +120,7 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     description:
       "A multi-tenant support inbox that brings DMs, comments and mentions from nine platforms into one list: WhatsApp, Instagram, Facebook, Threads, Telegram, email, X, TikTok and LinkedIn. It includes AI-drafted replies, an analytics dashboard and organisation-level billing.",
     credit,
+    creditUrl,
     highlights: [
       "Every DM and comment across nine channels in one inbox.",
       "AI-drafted replies on demand, generated with Claude.",
@@ -148,6 +154,7 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     description:
       "A business tool run entirely by WhatsApp message: sales, restocks, income and expenses are logged with plain-language commands and a small set of optional shortcuts. Stock and money always reconcile, because no sale posts without moving inventory and no restock posts without its real cost.",
     credit,
+    creditUrl,
     highlights: [
       "Sales, restocks, income and expenses logged by WhatsApp message in plain language.",
       "Optional shortcuts for speed: s/ for a sale, r/ for a restock, + and - for money, ? for a question.",

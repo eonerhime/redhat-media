@@ -61,10 +61,12 @@ test.describe("/portfolio", () => {
         article.getByRole("list", { name: defaults["portfolio.tech"] }).getByRole("listitem"),
       ).toHaveText(card.techStack);
 
-      const live = article.getByRole("link", { name: new RegExp(defaults["portfolio.live"]) });
-      await expect(live).toHaveAttribute("href", card.liveUrl!);
-      await expect(live).toHaveAttribute("target", "_blank");
-      await expect(live).toHaveAttribute("rel", "noopener noreferrer");
+      // One link per card: the title, stretched over the card, to the item's page (Phase 12
+      // spec, D7). The live-site link moved to that page.
+      const link = article.getByRole("link");
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveAccessibleName(card.title);
+      await expect(link).toHaveAttribute("href", `/portfolio/${card.slug}`);
 
       // Lazy covers load once scrolled into view; only the first is preloaded (D4).
       const cover = article.getByRole("img", { name: card.cover!.alt, exact: true });

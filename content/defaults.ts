@@ -183,4 +183,21 @@ export const defaults = {
   "portfolio.filter.photography": "Photography",
   "portfolio.filter.videography": "Videography",
   "portfolio.filter.marketing": "Marketing",
+
+  // Phase 12 detail page (owner-approved, Phase 12 spec, Appendix A). {alt}, {n} and {total} are
+  // filled in by the component.
+  "portfolio.detail.back": "All work",
+  "portfolio.detail.highlights": "Highlights",
+  "portfolio.detail.links": "Links",
+  "portfolio.detail.repo": "View the code on GitHub",
+  "portfolio.detail.credit": "Credit",
+  "portfolio.detail.client": "Client",
+  "portfolio.detail.gallery": "Gallery",
+  "portfolio.detail.loading": "Loading the project",
+  "portfolio.detail.view": "View larger: {alt}",
+  "portfolio.detail.lightbox.label": "Image viewer",
+  "portfolio.detail.lightbox.close": "Close",
+  "portfolio.detail.lightbox.previous": "Previous image",
+  "portfolio.detail.lightbox.next": "Next image",
+  "portfolio.detail.lightbox.position": "Image {n} of {total}",
 } as const satisfies Record<BlockKeyShape, string>;

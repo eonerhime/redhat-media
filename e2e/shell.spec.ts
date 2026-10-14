@@ -9,7 +9,7 @@ const widths = [360, 768, 1440] as const;
 const MD = 768;
 // Every built page gets the layout and contrast checks (Phase 4 spec, D6), including each
 // visible service page (Phase 5 spec, D8), /about (Phase 6 spec, D9), /portfolio (Phase 10
-// spec, D10) and a filtered /portfolio (Phase 11 spec, D9).
+// spec, D10), a filtered /portfolio (Phase 11 spec, D9) and a portfolio item (Phase 12 spec, D13).
 const routes = [
   "/",
   "/services",
@@ -17,6 +17,7 @@ const routes = [
   "/about",
   "/portfolio",
   "/portfolio?category=web-apps",
+  "/portfolio/sportspred",
 ];
 
 /** Scrolls to the bottom and returns the header's top edge relative to the viewport. */
@@ -119,6 +120,12 @@ for (const route of routes)
       });
 
       test("keeps the header at the top after scrolling", async ({ page }) => {
+        // A page shorter than the viewport has nothing to scroll, e.g. a portfolio item while the
+        // portfolio is unavailable (Phase 12 spec, D3).
+        test.skip(
+          await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight),
+          "the page does not scroll at this size",
+        );
         expect(await headerTopAfterScroll(page)).toBe(0);
         await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeInViewport();
       });

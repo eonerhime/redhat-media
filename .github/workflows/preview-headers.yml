@@ -63,4 +63,4 @@ jobs:
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          pnpm test:e2e e2e/portfolio.spec.ts
+          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts

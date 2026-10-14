@@ -27,6 +27,8 @@ export const portfolioSeedItemSchema = z.object({
   summary: text(1, 200),
   description: text(1, 1200),
   credit: text(1, 120).optional(),
+  /** Links the credit, e.g. to the technical lead's portfolio (Phase 12 spec, D8). */
+  creditUrl: httpsUrlSchema.optional(),
   highlights: z.array(text(1, 160)).min(3).max(6),
   techStack: z.array(text(1, 40)).min(1).max(10),
   liveUrl: httpsUrlSchema,
