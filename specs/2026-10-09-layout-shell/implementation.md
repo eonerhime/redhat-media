@@ -95,3 +95,4 @@
 - Constitution: `tech-stack.md` (the logo note, token uses, fonts row), `roadmap.md` (Phase 1 row, open question 1 done) and `CLAUDE.md` (the `<MediaImage>` rule names the logo as its one exception).
 - The owner's source files stay untracked in `public/` and are not part of this PR.
 - PR #13: CI green (run 38561892803: `ci`, `db`, `gitleaks`), `preview-headers` passed, and the Vercel preview is Ready.
+- Owner check (2026-10-14): the logo is visible and the preview `redhat-media-git-feature-phase-01-logo-e1rhyme.vercel.app` is fine. The validation is fully ticked.
