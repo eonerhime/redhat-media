@@ -27,3 +27,5 @@
   - PR #12: CI green (run 38473954183; the `db` job seeded 5 created, then 0 created, and `test:db` passed 23/23). `preview-headers` passed, and Vercel is Ready.
   - Owner chose the credit line `Design & Engineering: Emo Onerhime` (question A). Updated the content file and the spec, and re-seeded `dev` (0 created, 5 updated).
   - The owner placed the logo files in `public/` (`RedHat.Media 2 Lines.jpg`, `RedHat.Media 2L Gmail Profile - png.png`). They are not committed in this phase; they belong to the logo amendment PR (D11).
+  - **Plan 5.3:** PR #12 merged into `develop` (merge commit `5bb3cee`).
+  - **Plan 5.4:** the `develop` push run 38474994416 passed `migrate-preview`, including "Seed the Neon preview branch". "Preview seeded" and "Every plan box ticked" are ticked in the first commit of the logo amendment PR, because `develop` only accepts PRs.
