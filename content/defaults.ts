@@ -77,6 +77,9 @@ export const defaults = {
   "services.detail.back": "All services",
   "services.detail.included": "What's included",
   "services.detail.deliverables": "What you get",
+  // Phase 10: the related-work section (owner-approved, Phase 10 spec, Appendix A).
+  "services.detail.work.heading": "Related work",
+  "services.detail.work.link": "See all work",
 
   "services.photography.included1":
     "A pre-shoot brief to agree the shot list, style and where the images will be used",
@@ -157,4 +160,19 @@ export const defaults = {
   "about.sdd.body":
     "Every website and app we build starts with a written spec: what it must do, who it is for and how we will know it works. You agree the spec before any code is written. We then build in small steps, check each one against the spec, and ship only when it passes. This website was built the same way.",
   "about.sdd.link": "See Web & App Development",
+
+  // Phase 10 copy for /portfolio (owner-approved, Phase 10 spec, Appendix A). The description and
+  // intro speak of web work only, because only web items are published; widen them when media
+  // case studies are seeded (Phase 9 spec, D10).
+  "portfolio.meta.description":
+    "Websites and web apps designed, built and shipped by RedHat Media.",
+  "portfolio.heading": "Our work",
+  "portfolio.intro":
+    "Products we have designed, built and shipped, with the tools behind each one.",
+  "portfolio.tech": "Tech stack",
+  "portfolio.live": "Visit live site",
+  "portfolio.loading": "Loading the portfolio",
+  "portfolio.empty": "No projects are published yet. Tell us about yours.",
+  "portfolio.unavailable":
+    "The portfolio could not be loaded just now. Please try again in a few minutes.",
 } as const satisfies Record<BlockKeyShape, string>;

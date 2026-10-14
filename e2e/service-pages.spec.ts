@@ -4,6 +4,7 @@ import { services } from "../content/services";
 import { pillarOf, resolveVisibility } from "../lib/content/services";
 import { siteName } from "../lib/site";
 import { expectOnlyKeyedText } from "./keyed-text";
+import { cardTexts } from "./portfolio-expect";
 
 // Expectations come from the config, so adding or muting a service changes the pages and this
 // test together (Phase 4 spec, D5; Phase 5 spec, D8).
@@ -23,6 +24,11 @@ for (const service of visible) {
 
     test("has the pillar, name and summary, then the sections in order", async ({ page }) => {
       const main = page.locator("main");
+      // Related work appears only where its category has published items; e2e/portfolio.spec.ts
+      // checks which pages show it (Phase 10 spec, D8).
+      const workHeading = defaults["services.detail.work.heading"];
+      const hasWork =
+        (await main.getByRole("heading", { level: 2, name: workHeading }).count()) > 0;
       await expect(main).toContainText(defaults[pillar.nameKey]);
       await expect(main.getByRole("heading", { level: 1 })).toHaveText(name);
       await expect(main).toContainText(summary);
@@ -30,6 +36,7 @@ for (const service of visible) {
         defaults["services.detail.included"],
         defaults["services.detail.deliverables"],
         defaults["home.process.heading"],
+        ...(hasWork ? [workHeading] : []),
         defaults["home.cta.heading"],
       ]);
     });
@@ -102,7 +109,8 @@ for (const service of visible) {
     });
 
     test("renders only text from content/defaults.ts in <main>", async ({ page }) => {
-      await expectOnlyKeyedText(page);
+      // Related-work cards also show seeded database content (Phase 10 spec, D9).
+      await expectOnlyKeyedText(page, cardTexts);
     });
   });
 }

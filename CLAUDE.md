@@ -29,7 +29,7 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 | `pnpm db:seed` | Upserts the portfolio seed (`prisma/seed-data/`) into the branch in `MIGRATOR_DATABASE_URL`. Run locally on `dev` only; CI seeds `preview`. It refuses production. |
 | `pnpm media:upload-seed` | Uploads the seed cover screenshots to Cloudinary (default source `../emo-onerhime/public/projects`). Needs `NEXT_PUBLIC_CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in `.env.local`, which live nowhere else. |
 | `pnpm db:studio` | Prisma Studio on the branch in `MIGRATOR_DATABASE_URL` |
-| `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. |
+| `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. `PW_BASE_URL=<url>` targets a deployed site instead (no local server; sends the Vercel bypass header from `VERCEL_AUTOMATION_BYPASS_SECRET`). |
 | `pnpm build` | Production build. It also validates env vars (`lib/env.ts`). |
 
 ## Setup
