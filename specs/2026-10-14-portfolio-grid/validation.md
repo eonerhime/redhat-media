@@ -6,8 +6,8 @@
 
 - [x] **All seeded items listed:** on the Vercel preview, `preview-e2e` finds the five seeded items in order, each with a loaded cover, category badge, tech pills and an `https:` live link (D3, D4, D7, D11) — `preview-e2e` (run 38578733148): 11 passed with `E2E_PORTFOLIO_STATE=ready` on the PR #14 preview
 - [x] **Loading state:** `app/(public)/portfolio/loading.tsx` exists and renders a labelled `role="status"` placeholder (D5) — `app/(public)/portfolio/loading.tsx`
-- [x] **Error state:** the CI build has no database, and the e2e run sees the **unavailable** message and the CTA on `/portfolio`. `app/(public)/error.tsx` exists with fixed copy and a working "Try again" (D3, D6, D11) — CI run 38578623545 (`ci`, pinned `unavailable`); locally 220 passed with `DATABASE_URL` blank
-- [x] **Empty state:** `/dev/portfolio-states` shows the empty message and the CTA, and the e2e spec checks it (D10) — `portfolio.spec.ts` › `/dev/portfolio-states`, locally and on the preview
+- [x] **Error state:** the CI build has no database, and the e2e run sees the **unavailable** message and the CTA on `/portfolio`. `app/(public)/error.tsx` exists with fixed copy and a "Try again" button that calls `retry()` (D3, D6, D11; amended 2026-10-14: no test forces a render error, so the boundary is checked by type and review, not by e2e) — CI run 38578623545 (`ci`, pinned `unavailable`); locally 220 passed with `DATABASE_URL` blank
+- [x] **Empty state:** `/dev/portfolio-states` shows the empty message, and the e2e spec checks it; on `/portfolio` the CTA follows every state (D3, D10; amended 2026-10-14) — `portfolio.spec.ts` › `/dev/portfolio-states`, locally and on the preview
 
 ## Page behaviour
 
@@ -28,7 +28,7 @@
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass locally — unit 720/720
 - [x] `pnpm test:db` passes, including `read-core.db.test.ts` — 24/24 locally (postgres:17 replica) and CI `db`
-- [x] `pnpm test:e2e --workers=1` passes locally (ready state), with existing specs changed only to add `/portfolio` (C4) — ready 221; unavailable 220 + 1 skipped
+- [x] `pnpm test:e2e --workers=1` passes locally (ready state), with existing specs changed only as C4 (amended) allows — ready 221; unavailable 220 + 1 skipped
 - [x] CI is green on the PR (`ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e`, Vercel) — PR #14: run 38578623545 (`ci`, `db`, `gitleaks`), run 38578733148 (`preview-headers`, `preview-e2e`), Vercel Ready
 - [x] No secret appears in logs or artifacts; gitleaks is green (C6) — bypass header scoped to the preview origin, traces off for remote runs, no artifacts; gitleaks green
 
