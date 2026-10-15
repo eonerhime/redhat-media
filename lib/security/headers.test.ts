@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { securityHeaders, serializeCsp } from "./headers";
 
-function header(key: string): string {
-  const found = securityHeaders.find((h) => h.key.toLowerCase() === key.toLowerCase());
-  if (!found) throw new Error(`Missing header: ${key}`);
-  return found.value;
+function header(key: string, dev = false): string | undefined {
+  return securityHeaders({ dev }).find((h) => h.key.toLowerCase() === key.toLowerCase())?.value;
+}
+
+function required(key: string, dev = false): string {
+  const value = header(key, dev);
+  if (value === undefined) throw new Error(`Missing header: ${key}`);
+  return value;
 }
 
 function directives(policy: string): Map<string, string[]> {
@@ -19,7 +23,7 @@ function directives(policy: string): Map<string, string[]> {
 
 describe("security headers", () => {
   it("sends HSTS for two years with subdomains and without preload", () => {
-    const hsts = header("Strict-Transport-Security");
+    const hsts = required("Strict-Transport-Security");
     expect(hsts).toContain("max-age=63072000");
     expect(hsts).toContain("includeSubDomains");
     expect(hsts).not.toContain("preload");
@@ -31,25 +35,13 @@ describe("security headers", () => {
     ["Permissions-Policy", "camera=(), microphone=(), geolocation=()"],
     ["X-Frame-Options", "DENY"],
   ])("sends %s: %s", (key, value) => {
-    expect(header(key)).toBe(value);
+    expect(required(key)).toBe(value);
   });
 
-  it("enforces anti-framing, object and base-uri directives", () => {
-    const csp = directives(header("Content-Security-Policy"));
-    expect(csp.get("frame-ancestors")).toEqual(["'none'"]);
-    expect(csp.get("object-src")).toEqual(["'none'"]);
-    expect(csp.get("base-uri")).toEqual(["'self'"]);
-  });
-
-  it("does not enforce source restrictions before Phase 14", () => {
-    const csp = directives(header("Content-Security-Policy"));
-    expect(csp.has("default-src")).toBe(false);
-    expect(csp.has("script-src")).toBe(false);
-  });
-
-  it("sends the full report-only policy", () => {
-    const csp = directives(header("Content-Security-Policy-Report-Only"));
+  it("enforces the full policy from Phase 14 (spec D8)", () => {
+    const csp = directives(required("Content-Security-Policy"));
     expect(csp.get("default-src")).toEqual(["'self'"]);
+    // 'unsafe-inline' stays: the SRI experiment blocked Next's inline scripts on every page (D7).
     expect(csp.get("script-src")).toEqual(["'self'", "'unsafe-inline'"]);
     expect(csp.get("style-src")).toEqual(["'self'", "'unsafe-inline'"]);
     expect(csp.get("img-src")).toEqual([
@@ -73,12 +65,24 @@ describe("security headers", () => {
     expect(csp.get("upgrade-insecure-requests")).toEqual([]);
   });
 
-  it("never allows unsafe-eval or wildcard sources", () => {
-    for (const key of ["Content-Security-Policy", "Content-Security-Policy-Report-Only"]) {
-      const policy = header(key);
-      expect(policy).not.toContain("'unsafe-eval'");
-      expect(policy).not.toMatch(/(^|\s)\*(\s|;|$)/);
-    }
+  it("sends no report-only policy", () => {
+    expect(header("Content-Security-Policy-Report-Only")).toBeUndefined();
+    expect(header("Content-Security-Policy-Report-Only", true)).toBeUndefined();
+  });
+
+  it("never allows unsafe-eval or wildcard sources outside pnpm dev", () => {
+    const policy = required("Content-Security-Policy");
+    expect(policy).not.toContain("'unsafe-eval'");
+    expect(policy).not.toMatch(/(^|\s)\*(\s|;|$)/);
+  });
+
+  it("adds unsafe-eval to script-src for pnpm dev only, and nothing else", () => {
+    const dev = directives(required("Content-Security-Policy", true));
+    const prod = directives(required("Content-Security-Policy"));
+    expect(dev.get("script-src")).toEqual(["'self'", "'unsafe-inline'", "'unsafe-eval'"]);
+    dev.delete("script-src");
+    prod.delete("script-src");
+    expect(dev).toEqual(prod);
   });
 });
 

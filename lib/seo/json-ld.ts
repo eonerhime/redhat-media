@@ -21,7 +21,88 @@ export type ServiceJsonLdInput = {
   siteUrl: string;
 };
 
-// `Service` per service page (Architectural rules 9). Phase 14 adds the site-wide Organization.
+/** The Organization's node ID, so Service, CreativeWork and LocalBusiness all point at one company. */
+export function organizationId(siteUrl: string): string {
+  return `${siteUrl}/#organization`;
+}
+
+function organizationRef(siteName: string, siteUrl: string) {
+  return { "@type": "Organization", "@id": organizationId(siteUrl), name: siteName, url: siteUrl };
+}
+
+export type BusinessJsonLdInput = {
+  siteName: string;
+  /** Canonical origin without a trailing slash (lib/env.ts). */
+  siteUrl: string;
+  /** The logo on white, as a site path (lib/site.ts → business.logoOnLight). */
+  logoPath: string;
+  email: string;
+  /** International format, e.g. "+234 802 658 1200". */
+  telephone: string;
+  registration: string;
+  address: { locality: string; region: string; country: string };
+  areaServed: string;
+  openingHours: { days: readonly string[]; opens: string; closes: string };
+};
+
+function postalAddress(address: BusinessJsonLdInput["address"]) {
+  return {
+    "@type": "PostalAddress",
+    addressLocality: address.locality,
+    addressRegion: address.region,
+    addressCountry: address.country,
+  };
+}
+
+// `Organization` on the homepage (Phase 14 spec, D6). Only facts the site already shows: no
+// rating, review, price range or founding claim (mission principle 4).
+export function organizationJsonLd(input: BusinessJsonLdInput): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": organizationId(input.siteUrl),
+    name: input.siteName,
+    url: input.siteUrl,
+    logo: `${input.siteUrl}${input.logoPath}`,
+    email: input.email,
+    telephone: input.telephone,
+    address: postalAddress(input.address),
+    identifier: input.registration,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: input.email,
+      telephone: input.telephone,
+      availableLanguage: "English",
+    },
+  };
+}
+
+// `LocalBusiness` on /contact (D6). Google requires only name and address, and asks for "as many
+// address properties as possible", so a city-only address validates (owner answer A).
+export function localBusinessJsonLd(input: BusinessJsonLdInput): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${input.siteUrl}/contact#business`,
+    name: input.siteName,
+    url: `${input.siteUrl}/contact`,
+    image: `${input.siteUrl}${input.logoPath}`,
+    email: input.email,
+    telephone: input.telephone,
+    address: postalAddress(input.address),
+    areaServed: { "@type": "Country", name: input.areaServed },
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: input.openingHours.days.map((day) => `https://schema.org/${day}`),
+      opens: input.openingHours.opens,
+      closes: input.openingHours.closes,
+    },
+    parentOrganization: { "@id": organizationId(input.siteUrl) },
+  };
+}
+
+// `Service` per service page (Architectural rules 9), provided by the site's Organization.
 export function serviceJsonLd({
   name,
   description,
@@ -36,7 +117,7 @@ export function serviceJsonLd({
     description,
     serviceType: name,
     url: `${siteUrl}/services/${slug}`,
-    provider: { "@type": "Organization", name: siteName, url: siteUrl },
+    provider: organizationRef(siteName, siteUrl),
   };
 }
 
@@ -97,7 +178,7 @@ export function portfolioItemJsonLd(input: PortfolioJsonLdInput): JsonLd {
     genre: input.genre,
     keywords: input.keywords.length > 0 ? input.keywords.join(", ") : null,
     creditText: input.credit,
-    creator: { "@type": "Organization", name: input.siteName, url: input.siteUrl },
+    creator: organizationRef(input.siteName, input.siteUrl),
     sameAs: input.liveUrl,
     video: videos.length > 0 ? videos : null,
   }) as JsonLd;

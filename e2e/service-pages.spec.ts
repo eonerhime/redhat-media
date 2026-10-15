@@ -97,7 +97,12 @@ for (const service of visible) {
         description: summary,
         serviceType: name,
         url: `${origin}${path}`,
-        provider: { "@type": "Organization", name: siteName, url: origin },
+        provider: {
+          "@type": "Organization",
+          "@id": `${origin}/#organization`,
+          name: siteName,
+          url: origin,
+        },
       });
     });
 

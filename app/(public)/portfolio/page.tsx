@@ -6,12 +6,19 @@ import { Cta } from "@/components/shared/cta";
 import { block } from "@/lib/content/block";
 import { parseFilter } from "@/lib/portfolio/filters";
 import { getPublishedPortfolio } from "@/lib/portfolio/read";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
 
 // Metadata does not read searchParams, so it stays static for every filter (Phase 11 spec, D2).
+// No canonical, so filtered views stay indexable (Architectural rules 2; Phase 14 spec, D2).
 export async function generateMetadata(): Promise<Metadata> {
   const description = await block("portfolio.meta.description");
-  return { title: `Portfolio | ${siteName}`, description };
+  return pageMetadata({
+    title: `Portfolio | ${siteName}`,
+    description,
+    path: "/portfolio",
+    canonical: false,
+  });
 }
 
 // The heading, intro and CTA are the static shell. The listing reads ?category= inside

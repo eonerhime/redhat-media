@@ -42,3 +42,9 @@ export function deliveryUrl(cloudName: string, publicId: string): string {
   if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
   return `https://res.cloudinary.com/${cloudName}/image/upload/c_limit,w_${IMAGE_WIDTH}/f_auto,q_auto/${publicId}`;
 }
+
+/** A 1200 × 630 JPEG crop for the portfolio share card (Phase 14 spec, D3). */
+export function ogCoverUrl(cloudName: string, publicId: string): string {
+  if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
+  return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,g_auto,w_1200,h_630/q_auto,f_jpg/${publicId}`;
+}

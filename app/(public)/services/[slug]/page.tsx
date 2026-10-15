@@ -10,6 +10,7 @@ import { block } from "@/lib/content/block";
 import { allServiceSlugs, pillarOf, visibleServiceBySlug } from "@/lib/content/services";
 import { env } from "@/lib/env";
 import { serviceJsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
 
 // All six slugs are prerendered, muted ones as a 404, so unmuting needs no redeploy. Any other
@@ -28,7 +29,11 @@ export async function generateMetadata({
     block(service.nameKey),
     block(service.summaryKey),
   ]);
-  return { title: `${name} | ${siteName}`, description };
+  return pageMetadata({
+    title: `${name} | ${siteName}`,
+    description,
+    path: `/services/${service.slug}`,
+  });
 }
 
 export default async function ServicePage({ params }: PageProps<"/services/[slug]">) {

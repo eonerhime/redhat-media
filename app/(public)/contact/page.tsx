@@ -4,17 +4,20 @@ import type { ReactNode } from "react";
 import { CopyEmail } from "@/components/contact/copy-email";
 import { ButtonLink } from "@/components/shared/button-link";
 import { ExternalLink } from "@/components/shared/external-link";
+import { JsonLd } from "@/components/shared/json-ld";
 import { block } from "@/lib/content/block";
+import { businessJsonLdInput } from "@/lib/seo/business";
+import { localBusinessJsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { contact, mailtoHref, siteName } from "@/lib/site";
 
-// Static: no database, cookies or headers (Phase 13 spec, D1, C2). Title as on /about until
-// Phase 14 adds a template.
+// Static: no database, cookies or headers (Phase 13 spec, D1, C2). Title as on /about.
 export async function generateMetadata(): Promise<Metadata> {
   const [heading, description] = await Promise.all([
     block("contact.heading"),
     block("contact.meta.description"),
   ]);
-  return { title: `${heading} | ${siteName}`, description };
+  return pageMetadata({ title: `${heading} | ${siteName}`, description, path: "/contact" });
 }
 
 // Each contact link is a ≥ 44px tap target and wraps rather than overflowing at 360px (D4).
@@ -99,6 +102,7 @@ export default async function Contact() {
 
   return (
     <>
+      <JsonLd data={localBusinessJsonLd(businessJsonLdInput())} />
       <section className="container-page py-16 md:py-24">
         <h1 className="max-w-4xl font-display text-display-1 font-black tracking-tight">
           {heading}

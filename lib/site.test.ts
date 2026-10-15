@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { contact, mailtoHref } from "./site";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { business, contact, mailtoHref } from "./site";
 
 const digits = (value: string) => value.replace(/\D/g, "");
 
@@ -27,5 +29,25 @@ describe("mailtoHref()", () => {
     expect(mailtoHref("Project inquiry & quote?")).toBe(
       `mailto:${contact.email}?subject=Project%20inquiry%20%26%20quote%3F`,
     );
+  });
+});
+
+// Phase 14 spec, D6: the structured data states the same facts as the page.
+describe("business site data", () => {
+  it("has the hours the page shows (Monday to Friday, 9am to 6pm)", () => {
+    const { days, opens, closes } = business.openingHours;
+    expect(contact.hours).toBe(
+      `${days[0]} to ${days.at(-1)}, ${Number(opens.slice(0, 2))}am to ${Number(closes.slice(0, 2)) - 12}pm (WAT)`,
+    );
+    expect(days).toHaveLength(5);
+  });
+
+  it("has the city the page shows, with no street address", () => {
+    expect(contact.location).toBe(`${business.address.locality}, Nigeria`);
+    expect(business.address).not.toHaveProperty("street");
+  });
+
+  it("points at a logo file that exists", () => {
+    expect(existsSync(join("public", business.logoOnLight))).toBe(true);
   });
 });

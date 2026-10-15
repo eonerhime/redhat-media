@@ -35,6 +35,7 @@ jobs:
   # The portfolio as a visitor sees it: the deployed preview, reading the
   # CI-seeded Neon preview branch and real Cloudinary images. The CI build has
   # no database, so this is where the ready state is proven (Phase 10 spec, D11).
+  # csp.spec.ts checks the enforced policy on the deployed headers (Phase 14 spec, D11).
   preview-e2e:
     name: preview-e2e
     if: >-
@@ -53,7 +54,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
-      - name: Portfolio e2e against the preview
+      - name: Portfolio and CSP e2e against the preview
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           PW_BASE_URL: ${{ github.event.deployment_status.environment_url }}
@@ -63,4 +64,4 @@ jobs:
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts
+          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts

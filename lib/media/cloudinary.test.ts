@@ -3,6 +3,7 @@ import {
   ASPECTS,
   blurImageUrl,
   deliveryUrl,
+  ogCoverUrl,
   heightFor,
   isRhmPublicId,
   type Aspect,
@@ -79,5 +80,17 @@ describe("deliveryUrl (Phase 12 spec, D10)", () => {
 
   it("refuses any other ID", () => {
     expect(() => deliveryUrl("demo", "https://evil.example/x.png")).toThrow();
+  });
+});
+
+describe("ogCoverUrl (Phase 14 spec, D3)", () => {
+  it("crops an rhm/ public ID to a 1200 × 630 JPEG", () => {
+    expect(ogCoverUrl("demo", "rhm/portfolio_item/a/cover")).toBe(
+      "https://res.cloudinary.com/demo/image/upload/c_fill,g_auto,w_1200,h_630/q_auto,f_jpg/rhm/portfolio_item/a/cover",
+    );
+  });
+
+  it("refuses anything that is not an rhm/ public ID", () => {
+    expect(() => ogCoverUrl("demo", "https://evil.example/x.png")).toThrow();
   });
 });

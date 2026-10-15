@@ -16,6 +16,7 @@ import { getPortfolioItem, getPublishedPortfolio } from "@/lib/portfolio/read";
 import { detailParams, type PortfolioDetail as Detail } from "@/lib/portfolio/read-core";
 import { SLUG } from "@/lib/portfolio/schema";
 import { portfolioItemJsonLd } from "@/lib/seo/json-ld";
+import { noindexMetadata, pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
 
 // Every published slug is prerendered. With no database (the CI build) or no published item there
@@ -41,9 +42,13 @@ export async function generateMetadata({
   const item = await readItem(params);
   if (!item) {
     // Unavailable (D3): keep the page out of the index until the read heals.
-    return { title: `Portfolio | ${siteName}`, robots: { index: false } };
+    return noindexMetadata(`Portfolio | ${siteName}`);
   }
-  return { title: `${item.title} | ${siteName}`, description: item.summary };
+  return pageMetadata({
+    title: `${item.title} | ${siteName}`,
+    description: item.summary,
+    path: `/portfolio/${item.slug}`,
+  });
 }
 
 export default async function PortfolioItemPage({ params }: PageProps<"/portfolio/[slug]">) {

@@ -3,15 +3,16 @@ import { PillarSection } from "@/components/services/pillar-section";
 import { Cta } from "@/components/shared/cta";
 import { block } from "@/lib/content/block";
 import { visiblePillars } from "@/lib/content/services";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
 
-// Title is the heading plus the site name until Phase 14 adds a template (Phase 4 spec, D3).
+// Title is the heading plus the site name (Phase 4 spec, D3; kept by Phase 14 spec, D1).
 export async function generateMetadata(): Promise<Metadata> {
   const [heading, description] = await Promise.all([
     block("services.index.heading"),
     block("services.meta.description"),
   ]);
-  return { title: `${heading} | ${siteName}`, description };
+  return pageMetadata({ title: `${heading} | ${siteName}`, description, path: "/services" });
 }
 
 // Built only from visiblePillars(), so config changes reach the page with no code change

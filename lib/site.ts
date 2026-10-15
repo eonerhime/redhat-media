@@ -25,6 +25,20 @@ export const contact = {
   registration: "RC 1379619",
 } as const;
 
+// The same facts as `contact`, in the shape structured data needs (Phase 14 spec, D6). City only,
+// no street address (owner answer A); `contact.hours` is the display form of `openingHours`.
+export const business = {
+  address: { locality: "Lagos", region: "Lagos", country: "NG" },
+  areaServed: "Nigeria",
+  openingHours: {
+    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "09:00",
+    closes: "18:00",
+  },
+  /** On white, for search engines (owner answer B); the header uses the light-on-dark logo.png. */
+  logoOnLight: "/brand/logo-on-light.png",
+} as const;
+
 /** A `mailto:` link to the team, with a pre-filled subject when one is given (Phase 13 spec, D5). */
 export function mailtoHref(subject?: string) {
   const href = `mailto:${contact.email}`;

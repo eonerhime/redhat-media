@@ -1,12 +1,16 @@
 // Security headers for every route (specs/tech-stack.md → Security baseline,
-// specs/2026-10-09-foundation/spec.md scope 4, D8).
+// specs/2026-10-09-foundation/spec.md scope 4, D8; specs/2026-10-15-seo-csp/spec.md D7, D8).
 
 export type Header = { key: string; value: string };
 
 export type CspDirectives = Readonly<Record<string, readonly string[]>>;
 
-/** Full policy, report-only until Phase 14 enforces it. */
-export const reportOnlyCsp: CspDirectives = {
+/**
+ * The enforced policy (Phase 14). script-src keeps 'unsafe-inline': Next.js renders inline
+ * bootstrap and RSC payload scripts on every page, which differ per page and per build, so a
+ * static header can list no hash for them, and nonces would make every page dynamic (D7).
+ */
+export const csp: CspDirectives = {
   "default-src": ["'self'"],
   "script-src": ["'self'", "'unsafe-inline'"],
   "style-src": ["'self'", "'unsafe-inline'"],
@@ -28,14 +32,10 @@ export const reportOnlyCsp: CspDirectives = {
   "upgrade-insecure-requests": [],
 };
 
-/**
- * Enforced from day one. Browsers ignore frame-ancestors in a report-only
- * policy, and these directives cannot break a Next.js page.
- */
-export const enforcedCsp: CspDirectives = {
-  "frame-ancestors": ["'none'"],
-  "object-src": ["'none'"],
-  "base-uri": ["'self'"],
+/** `pnpm dev` only: React needs eval in development. Never in a build (D8). */
+export const devCsp: CspDirectives = {
+  ...csp,
+  "script-src": [...(csp["script-src"] ?? []), "'unsafe-eval'"],
 };
 
 export function serializeCsp(directives: CspDirectives): string {
@@ -44,12 +44,13 @@ export function serializeCsp(directives: CspDirectives): string {
     .join("; ");
 }
 
-export const securityHeaders: readonly Header[] = [
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-  { key: "X-Frame-Options", value: "DENY" },
-  { key: "Content-Security-Policy", value: serializeCsp(enforcedCsp) },
-  { key: "Content-Security-Policy-Report-Only", value: serializeCsp(reportOnlyCsp) },
-];
+export function securityHeaders({ dev = false }: { dev?: boolean } = {}): readonly Header[] {
+  return [
+    { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+    { key: "X-Content-Type-Options", value: "nosniff" },
+    { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+    { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    { key: "X-Frame-Options", value: "DENY" },
+    { key: "Content-Security-Policy", value: serializeCsp(dev ? devCsp : csp) },
+  ];
+}
