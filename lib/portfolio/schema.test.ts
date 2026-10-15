@@ -17,6 +17,7 @@ const valid: PortfolioSeedItem = {
   summary: "A summary.",
   description: "A description.",
   credit: "Engineering: Someone",
+  creditUrl: "https://someone.example.com",
   highlights: ["One.", "Two.", "Three."],
   techStack: ["Next.js"],
   liveUrl: "https://example.com",
@@ -59,6 +60,11 @@ describe("the approved seed content (Phase 9 spec, Appendix A)", () => {
     ]);
   });
 
+  it("links every credit to the personal portfolio (Phase 12 spec, D8)", () => {
+    for (const item of parsePortfolioSeed(portfolioSeed))
+      expect(item.creditUrl).toBe("https://emo-onerhime.vercel.app/");
+  });
+
   it("gives every cover a public ID that <MediaImage> accepts", () => {
     for (const item of portfolioSeed)
       expect(isRhmPublicId(seedCoverPublicId(item.slug))).toBe(true);
@@ -83,6 +89,7 @@ describe("portfolioSeedItemSchema (D3)", () => {
     ["a summary over 200 characters", { summary: "a".repeat(201) }, "summary"],
     ["a description over 1,200 characters", { description: "a".repeat(1201) }, "description"],
     ["a credit over 120 characters", { credit: "a".repeat(121) }, "credit"],
+    ["an http creditUrl", { creditUrl: "http://someone.example.com" }, "creditUrl"],
     ["two highlights", { highlights: ["a", "b"] }, "highlights"],
     ["seven highlights", { highlights: Array(7).fill("a") }, "highlights"],
     [

@@ -36,6 +36,7 @@ export async function runSeed(
         summary: item.summary,
         description: item.description,
         credit: item.credit ?? null,
+        creditUrl: item.creditUrl ?? null,
         highlights: item.highlights,
         techStack: item.techStack,
         liveUrl: item.liveUrl,
