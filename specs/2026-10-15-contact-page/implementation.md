@@ -7,3 +7,10 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 
 - **2026-10-15** — The owner answered A–D (one working day; Monday to Friday, 9am to 6pm WAT; WhatsApp on 0802 658 1200; city only) and approved the spec and Appendix A as drafted.
   - Constitution (plan 0.1): roadmap open question 8 records the WhatsApp answer; the form's phone field stays open for Phase 18.
+
+- **2026-10-15** — Page built (plan 1–4.1).
+  - `lib/site.ts`: `phoneInternational`, `whatsappHref`, `hours` and `mailtoHref()`, with `lib/site.test.ts` checking that every link dials or messages the number shown. `<ButtonLink>` renders a plain `<a>` for `mailto:` (D5).
+  - `/contact` is static (`○`). `<CopyEmail>` is the only client code. It uses `useSyncExternalStore` so it renders nothing on the server, and nothing where the Clipboard API is missing. Its status line is a `role="status"` live region.
+  - `e2e/contact.spec.ts` covers the content, link schemes, keyed text, copy button and `aria-current`, plus a 360px touch block (44 × 44 targets, no sideways scroll, tapping the hero CTA and the mobile-nav "Contact"). It also checks that every CTA on every shell route leads to `/contact`. The route list moved from `shell.spec.ts` to `e2e/routes.ts` so both specs share it. The contact spec needs no database, so it is not added to `preview-e2e`.
+  - **Deviation (D3 amended):** the channel cards sit 2 × 2 from `md` rather than four across at `lg`. At 1440px four columns broke the email address mid-word ("gmail. / com"). Screenshots checked at 360px and 1440px.
+  - Unit: 922 passed. E2E ready (`dev`): 300 passed, 2 skipped. E2E with `DATABASE_URL` blank: 283 passed, 19 skipped.

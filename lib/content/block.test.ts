@@ -169,6 +169,39 @@ describe("verbatim port of the legacy page", () => {
       "portfolio.detail.lightbox.next",
       "portfolio.detail.lightbox.position",
     ];
+    const phase13Keys = [
+      "contact.meta.description",
+      "contact.heading",
+      "contact.intro",
+      "contact.email.button",
+      "contact.email.subject",
+      "contact.channels.heading",
+      "contact.email.label",
+      "contact.email.note",
+      "contact.email.copy",
+      "contact.email.copied",
+      "contact.phone.label",
+      "contact.phone.note",
+      "contact.phone.international",
+      "contact.whatsapp.label",
+      "contact.whatsapp.link",
+      "contact.whatsapp.note",
+      "contact.location.label",
+      "contact.location.note",
+      "contact.hours.label",
+      "contact.next.heading",
+      "contact.next.send",
+      "contact.next.reply",
+      "contact.next.scope",
+      "contact.brief.heading",
+      "contact.brief.intro",
+      "contact.brief.service",
+      "contact.brief.goal",
+      "contact.brief.timeline",
+      "contact.brief.budget",
+      "contact.brief.examples",
+      "contact.brief.services",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -181,6 +214,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase10Keys,
         ...phase11Keys,
         ...phase12Keys,
+        ...phase13Keys,
       ].sort(),
     );
   });

@@ -5,8 +5,7 @@ export const siteName = "RedHat Media";
 
 export type NavItem = { href: string; label: string };
 
-// Pages land in Phases 4–13; until then a link to a page not yet built 404s on previews
-// (Phase 1 spec, D3). Only /contact is left (Phase 13).
+// Every page in the nav exists from Phase 13 (Phase 1 spec, D3).
 export const navItems = [
   { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
@@ -18,9 +17,19 @@ export const contact = {
   email: "redhatmediang@gmail.com",
   phoneDisplay: "0802 658 1200",
   phoneHref: "tel:+2348026581200",
+  // For callers outside Nigeria, and WhatsApp on the same number (Phase 13 spec, D2, owner answer C).
+  phoneInternational: "+234 802 658 1200",
+  whatsappHref: "https://wa.me/2348026581200",
   location: "Lagos, Nigeria",
+  hours: "Monday to Friday, 9am to 6pm (WAT)",
   registration: "RC 1379619",
 } as const;
+
+/** A `mailto:` link to the team, with a pre-filled subject when one is given (Phase 13 spec, D5). */
+export function mailtoHref(subject?: string) {
+  const href = `mailto:${contact.email}`;
+  return subject ? `${href}?subject=${encodeURIComponent(subject)}` : href;
+}
 
 // The public error boundary's text (app/(public)/error.tsx). Fixed, not block() keys: the boundary is
 // a client component, and from Phase 27 block() reads the database, which may be what failed
