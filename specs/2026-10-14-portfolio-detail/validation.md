@@ -34,4 +34,4 @@
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass — locally (plan 4.1) and in CI run 38728527358 (unit 822)
 - [x] `pnpm test:e2e` passes locally (ready and unavailable) and in CI; `preview-e2e` passes on the Vercel preview — local 266 + 2 skipped / 249 + 19 skipped; CI 249 + 19 skipped; preview 32 + 2 skipped
 - [x] `pnpm test:db` passes — local `postgres:17` replica (27) and the `db` job in CI run 38728527358
-- [ ] Owner check on the preview
+- [x] Owner check on the preview — owner approved on 2026-10-15 ("go ahead"), on the PR #17 preview

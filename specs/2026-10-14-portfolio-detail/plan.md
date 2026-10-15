@@ -36,4 +36,4 @@ Scope, decisions (D1–D13) and constraints (C1–C7) are in [`spec.md`](spec.md
 - [x] 4.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then unavailable). — unit 822/822; e2e ready 266 + 2 skipped, unavailable 249 + 19 skipped.
 - [x] 4.2 `pnpm test:db` against a local `postgres:17` container (with the `creditUrl` migration). — local `postgres:17`: drift check clean, seed twice, 27 passed.
 - [x] 4.3 PR into `develop`: CI green, `preview-e2e` green on the Vercel preview. — PR #17 (after PR #16 merged and develop run 38728058579 migrated and seeded Neon `preview`); runs 38728527358 and 38728602246 (`preview-e2e` 32 passed, 2 skipped).
-- [ ] 4.4 Owner check on the preview (a detail page, the lightbox, the card link), then every `validation.md` box ticked.
+- [x] 4.4 Owner check on the preview (a detail page, the lightbox, the card link), then every `validation.md` box ticked. — owner approved on 2026-10-15.
