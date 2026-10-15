@@ -28,4 +28,4 @@ Scope, decisions (D1–D8) and constraints (C1–C7) are in [`spec.md`](spec.md)
 
 - [x] 4.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank). — unit 922; e2e ready 300 + 2 skipped, unavailable 283 + 19 skipped.
 - [x] 4.2 PR into `develop`: CI green, `preview-headers` and `preview-e2e` green on the Vercel preview. — PR #18: CI run 38735809588 (`ci` with the database unavailable: unit 922, e2e 283 passed and 19 skipped; `db`; `gitleaks`); preview run 38735865547 (`preview-headers`; `preview-e2e` 32 passed, 2 skipped).
-- [ ] 4.3 Owner check on the preview, on a phone (tap to call, email, WhatsApp if any), then every `validation.md` box ticked.
+- [x] 4.3 Owner check on the preview, on a phone (tap to call, email, WhatsApp), then every `validation.md` box ticked. — owner confirmed on 2026-10-15, on the PR #18 preview.

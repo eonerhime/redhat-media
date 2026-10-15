@@ -6,7 +6,7 @@
 
 - [x] **Every CTA leads to `/contact`:** on every public route, each CTA button and the nav's "Contact" link has `href="/contact"`, and `/contact` answers 200 (D8) — `contact.spec.ts` › every CTA on {route} leads to /contact (every shell route), locally and in CI run 38735809588
 - [x] **Links work on mobile:** at 360px with touch, the email, phone and WhatsApp links have the right scheme and are ≥ 44 × 44 px; tapping the hero CTA and the mobile-nav "Contact" lands on `/contact` (D4, D8) — `contact.spec.ts` › contact page on a phone (3 tests), locally and in CI run 38735809588
-- [ ] **On a real phone:** the owner taps the number (dialler opens), the email (mail app opens with the subject) and WhatsApp on the preview (plan 4.3)
+- [x] **On a real phone:** the owner taps the number (dialler opens), the email (mail app opens with the subject) and WhatsApp on the preview (plan 4.3) — owner confirmed on 2026-10-15 ("go ahead; confirmed"), PR #18 preview
 
 ## Page behaviour
 
@@ -27,4 +27,4 @@
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass — locally (plan 4.1) and in CI run 38735809588 (unit 922)
 - [x] `pnpm test:e2e` passes locally (ready and unavailable) and in CI; `preview-e2e` passes on the Vercel preview — local 300 + 2 skipped / 283 + 19 skipped; CI 283 + 19 skipped; preview 32 + 2 skipped (preview run 38735865547)
 - [x] `pnpm test:db` passes (no schema change; the CI `db` job) — the `db` job in CI run 38735809588
-- [ ] Owner check on the preview
+- [x] Owner check on the preview — owner approved on 2026-10-15, PR #18 preview
