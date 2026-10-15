@@ -38,6 +38,8 @@ test.describe("SEO metadata on every route", () => {
         expect(href.pathname.replace(/\/$/, "") || "/").toBe(path);
         expect(href.search).toBe("");
       }
+      // An unavailable page sends only its title and noindex (lib/seo/metadata.ts).
+      if (noindex) return;
 
       expect(await meta(page, 'meta[property="og:title"]')).toBe(await page.title());
       expect(await meta(page, 'meta[property="og:description"]')).toBeTruthy();
