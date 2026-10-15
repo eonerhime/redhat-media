@@ -1,24 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { services } from "../content/services";
-import { resolveVisibility } from "../lib/content/services";
 import { contrastRatio, requiredTextRatio } from "../lib/design/contrast";
 import { contact, navItems } from "../lib/site";
+import { routes } from "./routes";
 
 // Phase 1 "Done when": 360px, 768px and 1440px. The inline nav starts at md (768px).
 const widths = [360, 768, 1440] as const;
 const MD = 768;
-// Every built page gets the layout and contrast checks (Phase 4 spec, D6), including each
-// visible service page (Phase 5 spec, D8), /about (Phase 6 spec, D9), /portfolio (Phase 10
-// spec, D10), a filtered /portfolio (Phase 11 spec, D9) and a portfolio item (Phase 12 spec, D13).
-const routes = [
-  "/",
-  "/services",
-  ...resolveVisibility(services).map((s) => `/services/${s.slug}`),
-  "/about",
-  "/portfolio",
-  "/portfolio?category=web-apps",
-  "/portfolio/sportspred",
-];
 
 /** Scrolls to the bottom and returns the header's top edge relative to the viewport. */
 async function headerTopAfterScroll(page: Page) {
