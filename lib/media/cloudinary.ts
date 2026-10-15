@@ -36,3 +36,9 @@ export function blurImageUrl(cloudName: string, publicId: string, aspect: Aspect
   const [w, h] = ASPECTS[aspect];
   return `https://res.cloudinary.com/${cloudName}/image/upload/ar_${w}:${h},c_fill,g_auto,w_10/q_auto:low,f_jpg/${publicId}`;
 }
+
+/** A full-size delivery URL, for places that need an absolute image URL, such as JSON-LD. */
+export function deliveryUrl(cloudName: string, publicId: string): string {
+  if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
+  return `https://res.cloudinary.com/${cloudName}/image/upload/c_limit,w_${IMAGE_WIDTH}/f_auto,q_auto/${publicId}`;
+}

@@ -153,6 +153,22 @@ describe("verbatim port of the legacy page", () => {
       "portfolio.filter.videography",
       "portfolio.filter.marketing",
     ];
+    const phase12Keys = [
+      "portfolio.detail.back",
+      "portfolio.detail.highlights",
+      "portfolio.detail.links",
+      "portfolio.detail.repo",
+      "portfolio.detail.credit",
+      "portfolio.detail.client",
+      "portfolio.detail.gallery",
+      "portfolio.detail.loading",
+      "portfolio.detail.view",
+      "portfolio.detail.lightbox.label",
+      "portfolio.detail.lightbox.close",
+      "portfolio.detail.lightbox.previous",
+      "portfolio.detail.lightbox.next",
+      "portfolio.detail.lightbox.position",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -164,6 +180,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase6Keys,
         ...phase10Keys,
         ...phase11Keys,
+        ...phase12Keys,
       ].sort(),
     );
   });

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { ASPECTS, blurImageUrl, heightFor, isRhmPublicId, type Aspect } from "./cloudinary";
+import {
+  ASPECTS,
+  blurImageUrl,
+  deliveryUrl,
+  heightFor,
+  isRhmPublicId,
+  type Aspect,
+} from "./cloudinary";
 
 describe("isRhmPublicId (Phase 8 spec, D6)", () => {
   it.each([
@@ -60,5 +67,17 @@ describe("blurImageUrl", () => {
 
   it("refuses anything that is not an rhm/ public ID", () => {
     expect(() => blurImageUrl("c", "https://evil.example/a.jpg", "1/1")).toThrow(/rhm\//);
+  });
+});
+
+describe("deliveryUrl (Phase 12 spec, D10)", () => {
+  it("builds an uncropped, full-width URL for an rhm/ public ID", () => {
+    expect(deliveryUrl("demo", "rhm/portfolio_item/a/cover")).toBe(
+      "https://res.cloudinary.com/demo/image/upload/c_limit,w_1600/f_auto,q_auto/rhm/portfolio_item/a/cover",
+    );
+  });
+
+  it("refuses any other ID", () => {
+    expect(() => deliveryUrl("demo", "https://evil.example/x.png")).toThrow();
   });
 });

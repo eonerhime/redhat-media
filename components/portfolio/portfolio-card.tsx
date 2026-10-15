@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { MediaImage } from "@/components/media/media-image";
-import { ExternalLink } from "@/components/shared/external-link";
 import { block } from "@/lib/content/block";
 import { serviceByCategory } from "@/lib/content/services";
 import type { PortfolioCard as Card } from "@/lib/portfolio/read-core";
@@ -11,6 +11,10 @@ const COVER_SIZES = "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw";
  * One portfolio item on the Phase 3 card surface (Phase 10 spec, D4). The card
  * lifts and its cover zooms on hover or keyboard focus, only when motion is
  * allowed. Title, summary and tech are database content; the rest is copy.
+ *
+ * The title links to the item's page and its ::after overlay stretches the link over the whole
+ * card, so the card is one target with one link, and the focus ring goes round the card (Phase 12
+ * spec, D7). The live-site link moved to that page.
  */
 export async function PortfolioCard({
   card,
@@ -23,16 +27,15 @@ export async function PortfolioCard({
   /** Only the first card on /portfolio, which may be the LCP image on phones. */
   preload?: boolean;
 }) {
-  const [badge, techLabel, liveLabel] = await Promise.all([
+  const [badge, techLabel] = await Promise.all([
     block(serviceByCategory(card.category).nameKey),
     block("portfolio.tech"),
-    block("portfolio.live"),
   ]);
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const techId = `${card.id}-tech`;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-t-4 border-line border-t-brand bg-ink transition-transform duration-200 motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-t-4 border-line border-t-brand bg-ink transition-transform duration-200 motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 has-[a:focus-visible]:outline-3 has-[a:focus-visible]:outline-offset-3 has-[a:focus-visible]:outline-brand">
       <div className="overflow-hidden">
         {card.cover ? (
           <MediaImage
@@ -52,7 +55,14 @@ export async function PortfolioCard({
         <p className="self-start rounded-full border border-brand-deep px-3 py-1 text-sm font-bold tracking-wider uppercase">
           {badge}
         </p>
-        <Heading className="mt-4 font-display text-2xl font-extrabold">{card.title}</Heading>
+        <Heading className="mt-4 font-display text-2xl font-extrabold">
+          <Link
+            href={`/portfolio/${card.slug}`}
+            className="underline decoration-transparent decoration-2 underline-offset-4 transition-colors group-hover:decoration-brand after:absolute after:inset-0 focus-visible:outline-none"
+          >
+            {card.title}
+          </Link>
+        </Heading>
         {/* muted stays at ≥ 16px on ink (tech-stack.md → Design tokens). */}
         <p className="mt-3 text-base text-muted">{card.summary}</p>
         <p id={techId} className="sr-only">
@@ -65,22 +75,6 @@ export async function PortfolioCard({
             </li>
           ))}
         </ul>
-        {card.liveUrl ? (
-          <div className="mt-auto pt-6">
-            <ExternalLink
-              href={card.liveUrl}
-              className="font-semibold underline decoration-transparent decoration-2 underline-offset-4 transition-colors hover:decoration-brand"
-            >
-              {liveLabel}
-              <span
-                aria-hidden="true"
-                className="ml-1 text-xl leading-none font-extrabold text-brand"
-              >
-                ↗
-              </span>
-            </ExternalLink>
-          </div>
-        ) : null}
       </div>
     </article>
   );
