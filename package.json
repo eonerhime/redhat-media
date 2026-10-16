@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
-    "@lhci/cli": "0.15.1",
     "@playwright/test": "1.63.0",
     "@prisma/adapter-pg": "7.10.0",
     "@tailwindcss/turbopack": "4.3.3",
@@ -52,6 +51,7 @@
     "eslint": "10.12.0",
     "eslint-config-next": "16.4.0",
     "lefthook": "2.2.1",
+    "lighthouse": "13.5.0",
     "pg": "8.23.0",
     "prettier": "3.9.9",
     "prisma": "7.10.0",

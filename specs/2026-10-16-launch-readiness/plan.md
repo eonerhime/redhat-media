@@ -21,16 +21,16 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 3. Accessibility, smoke test, Lighthouse
 
-- [ ] 3.1 `@axe-core/playwright` (owner answer C); `e2e/a11y.spec.ts`; every finding fixed (D4).
-- [ ] 3.2 `e2e/smoke.spec.ts`: desktop, mobile and keyboard variants; CI and preview paths (D5).
+- [x] 3.1 `@axe-core/playwright` (owner answer C); `e2e/a11y.spec.ts`; every finding fixed (D4).
+- [x] 3.2 `e2e/smoke.spec.ts`: desktop, mobile and keyboard variants; CI and preview paths (D5).
 - [ ] 3.3 `smoke`, `a11y` and `csp` in `preview-e2e` (D11).
-- [ ] 3.4 Lighthouse per owner answer B: the `lighthouse` job with `@lhci/cli`, no report uploaded, scores printed only (D6, C6). Every template ≥ 0.90 in all four categories.
+- [ ] 3.4 Lighthouse per owner answer B: the `lighthouse` job running `scripts/lighthouse.mts` (`lighthouse` 13.5.0, bypass cookie on the preview host only), scores printed only (D6 amended, C6). Every template ≥ 0.90 in all four categories.
 - [ ] 3.5 Manual checks: 200% zoom, and the owner's screen-reader spot check (D4).
 
 ## 4. Monitoring and alerting
 
-- [ ] 4.1 `scripts/monitor.mts` and its pure core, with `monitor-core.test.ts` (D7, D11).
-- [ ] 4.2 Baseline on the Neon preview: connections and transaction rate, sampled over a normal preview-e2e run. Thresholds fixed and recorded (D7).
+- [x] 4.1 `scripts/monitor.mts` and its pure core, with `monitor-core.test.ts` (D7, D11).
+- [x] 4.2 Baseline: connections and transaction rate, sampled over a busy e2e run (on the dev branch; the preview has no local `rhm_readonly` credential). Thresholds fixed and recorded (D7 amended).
 - [ ] 4.3 `.github/workflows/monitor.yml` (schedule, dispatch with `test_alert`, the `test-alert` label trigger). Owner creates the `monitor` environment with `MONITOR_DATABASE_URL` (preview `rhm_readonly`) and the repository variable `MONITOR_BASE_URL` (develop's preview URL) (D7, C6).
 - [ ] 4.4 Test alert: the owner adds the `test-alert` label to the PR, and the "Run failed" email arrives (D7, owner answer D).
 - [ ] 4.5 Neon Free usage alerts and Vercel deployment-failure notifications confirmed on and routed (D7).
