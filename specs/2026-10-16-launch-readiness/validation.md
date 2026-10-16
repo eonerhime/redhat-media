@@ -13,7 +13,7 @@
 
 - [ ] `/nope` answers 404 with the branded view, the header and footer, `noindex` and the four links (D1)
 - [ ] An unknown service slug and an unknown portfolio slug show the same view, keeping the soft 404 (D1)
-- [ ] `/dev/error` answers 500 with the branded error view, and retry works. Production answers 404 for it (D2)
+- [ ] `/dev/error` shows the branded error view from `app/error.tsx`, and retry recovers. Production answers 404 for it (D2, amended)
 
 ## Analytics
 

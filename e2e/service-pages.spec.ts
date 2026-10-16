@@ -135,7 +135,7 @@ test.describe("service pages that must not exist", () => {
     expect([200, 404]).toContain(response?.status());
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
-    // The not-found UI has its own h1 ("404" until Phase 15), never a service name.
+    // The not-found UI has its own h1 (the branded view from Phase 15), never a service name.
     for (const s of services) {
       await expect(
         page.getByRole("heading", { level: 1, name: defaults[s.nameKey], exact: true }),

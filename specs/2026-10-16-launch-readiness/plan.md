@@ -9,9 +9,9 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 1. Error pages
 
-- [ ] 1.1 `<PublicShell>` extracted from `app/(public)/layout.tsx`; `notFoundCopy` in `lib/site.ts`; `<NotFoundView>`; `app/(public)/not-found.tsx` and `app/not-found.tsx` (D1, owner answer G).
-- [ ] 1.2 `app/error.tsx`, `app/global-error.tsx` and the `/dev/error` fixture (D2).
-- [ ] 1.3 Unit tests, `not-found.spec.ts`, `error.spec.ts`, and the `service-pages.spec.ts` heading assertion updated (D11, C7).
+- [x] 1.1 `<PublicShell>` extracted from `app/(public)/layout.tsx`; `notFoundCopy` in `lib/site.ts`; `<NotFoundView>`; `app/(public)/not-found.tsx` and `app/not-found.tsx` (D1, owner answer G).
+- [x] 1.2 `app/error.tsx`, `app/global-error.tsx` and the `/dev/error` fixture (D2).
+- [x] 1.3 Unit tests, `not-found.spec.ts`, `error.spec.ts`, and the `service-pages.spec.ts` heading assertion updated (D11, C7).
 
 ## 2. Analytics
 
