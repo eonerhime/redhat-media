@@ -54,3 +54,14 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - **Firewall checks (plan 5.1), against production (still the static page, same project):** `/.env`, `/.git/config`, `/wp-login.php`, `/xmlrpc.php` and `/index.php` answer **403**, and `/` answers 200.
   - **Rate-limit burst:** 1,300 requests, 25 at a time, gave 58 × 200, then 403 with `X-Vercel-Mitigated: challenge` (Vercel's Security Checkpoint, its own DDoS mitigation), not the rule's 429. `curl` from this IP was still challenged 5 minutes later; a browser passes the checkpoint. The per-IP rule is the backstop for slower floods. Validation was reworded to what was observed.
   - Vercel's account menu on Hobby has no "Notifications" page where the plan expected one (owner).
+
+- **2026-10-16** — Monitor live on the PR (plans 4.3–4.5).
+  - **Set up with `gh`, with the owner's approval:** the GitHub Environment `monitor`, its `MONITOR_DATABASE_URL` secret (read from the git-ignored file through stdin, never displayed), and the repository variable `MONITOR_BASE_URL` = `https://redhat-media-git-develop-e1rhyme.vercel.app`. The local copies of the monitor URL and the rehearsal salt were deleted once GitHub and Vercel held them.
+  - **First `test-alert` run (38939917250):**
+    - every real check passed;
+    - connections were 1 of 897 usable, because the preview compute's `max_connections` follows its autoscaling ceiling, not 0.25 CU;
+    - query volume was "not sampled: compute started 1 s ago", since the run woke the compute;
+    - the run then failed with "TEST ALERT — not an incident".
+    - No email arrived, and GitHub's notifications API showed none for the run. The owner's Actions setting (Email, failed workflows only) had been on already; the owner clicked Save on it again.
+  - **Second run (38945956023):** "[eonerhime/redhat-media] PR run failed: monitor - …" arrived at `emo.onerhime@gmail.com`, and the Gmail filter's forwarded copy reached `redhatmediang@gmail.com`. PR-triggered runs put "PR" before "run failed"; the filter phrase "Run failed: monitor" matches both forms. Runbook updated.
+  - **Notifications:** Vercel's Hobby account menu has no notification-preferences page (owner). Neon's usage emails reach the owner.

@@ -7,7 +7,7 @@
 - [ ] **Lighthouse:** Performance, Accessibility, Best Practices and SEO ≥ 90 on mobile for every template, with `is-crawlable` skipped on the preview only (D6). Scores recorded per URL.
 - [ ] **Smoke test:** green in the desktop, mobile and keyboard variants, in CI and on the Vercel preview (D5).
 - [ ] **Checklist:** every applicable item below is ticked (D10).
-- [ ] **Test alert:** the labelled run failed with "TEST ALERT" and its email reached the recipients from owner answer D (D7).
+- [x] **Test alert:** the labelled run failed with "TEST ALERT" and its email reached the recipients from owner answer D (D7). Run 38945956023, 2026-10-16. Every real check passed against develop's preview and the Neon preview branch first. "[eonerhime/redhat-media] PR run failed: monitor - …" arrived at `emo.onerhime@gmail.com`, and the Gmail filter's forwarded copy at `redhatmediang@gmail.com` (owner).
 
 ## Error pages
 
@@ -28,7 +28,7 @@
 ## Monitoring and edge
 
 - [ ] `monitor.mts` passes against develop's preview and the Neon preview. The thresholds are recorded with their baseline (D7)
-- [ ] Neon usage alerts and Vercel deployment-failure notifications are confirmed on (D7)
+- [x] Neon usage alerts and Vercel deployment-failure notifications are confirmed on (D7): Neon's emails go to an inbox the owner reads. Vercel's Hobby account menu has no notification-preferences page, so deployment failures are seen as the failing `Vercel` check on the PR (owner, 2026-10-16).
 - [ ] Firewall rules are set as in `docs/runbooks/firewall.md`. `/.env` and the other scanner paths answer 403. A fast burst is stopped by Vercel's own mitigation (challenge) before the per-IP rule counts up (D8, as observed)
 - [ ] The runbooks exist: `monitoring.md`, `firewall.md` and `secret-rotation.md`. The rotation rehearsal passed, with its timing recorded (D9)
 

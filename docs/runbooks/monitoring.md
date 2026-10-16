@@ -30,7 +30,7 @@ The log prints check names, states and numbers only. The repository is public, s
 - The owner keeps GitHub → Settings → Notifications → **Actions** set to **Email**, with "Only notify for failed workflows".
 - A **Gmail filter** in the owner's mailbox forwards those emails to `redhatmediang@gmail.com`:
   - From: `notifications@github.com`
-  - Subject: `Run failed: monitor`
+  - Subject: `Run failed: monitor`. That phrase matches both forms GitHub sends: `[eonerhime/redhat-media] Run failed: monitor - …` (scheduled and dispatched runs) and `[eonerhime/redhat-media] PR run failed: monitor - …` (the `test-alert` label). The first test alert, on 2026-10-16, arrived as the second form.
   - Action: forward to `redhatmediang@gmail.com`
 - **Neon** emails usage warnings on Free (storage, data transfer, compute) at 80% and 100%, per project. They go to the Neon account's email.
 - **Vercel** emails deployment failures. They go to the Vercel account's email (Account Settings → Notifications).

@@ -31,9 +31,9 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 - [x] 4.1 `scripts/monitor.mts` and its pure core, with `monitor-core.test.ts` (D7, D11).
 - [x] 4.2 Baseline: connections and transaction rate, sampled over a busy e2e run (on the dev branch; the preview has no local `rhm_readonly` credential). Thresholds fixed and recorded (D7 amended).
-- [ ] 4.3 `.github/workflows/monitor.yml` (schedule, dispatch with `test_alert`, the `test-alert` label trigger). Owner creates the `monitor` environment with `MONITOR_DATABASE_URL` (preview `rhm_readonly`) and the repository variable `MONITOR_BASE_URL` (develop's preview URL) (D7, C6).
-- [ ] 4.4 Test alert: the owner adds the `test-alert` label to the PR, and the "Run failed" email arrives (D7, owner answer D).
-- [ ] 4.5 Neon Free usage alerts and Vercel deployment-failure notifications confirmed on and routed (D7).
+- [x] 4.3 `.github/workflows/monitor.yml` (schedule, dispatch with `test_alert`, the `test-alert` label trigger). Owner creates the `monitor` environment with `MONITOR_DATABASE_URL` (preview `rhm_readonly`) and the repository variable `MONITOR_BASE_URL` (develop's preview URL) (D7, C6).
+- [x] 4.4 Test alert: the owner adds the `test-alert` label to the PR, and the "Run failed" email arrives (D7, owner answer D).
+- [x] 4.5 Neon Free usage alerts and Vercel deployment-failure notifications confirmed on and routed (D7).
 - [x] 4.6 `docs/runbooks/monitoring.md` (D7).
 
 ## 5. Firewall
