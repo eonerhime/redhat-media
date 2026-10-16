@@ -17,7 +17,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 - [x] 2.1 `@vercel/analytics` and `@vercel/speed-insights` pinned and rendered in the root layout on Vercel deployments only, with a unit test (D3).
 - [x] 2.2 Owner turns on Web Analytics and Speed Insights in the Vercel dashboard (D3).
-- [ ] 2.3 The preview loads both scripts from its own origin, and `csp.spec.ts` logs no violation (D3, C4).
+- [x] 2.3 The preview loads both scripts from its own origin, and `csp.spec.ts` logs no violation (D3, C4).
 
 ## 3. Accessibility, smoke test, Lighthouse
 
@@ -25,7 +25,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 3.2 `e2e/smoke.spec.ts`: desktop, mobile and keyboard variants; CI and preview paths (D5).
 - [x] 3.3 `smoke`, `a11y` and `csp` in `preview-e2e` (D11).
 - [x] 3.4 Lighthouse per owner answer B: the `lighthouse` job running `scripts/lighthouse.mts` (`lighthouse` 13.5.0, bypass cookie on the preview host only), scores printed only (D6 amended, C6). Every template ≥ 0.90 in all four categories.
-- [ ] 3.5 Manual checks: 200% zoom, and the owner's screen-reader spot check (D4).
+- [x] 3.5 Manual checks: 200% zoom, and the owner's screen-reader spot check (D4).
 
 ## 4. Monitoring and alerting
 
@@ -52,4 +52,4 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 7.2 `/security-review` over the Milestone 1 code; findings fixed or accepted in writing (D10).
 - [x] 7.3 Pre-launch checklist filled in `validation.md`, each item done, N/A with its phase, or Phase 16 (D10).
 - [x] 7.4 PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green.
-- [ ] 7.5 Owner check on the preview (the 404 page, a phone walk-through), then every `validation.md` box ticked.
+- [x] 7.5 Owner check on the preview (the 404 page, a phone walk-through), then every `validation.md` box ticked.

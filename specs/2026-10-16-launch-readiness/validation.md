@@ -17,13 +17,13 @@
 
 ## Analytics
 
-- [ ] Web Analytics and Speed Insights are on in the dashboard and load from the preview's own origin. They are absent from local and CI builds (D3)
+- [x] Web Analytics and Speed Insights are on in the dashboard and load from the preview's own origin. They are absent from local and CI builds (D3) Both are enabled in the dashboard (owner, step B). They render only when `VERCEL_ENV` is set (`vercel-insights.test.ts`), so local and CI builds have none. **Seeing visits arrive moved to Phase 16** on production (owner, 2026-10-16).
 - [x] The CSP is unchanged, and `csp.spec.ts` on the preview logs no violation (D3, C4) `csp.spec.ts` on the preview of `1cba4d3`, with the analytics components rendered (`VERCEL_ENV=preview`).
 
 ## Accessibility
 
 - [x] `a11y.spec.ts` finds zero WCAG 2.2 A/AA violations on every route at 360px and 1440px, with the nav and lightbox open, in CI and on the preview (D4) The control test proves the audit catches a planted `image-alt` violation.
-- [ ] 200% zoom checked, and the owner's screen-reader spot check recorded (D4)
+- [x] 200% zoom checked, and the owner's screen-reader spot check recorded (D4) 200% zoom is covered by the 360px and 768px layout checks (`implementation.md`). **The screen-reader spot check moved to Phase 16** on production (owner, 2026-10-16).
 
 ## Monitoring and edge
 
@@ -55,4 +55,4 @@ Each item is marked **done** (with evidence), **N/A until Phase N**, or **Phase 
 - [x] `pnpm test:e2e` passes locally (ready and unavailable) and in CI; `preview-e2e` and `lighthouse` pass on the Vercel preview
 - [x] `pnpm test:db` passes (no schema change)
 - [x] No secret appears in any log, report or artifact (C6). The logs of the preview, Lighthouse and monitor runs were searched: every `***` is GitHub masking a step's environment listing or checkout token, and no script output contains one. Lighthouse writes no report, and no job uploads artifacts.
-- [ ] Owner check on the preview: the 404 page, and a walk-through on a phone
+- [x] Owner check on the preview: the 404 page, and a walk-through on a phone **Moved to Phase 16** on the production URL, by owner decision (2026-10-16). The same journey is proven by `smoke.spec.ts` (desktop, mobile, keyboard) and `not-found.spec.ts` on the preview.

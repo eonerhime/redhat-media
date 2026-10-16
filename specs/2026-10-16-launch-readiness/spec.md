@@ -138,3 +138,4 @@ Given 2026-10-16:
 - **E. Firewall:** the owner asked for advice. The recommendation is the three rules in D8 as written: Bot Protection in Log mode, Deny scanner paths and a generous per-IP rate limit. Confirmed by the owner, 2026-10-16.
 - **F. Rotation rehearsal:** the owner found the full preview-role rotation too much work. Proposed instead: a small rehearsal that rotates `RATE_LIMIT_SALT` on Vercel **Preview** (D9). Confirmed by the owner, 2026-10-16.
 - **G. 404 copy:** approved as written (D1).
+- **Later the same day:** the phone walk-through (including the 404 page), the screen-reader spot check (D4) and the check that Analytics records visits (D3) **move to Phase 16** on the production URL. The owner chose to merge without them. The automated smoke, 404 and axe specs cover the same ground on the preview.
