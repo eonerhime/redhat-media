@@ -102,3 +102,5 @@
 - The owner asked for About to come before Services in the menu. `navItems` in `lib/site.ts` is now About, Services, Portfolio, Contact. The desktop nav and the mobile menu both render from that list, so nothing else changed.
 - The shell tests read the expected labels from `navItems`, so no test changed.
 - Constitution: Phase 1 spec scope item and D3. No other spec, `tech-stack.md` or `roadmap.md` text gives the order.
+- PR #20: CI green (run 38870942493: `ci`, `db`, `gitleaks`), `preview-headers` and `preview-e2e` passed, and the Vercel preview is Ready.
+- Owner check (2026-10-16): the preview `redhat-media-git-feature-phase-01-nav-order-e1rhyme.vercel.app` shows About first. The validation is fully ticked.

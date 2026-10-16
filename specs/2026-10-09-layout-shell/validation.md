@@ -72,5 +72,5 @@ Run each as an uncommitted change, then revert.
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check` and `pnpm test` pass (922)
 - [x] `pnpm test:e2e` shell tests pass: the nav reads About, Services, Portfolio, Contact at 360, 768 and 1440px (161/161, `--workers=1`)
 - [x] The owner's source files in `public/` are not in the diff
-- [ ] CI is green on the PR (`ci`, `db`, `gitleaks`, `preview-headers`, Vercel Ready)
-- [ ] Owner: the Vercel preview shows About first in the header and the mobile menu
+- [x] CI is green on the PR — PR #20, run 38870942493 (`ci`, `db`, `gitleaks`), `preview-headers` and `preview-e2e` (run 38871037767), Vercel Ready
+- [x] Owner: the Vercel preview shows About first in the header and the mobile menu (owner, 2026-10-16: confirmed)
