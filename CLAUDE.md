@@ -26,7 +26,7 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 | `pnpm test` | Vitest |
 | `pnpm test:db` | Database tests (`*.db.test.ts`) against a real Postgres. Needs the `TEST_*_DATABASE_URL` vars (see `lib/db/test-client.ts`). |
 | `pnpm db:migrate` | `prisma migrate dev`. **Neon `dev` branch only.** Every other branch is migrated by CI. |
-| `pnpm db:seed` | Upserts the portfolio seed (`prisma/seed-data/`) into the branch in `MIGRATOR_DATABASE_URL`. Run locally on `dev` only; CI seeds `preview`. It refuses production. |
+| `pnpm db:seed` | Upserts the portfolio seed (`prisma/seed-data/`) into the branch in `MIGRATOR_DATABASE_URL`. Run locally on `dev` only; CI seeds `preview`, and `migrate-production` seeds production. It refuses production unless `SEED_ALLOW_PRODUCTION=1`, which only that job sets. |
 | `pnpm media:upload-seed` | Uploads the seed cover screenshots to Cloudinary (default source `../emo-onerhime/public/projects`). Needs `NEXT_PUBLIC_CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in `.env.local`, which live nowhere else. |
 | `pnpm db:studio` | Prisma Studio on the branch in `MIGRATOR_DATABASE_URL` |
 | `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. `PW_BASE_URL=<url>` targets a deployed site instead (no local server; sends the Vercel bypass header from `VERCEL_AUTOMATION_BYPASS_SECRET`). |

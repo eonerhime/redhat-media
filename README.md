@@ -24,7 +24,7 @@
   - **Brute-Force Protection:** IP and account-level login hardening with exponential delays and multi-factor requirement paths for staff users.
   - **Edge Security:** Cloudflare Turnstile bot challenges on high-intent forms, least-privilege Neon connection roles, strict Content Security Policies (CSP), and automated dependency vulnerability scans.
 - **Transactional Email:** Resend (for client project inquiries, media booking requests, and internal team notifications)
-- **Deployment & Hosting:** Vercel (Frontend & Server Actions)
+- **Deployment & Hosting:** Vercel (Frontend & Server Actions). Previews deploy per branch; production deploys from `main` only after CI has migrated and seeded the production database (migrate, then deploy; `docs/runbooks/release.md`).
 - **UI/UX & Aesthetic Direction:**
   - **Industrial Creative Standard:** Clean modern agency feel blending high-end visual production (photography/videography showcases) with elite engineering rigor (clean code metrics, tech stack badges).
   - **Micro-Interactions & Motion:** Restrained, purposeful animations (`transition-all duration-200 ease-in-out`), smooth card hover elevation (`hover:-translate-y-1 hover:shadow-xl`), and crisp image scaling on project cards (`group-hover:scale-105`).
