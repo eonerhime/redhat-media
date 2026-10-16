@@ -16,3 +16,15 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Route table: every page route keeps its rendering mode; new routes are the share images (`○`/`●`), `/robots.txt` and `/sitemap.xml`.
   - Unit 939+ passed. E2E ready: 327 passed and 2 skipped, apart from 6 Service JSON-LD checks that expected the old `provider` shape; updated with the `@id`, and `service-pages.spec.ts` then passed 55/55. E2E with `DATABASE_URL` blank: 315 passed, 19 skipped, 1 failed — `seo.spec.ts` asked the unavailable `/portfolio/sportspred` (`noindex`, title only) for Open Graph tags; the test now stops after the canonical check on `noindex` pages. Not yet re-run.
   - Local builds intermittently failed to reach Neon (`[portfolio] read failed: [object ErrorEvent]`) while direct queries worked; a rebuild cleared it. Network, not code.
+
+- **2026-10-16** — Re-ran after the `seo.spec.ts` fix. `DATABASE_URL= pnpm build` logged `[portfolio] read failed: DATABASE_URL is not set` and passed; `DATABASE_URL= E2E_PORTFOLIO_STATE=unavailable pnpm test:e2e --workers=1`: **316 passed, 19 skipped, 0 failed** (4.3 min). `/portfolio/sportspred` now passes the SEO check. The skips are the tests that need published items (9 in `portfolio-detail.spec.ts`, 8 in `portfolio.spec.ts`, 2 detail-page header checks in `shell.spec.ts`).
+  - Constitution (plan 0.1, 0.2):
+    - **`tech-stack.md`:** rule 9 names the metadata helper, the canonical rule, the share cards and the `Organization` / `LocalBusiness` split. Rule 12 records why `'unsafe-inline'` stays and the SRI measurement. The anti-framing and CSP rows say the policy is enforced and report-only is gone.
+    - **`roadmap.md`:** Phases 5, 12 and 14 point to D10 (soft 404 kept). Phase 16 re-runs securityheaders.com on production.
+  - Vercel Toolbar (plan 2.5): Vercel's docs (via ctx7, 2026-10-16) give a project setting, Settings → General → Vercel Toolbar → Preview: Off, or `VERCEL_PREVIEW_FEEDBACK_ENABLED=0` per branch. Per owner answer C, the owner turned it off on 2026-10-16. The dashboard now labels the setting **Pre-Production Deployments**: Off, and Production is unchanged. The PR preview's `csp.spec.ts` run confirms it (validation, D9).
+  - Local checks (plan 4.1, 4.2):
+    - `pnpm typecheck`, `pnpm lint`, `pnpm format:check` and `pnpm build` passed. `pnpm test`: 939 passed in 24 files.
+    - `pnpm test:e2e --workers=1` against the dev database: **333 passed, 2 skipped** (the two tests that need the unavailable state), 6.7 min.
+    - The `DATABASE_URL`-blank run is the entry above.
+  - Route table (C2): this branch's `DATABASE_URL`-blank build was compared with `develop`'s, taken from the `ci` job log of develop run 38799968319. Every existing route keeps its symbol and its revalidate and expire times. The new routes are the share images (`○`, or `●` under `[slug]`, at 1h / 1d), `/robots.txt` (`○`) and `/sitemap.xml` (`○`, 1m / 1h).
+  - Note: a `pnpm install` running in a second worktree at the same time stalled ESLint here for 19 minutes. Run one install or build at a time.

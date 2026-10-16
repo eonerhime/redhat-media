@@ -30,8 +30,8 @@
 
 ## Gates
 
-- [ ] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
-- [ ] Route table unchanged apart from the new metadata routes (C2)
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
+- [x] Route table unchanged apart from the new metadata routes (C2)
 - [ ] `pnpm test:e2e` passes locally (ready and unavailable) and in CI; `preview-e2e` passes on the Vercel preview
 - [ ] `pnpm test:db` passes (no schema change; the CI `db` job)
 - [ ] Owner check on the preview

@@ -65,13 +65,26 @@ Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact
    - Hiding the path only reduces bot noise and is **not** a security control. Rule 5 still applies.
 7. **Secrets** live only in Vercel environment variables. `.env.example` is committed and `.env*` files are git-ignored. Nothing prefixed `NEXT_PUBLIC_` may be a secret.
 8. **Errors.** Every data-fetching route has a `loading.tsx` and an `error.tsx`. One `app/(public)/error.tsx` serves every public route; its copy is fixed text in `lib/site.ts`, not content blocks, so it still renders when the content store is what failed (Phase 10 spec, D6). Cached data reads return a failure result instead of throwing, because a throw inside `"use cache"` fails the prerender. Server actions return typed `{ ok, error }` results and do not throw to the client. The client **always** checks the result, keeps the editor or form open on failure, and shows the error.
-9. **SEO.** Use the Metadata API on every route, plus:
-   - dynamic OpenGraph images for portfolio items and services;
-   - `sitemap.ts` and `robots.ts`;
-   - JSON-LD: `Organization` / `LocalBusiness` (Lagos), `Service` per service page, `CreativeWork` per portfolio item, and `VideoObject` for embedded videos. Portfolio items use `CreativeWork` whatever their category: Google's Software App result requires a price and a rating or review, which RHM's case studies do not have and must not invent (Phase 12 spec, D10). `VideoObject` carries `uploadDate` only when it is known; Phase 30 decides how to record it.
+9. **SEO.** Use the Metadata API on every route through one helper, `pageMetadata()` in `lib/seo/metadata.ts` (title, description, canonical, Open Graph, Twitter card). The root layout sets `metadataBase` from `env.siteUrl`, so previews never claim production URLs (Phase 14 spec, D1). Plus:
+   - **Canonical URLs:** every public route sends one for its own path, with no query string. The exception is `/portfolio`, which sends none, so its filtered views stay indexable (rule 2). Pages marked `noindex` (an unknown slug, the unavailable state) send no canonical (Phase 14 spec, D2).
+   - **Open Graph images** (1200 × 630 PNG, `next/og`):
+     - a site card for `/`, `/services`, `/about`, `/portfolio` and `/contact`;
+     - a card per service;
+     - a card per portfolio item, built from its Cloudinary cover.
+
+     A muted, unknown or coverless item, or a failed read, falls back to the site card. The cards render inside `"use cache"` helpers (`lib/seo/og-images.ts`), so they prerender (Phase 14 spec, D3).
+   - `sitemap.ts` (visible services and published items only; it still lists the other pages when the portfolio read fails) and `robots.ts` (no `Disallow` lines, rule 6).
+   - JSON-LD, with every business value taken from `lib/site.ts`:
+     - `Organization` on `/` (`@id` `{siteUrl}/#organization`);
+     - `LocalBusiness` (Lagos, city only) on `/contact`, whose `parentOrganization` points at that `@id` (Phase 14 spec, D6);
+     - `Service` per service page, `CreativeWork` per portfolio item (these name that `@id` as provider and creator) and `VideoObject` for embedded videos. Portfolio items use `CreativeWork` whatever their category: Google's Software App result requires a price and a rating or review, which RHM's case studies do not have and must not invent (Phase 12 spec, D10). `VideoObject` carries `uploadDate` only when it is known; Phase 30 decides how to record it.
 10. **Accessibility.** Semantic HTML, visible focus states, WCAG 2.2 AA contrast and `prefers-reduced-motion` respected. Every image has alt text, and the editor requires it. Every edit control is keyboard-reachable and labelled.
 11. **Performance budget.** Mobile Lighthouse ≥ 90 on every public template. The LCP image is prioritised, every other image is lazy-loaded through Cloudinary responsive transforms, and no iframe loads before a click.
-12. **Content Security Policy.** `img-src` allows Cloudinary and video-thumbnail hosts. `frame-src` allows only `www.youtube-nocookie.com`, `player.vimeo.com` and, from Phase 18, `challenges.cloudflare.com`.
+12. **Content Security Policy.** One enforced policy from Phase 14 (`lib/security/headers.ts`). `img-src` allows Cloudinary and video-thumbnail hosts. `frame-src` allows only `www.youtube-nocookie.com`, `player.vimeo.com` and, from Phase 18, `challenges.cloudflare.com`.
+    - **`script-src` keeps `'unsafe-inline'`.** Next.js renders inline bootstrap and RSC payload scripts on every page, and they differ per page and per build. A static header cannot list hashes for them, and nonces would make every page dynamic (rule 1).
+    - **SRI was measured and not adopted.** A Phase 14 build with `experimental.sri` and `script-src 'self'` logged 560 violations across 17 templates, so the flag is not used (Phase 14 spec, D7).
+    - **`style-src` keeps `'unsafe-inline'`** for `next/font`, `next/image` and React `style` props.
+    - **XSS defence** therefore rests on React escaping, the lint bans on `dangerouslySetInnerHTML` and `*RawUnsafe`, `<JsonLd>` escaping, and no `'unsafe-eval'` or wildcard sources outside `pnpm dev`.
 13. **Cache refresh after writes.** Every CMS mutation refreshes the affected routes with `revalidatePath` / tag APIs. Next 16 offers `updateTag` for read-your-own-writes inside Server Actions; the exact API is confirmed in the Phase 27 spec. Public portfolio reads are cached functions in `lib/portfolio/read.ts`, all tagged `portfolio` (`cacheLife("hours")`): the list read and, from Phase 12, the per-item read behind `/portfolio/[slug]`. Phase 31's portfolio mutations refresh that one tag (Phase 10 spec, D2; Phase 12 spec, D2).
 
 ## Design tokens (carried over from the current site)
@@ -112,8 +125,8 @@ Every control below has a **"from" phase**. A phase is not done until its contro
 | --- | --- |
 | HTTPS only and HSTS (`max-age=63072000; includeSubDomains`). Add `preload` only once a custom domain exists and every subdomain is confirmed HTTPS. | 0 |
 | Headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, mic and geolocation off) | 0 |
-| Anti-framing, enforced from day one: browsers ignore `frame-ancestors` in a report-only policy, so a small **enforced** CSP (`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) and `X-Frame-Options: DENY` are sent alongside the report-only policy | 0 |
-| CSP: a **static header CSP** set in `next.config.ts`, with no nonces, so pages stay static/ISR. `script-src` allows `'unsafe-inline'` for the Next.js bootstrap; Phase 14 assesses hash-based alternatives before enforcing. Report-only from Phase 0. **Enforced** from Phase 14 (self, Cloudinary, YouTube/Vimeo frames). Turnstile is added in Phase 18 along with its test. | 0 → 14 → 18 |
+| Anti-framing, enforced from day one: browsers ignore `frame-ancestors` in a report-only policy, so a small **enforced** CSP (`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) and `X-Frame-Options: DENY` were sent alongside the report-only policy. From Phase 14 these directives are part of the one enforced policy. | 0 → 14 |
+| CSP: a **static header CSP** set in `next.config.ts` from `lib/security/headers.ts`, with no nonces, so pages stay static/ISR.<br>• **Report-only** from Phase 0.<br>• **Enforced** from Phase 14 as one policy (self, Cloudinary and video-thumbnail images, YouTube/Vimeo frames). The report-only header is gone, and `scripts/check-preview-headers.mts` fails if a deployment sends one.<br>• `script-src` keeps `'unsafe-inline'` after the Phase 14 hash/SRI assessment (rule 12, Phase 14 spec D7).<br>• `pnpm dev` alone adds `'unsafe-eval'`. `next build`, previews and production never send it, and a test enforces that (D8).<br>• Previews send the production policy, because the Vercel Toolbar is off for previews (D9).<br>• Turnstile is added in Phase 18 along with its test. | 0 → 14 → 18 |
 | Vercel Firewall bot rules, plus a runbook for Attack Challenge Mode during an attack | 15 |
 
 ### Abuse & brute-force protection
