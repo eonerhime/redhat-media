@@ -81,4 +81,4 @@ Then build the URL in the same shape as before (only the password changes), and 
 
 | Date | What | Time taken | Result |
 | --- | --- | --- | --- |
-| — | `RATE_LIMIT_SALT` on Vercel Preview (Phase 15, plan 6.2) | — | — |
+| 2026-10-16 | `RATE_LIMIT_SALT` on Vercel Preview (Phase 15, plan 6.2): a new value from a git-ignored file through the clipboard, pasted into Vercel by the owner; the next push redeployed | A few minutes (not timed) | Passed: `preview-e2e` and `lighthouse` green on `1cba4d3`, reading Neon through the rate-limit-free paths with the new salt. The local salt file was deleted. |

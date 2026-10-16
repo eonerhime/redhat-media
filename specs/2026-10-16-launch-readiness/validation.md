@@ -27,10 +27,10 @@
 
 ## Monitoring and edge
 
-- [ ] `monitor.mts` passes against develop's preview and the Neon preview. The thresholds are recorded with their baseline (D7)
+- [x] `monitor.mts` passes against develop's preview and the Neon preview. The thresholds are recorded with their baseline (D7)
 - [x] Neon usage alerts and Vercel deployment-failure notifications are confirmed on (D7): Neon's emails go to an inbox the owner reads. Vercel's Hobby account menu has no notification-preferences page, so deployment failures are seen as the failing `Vercel` check on the PR (owner, 2026-10-16).
-- [ ] Firewall rules are set as in `docs/runbooks/firewall.md`. `/.env` and the other scanner paths answer 403. A fast burst is stopped by Vercel's own mitigation (challenge) before the per-IP rule counts up (D8, as observed)
-- [ ] The runbooks exist: `monitoring.md`, `firewall.md` and `secret-rotation.md`. The rotation rehearsal passed, with its timing recorded (D9)
+- [x] Firewall rules are set as in `docs/runbooks/firewall.md`. `/.env` and the other scanner paths answer 403. A fast burst is stopped by Vercel's own mitigation (challenge) before the per-IP rule counts up (D8, as observed)
+- [x] The runbooks exist: `monitoring.md`, `firewall.md` and `secret-rotation.md`. The rotation rehearsal passed, with its timing recorded (D9)
 
 ## Pre-launch security checklist (`tech-stack.md`, Phase 15 run)
 

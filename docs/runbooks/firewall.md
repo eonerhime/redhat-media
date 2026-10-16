@@ -15,7 +15,7 @@ All are set in Vercel → project `redhat-media` → **Firewall**.
 | --- | --- | --- | --- |
 | 1 | **Bot Protection** (managed ruleset) | **Log** | Records automated traffic without blocking it. Challenge mode might block link-preview fetchers (WhatsApp, LinkedIn) that are not verified bots, so Phase 16 decides on Challenge after the share-card checks pass with it on. |
 | 2 | Custom rule **"Deny scanner paths"** | If *Request Path* matches the regex `^/(\.env\|\.git\|wp-\|xmlrpc\.php)\|\.php$`, then **Deny** | The site serves none of these paths. Bots probe them on every site. |
-| 3 | Custom rule **"Rate limit per IP"** | If *Request Path* starts with `/`, then **Rate Limit**: fixed window **60 s**, **1,200** requests, key **IP**, action **Deny** (429) | A fast scripted session (9 pages with prefetching) made 124 requests in 19 seconds; this is 10× that. It is generous because Nigerian mobile carriers share public IPs widely (carrier-grade NAT). |
+| 3 | Custom rule **"Rate limit per IP"** | If *Request Path* starts with `/` **and** *Domain Environment* equals **Production**, then **Rate Limit**: fixed window **60 s**, **1,200** requests, key **IP**, action **Deny** (429) | A fast scripted session (9 pages with prefetching) made 124 requests in 19 seconds; this is 10× that. It is generous because Nigerian mobile carriers share public IPs widely (carrier-grade NAT). It covers production only: on previews, which sit behind deployment protection anyway, it blocked CI's e2e runs with 403. |
 
 The rule 2 regex as typed into the dashboard (the table escapes its `|` characters):
 

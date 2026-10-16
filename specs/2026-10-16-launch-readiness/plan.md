@@ -44,7 +44,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 6. Secret rotation
 
 - [x] 6.1 `docs/runbooks/secret-rotation.md` (D9).
-- [ ] 6.2 Rehearsal per owner answer F: `RATE_LIMIT_SALT` rotated on Vercel Preview, redeployed, `preview-e2e` green, time recorded (D9).
+- [x] 6.2 Rehearsal per owner answer F: `RATE_LIMIT_SALT` rotated on Vercel Preview, redeployed, `preview-e2e` green, time recorded (D9).
 
 ## 7. Security gate and close
 
