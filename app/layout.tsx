@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { VercelInsights } from "@/components/vercel-insights";
 import { env } from "@/lib/env";
 import { fontVariables } from "./fonts";
 import "./globals.css";
@@ -18,7 +19,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${fontVariables} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        {/* Deployed builds only; `vercel dev` reports "development" (Phase 15 spec, D3). */}
+        <VercelInsights enabled={env.vercelEnv === "production" || env.vercelEnv === "preview"} />
+      </body>
     </html>
   );
 }

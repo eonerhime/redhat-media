@@ -15,7 +15,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 2. Analytics
 
-- [ ] 2.1 `@vercel/analytics` and `@vercel/speed-insights` pinned and rendered in the root layout on Vercel deployments only, with a unit test (D3).
+- [x] 2.1 `@vercel/analytics` and `@vercel/speed-insights` pinned and rendered in the root layout on Vercel deployments only, with a unit test (D3).
 - [ ] 2.2 Owner turns on Web Analytics and Speed Insights in the Vercel dashboard (D3).
 - [ ] 2.3 The preview loads both scripts from its own origin, and `csp.spec.ts` logs no violation (D3, C4).
 
