@@ -50,6 +50,6 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 - [x] 7.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank). Route table compared with develop's CI log (C2).
 - [x] 7.2 `/security-review` over the Milestone 1 code; findings fixed or accepted in writing (D10).
-- [ ] 7.3 Pre-launch checklist filled in `validation.md`, each item done, N/A with its phase, or Phase 16 (D10).
-- [ ] 7.4 PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green.
+- [x] 7.3 Pre-launch checklist filled in `validation.md`, each item done, N/A with its phase, or Phase 16 (D10).
+- [x] 7.4 PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green.
 - [ ] 7.5 Owner check on the preview (the 404 page, a phone walk-through), then every `validation.md` box ticked.
