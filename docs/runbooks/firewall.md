@@ -15,7 +15,7 @@ All are set in Vercel → project `redhat-media` → **Firewall**.
 | --- | --- | --- | --- |
 | 1 | **Bot Protection** (managed ruleset) | **Log** | Records automated traffic without blocking it. Challenge mode might block link-preview fetchers (WhatsApp, LinkedIn) that are not verified bots, so Phase 16 decides on Challenge after the share-card checks pass with it on. |
 | 2 | Custom rule **"Deny scanner paths"** | If *Request Path* matches the regex `^/(\.env\|\.git\|wp-\|xmlrpc\.php)\|\.php$`, then **Deny** | The site serves none of these paths. Bots probe them on every site. |
-| 3 | Custom rule **"Rate limit per IP"** | If *Request Path* starts with `/` **and** *Domain Environment* equals **Production**, then **Rate Limit**: fixed window **60 s**, **1,200** requests, key **IP**, action **Deny** (429) | A fast scripted session (9 pages with prefetching) made 124 requests in 19 seconds; this is 10× that. It is generous because Nigerian mobile carriers share public IPs widely (carrier-grade NAT). It covers production only: on previews, which sit behind deployment protection anyway, it blocked CI's e2e runs with 403. |
+| 3 | Custom rule **"Rate limit per IP"** | If *Request Path* starts with `/` **and** *Domain Environment* equals **Production**, then **Rate Limit**: fixed window **60 s**, **1,200** requests, key **IP**, action **Deny** (answers 403, `X-Vercel-Mitigated: deny`) | A fast scripted session (9 pages with prefetching) made 124 requests in 19 seconds; this is 10× that. It is generous because Nigerian mobile carriers share public IPs widely (carrier-grade NAT). It covers production only: on previews, which sit behind deployment protection anyway, it blocked CI's e2e runs with 403. |
 
 The rule 2 regex as typed into the dashboard (the table escapes its `|` characters):
 
@@ -32,7 +32,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://redhat-media.vercel.app/.env   
 curl -s -o /dev/null -w "%{http_code}\n" https://redhat-media.vercel.app/       # 200
 ```
 
-If real visitors report "429 Too Many Requests", raise the limit in rule 3 and record the new value here.
+If real visitors report being blocked (a plain 403 page while browsing normally), raise the limit in rule 3 and record the new value here.
 
 **Vercel's own DDoS mitigation acts first on fast bursts.** On 2026-10-16, a test of 1,300 requests from one IP, 25 at a time, got 200 for the first 58. Everything after that, within about 5 seconds, got 403 with `X-Vercel-Mitigated: challenge` (the "Vercel Security Checkpoint"), before rule 3 could reach its count. A browser passes that checkpoint by itself; `curl` from the same IP was still challenged 5 minutes later. Rule 3 is therefore the backstop for slower, sustained floods. When testing, look at the `X-Vercel-Mitigated` header: `deny` means a rule blocked the request, `challenge` means the checkpoint.
 
