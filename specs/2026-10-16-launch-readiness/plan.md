@@ -23,7 +23,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 - [x] 3.1 `@axe-core/playwright` (owner answer C); `e2e/a11y.spec.ts`; every finding fixed (D4).
 - [x] 3.2 `e2e/smoke.spec.ts`: desktop, mobile and keyboard variants; CI and preview paths (D5).
-- [ ] 3.3 `smoke`, `a11y` and `csp` in `preview-e2e` (D11).
+- [x] 3.3 `smoke`, `a11y` and `csp` in `preview-e2e` (D11).
 - [x] 3.4 Lighthouse per owner answer B: the `lighthouse` job running `scripts/lighthouse.mts` (`lighthouse` 13.5.0, bypass cookie on the preview host only), scores printed only (D6 amended, C6). Every template ≥ 0.90 in all four categories.
 - [ ] 3.5 Manual checks: 200% zoom, and the owner's screen-reader spot check (D4).
 
@@ -48,7 +48,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 7. Security gate and close
 
-- [ ] 7.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank). Route table compared with develop's CI log (C2).
+- [x] 7.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank). Route table compared with develop's CI log (C2).
 - [x] 7.2 `/security-review` over the Milestone 1 code; findings fixed or accepted in writing (D10).
 - [ ] 7.3 Pre-launch checklist filled in `validation.md`, each item done, N/A with its phase, or Phase 16 (D10).
 - [ ] 7.4 PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green.

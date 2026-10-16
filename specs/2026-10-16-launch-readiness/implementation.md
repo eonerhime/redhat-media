@@ -39,3 +39,11 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - **Runbooks (plans 4.6, 6.1):** `docs/runbooks/monitoring.md`, `firewall.md` and `secret-rotation.md`.
     - Rate limit: a fast scripted session (9 pages with prefetching) made 124 site requests in 19 seconds. The rule is set at 1,200 per 60 s per IP, kept generous for carrier-grade NAT on Nigerian mobile networks.
     - The `rhm_readonly` preview password is not stored locally, since the Phase 7 output file is gone. The monitor's credential is re-keyed with one `ALTER ROLE` in the Neon SQL editor, not a full `db-bootstrap` run.
+
+- **2026-10-16** — PR #21 after `4f258a7`: every check is green, including `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` (now only the intended specs), `lighthouse` and `same-repo`. The guard let this repository's own commit through (plan 3.3).
+  - **Local gates (plan 7.1):**
+    - `pnpm typecheck`, `lint`, `format:check` (apart from the git-ignored `.claude/settings.local.json`) and `test` (960) pass.
+    - E2E against the dev database: 376 passed, 2 skipped; the one earlier failure, the axe control, was since fixed and re-run.
+    - With `DATABASE_URL` blank, the build logged "DATABASE_URL is not set", and the suite gave **359 passed, 20 skipped, 0 failed**.
+  - **Route table (C2)**, compared with develop run 38883504229's `ci` log: every route keeps its rendering mode. `/dev/error` is new. `/_not-found` and the `/dev/*` fixtures now revalidate at 1d / 1w, because they include `<PublicShell>`, whose footer year is cached with `cacheLife("days")`. No public route changed.
+  - The monitor's preview `rhm_readonly` password was generated into the git-ignored `.env.monitor-preview.local`, together with a one-statement `ALTER ROLE` file for the owner. The rehearsal salt is in `.env.salt-rehearsal.local`. None of them was printed.
