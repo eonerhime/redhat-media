@@ -32,5 +32,5 @@ Scope, decisions (D1–D11) and constraints (C1–C7) are in [`spec.md`](spec.md
 
 - [x] 4.1 `e2e/seo.spec.ts` and `e2e/csp.spec.ts`; `csp.spec.ts` joins `preview-e2e` (D11). Route table compared with `develop`'s (C2).
 - [x] 4.2 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank).
-- [ ] 4.3 PR into `develop`: CI, `preview-headers` and `preview-e2e` green; external validators run on the preview (D11).
-- [ ] 4.4 Owner check on the preview (share cards, a shared link on a phone), then every `validation.md` box ticked.
+- [x] 4.3 PR into `develop`: CI, `preview-headers` and `preview-e2e` green; external validators run on the preview (D11).
+- [x] 4.4 Owner check on the preview (share cards, a shared link on a phone), then every `validation.md` box ticked.

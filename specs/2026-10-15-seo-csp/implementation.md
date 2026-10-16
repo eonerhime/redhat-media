@@ -28,3 +28,18 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - The `DATABASE_URL`-blank run is the entry above.
   - Route table (C2): this branch's `DATABASE_URL`-blank build was compared with `develop`'s, taken from the `ci` job log of develop run 38799968319. Every existing route keeps its symbol and its revalidate and expire times. The new routes are the share images (`○`, or `●` under `[slug]`, at 1h / 1d), `/robots.txt` (`○`) and `/sitemap.xml` (`○`, 1m / 1h).
   - Note: a `pnpm install` running in a second worktree at the same time stalled ESLint here for 19 minutes. Run one install or build at a time.
+
+- **2026-10-16** — PR #19 opened; every check is green (`ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e`, Vercel). The nav-order amendment (PR #20, `45908f5`) was merged into this branch (`f35f37c`), and the checks were green again on it.
+  - **External validators (plan 4.3).** Deployment protection blocks every outside crawler, even with a Vercel shareable link: Google reported "URL is not available to Google".
+    - The owner pasted each page's HTML instead (the Code tab).
+    - Rich Results Test: `/` has 2 valid items, with non-critical issues only; `/contact` has 2 valid items (LocalBusiness, Organization).
+    - That tool lists only rich-result types, so `/services/photography` showed "No items". `Service` and `CreativeWork` were then checked in validator.schema.org: 0 errors and 0 warnings each.
+    - **Deviation (owner, 2026-10-16):** the OG validator, the WhatsApp share and securityheaders.com move to Phase 16 on production. Spec D11 and roadmap Phase 16 are amended.
+  - **Checked on the preview through the shareable link with `curl`:**
+    - headers: one enforced CSP, all six security headers, no report-only header;
+    - canonical, OG and Twitter tags on six routes, and none on `/portfolio`;
+    - three cards at 1200 × 630, viewed;
+    - unknown-slug cards byte-identical to the site card, with `noindex` and no canonical;
+    - `robots.txt`, and `sitemap.xml` with 15 URLs;
+    - JSON-LD values matching `lib/site.ts`.
+- Owner check (2026-10-16): the three share cards look right on the preview. Every plan and validation box is ticked.
