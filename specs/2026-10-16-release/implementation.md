@@ -8,3 +8,13 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Owner answers (later the same day): A, no custom domain yet; B, seed production from CI; C, migrate then deploy, with the owner as reviewer; D, the owner asked whether the production URL was in `.env.local` (it is not; it holds the dev branch only), so the agent writes it with the Neon CLI into a git-ignored file; E, Bot Protection stays on Log, recorded; F, the Search Console HTML file; G, promote `develop` to `main` once the phase is done. Spec approved.
 
 - **2026-10-16** — Constitution (plan 0.1–0.3): `tech-stack.md` (Hosting, Monitoring, Edge protection, the migrations, protected-branch, backups, Monitoring and rotation rows, GitHub Actions-only secrets), `roadmap.md` (Phase 16 outcomes so far, the Phase 31 create-only note, open question 2), the `CLAUDE.md` `db:seed` line and the README hosting line.
+
+- **2026-10-16** — Code (plan 1.1, 1.4, 2.1, 4.1, 4.2) and runbooks (part of 4.4):
+  - `assertSeedTarget()` accepts the production endpoint only with `SEED_ALLOW_PRODUCTION=1`, and still refuses `VERCEL_ENV=production` with it; `seed-guard.test.ts` 11 passed. `prisma/seed.mts` passes the variable through.
+  - `ci.yml`: `push` on `main`, and `migrate-production` (environment `neon-production`; migrate, seed, deploy hook; prints only the hook's job state). `vercel.json`: `git.deploymentEnabled.main = false`.
+  - `preview-headers.yml`: `production-checks` on a successful Production `deployment_status` or a dispatch. It targets the production domain, not the deployment URL, because Standard Protection covers every deployment URL except the production domain. It waits 60 s for the domain to follow the promotion.
+  - `monitor.yml`: the label trigger and the bypass secret removed (D8).
+  - `e2e/release.spec.ts`. Dry run against `next start` on port 3000 (the local `siteUrl`): the crawlability, sitemap and three share-card tests pass; the four `/dev/*` tests fail as expected, because `/dev` pages are on outside production, which shows they catch a leak.
+  - Runbooks: new `release.md` and `restore.md` (rehearsal row to fill in); `monitoring.md`, `firewall.md` (Bot Protection kept on Log, owner answer E) and `secret-rotation.md` updated.
+  - `pnpm typecheck`, `pnpm lint` and `pnpm test` (964 passed) pass; `pnpm build` passes.
+  - **Blocked:** the production role bootstrap (plan 1.2) was refused by the agent's permission classifier ("Secret-Store Writes"). Nothing was written. It waits for the owner's explicit go-ahead.

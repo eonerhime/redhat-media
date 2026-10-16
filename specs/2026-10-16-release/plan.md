@@ -10,14 +10,14 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 1. Production database (before the release)
 
-- [ ] 1.1 `assertSeedTarget()` opt-in (`SEED_ALLOW_PRODUCTION=1`) with `seed-guard.test.ts` cases (D1, D13).
+- [x] 1.1 `assertSeedTarget()` opt-in (`SEED_ALLOW_PRODUCTION=1`) with `seed-guard.test.ts` cases (D1, D13).
 - [ ] 1.2 Confirm the production branch by endpoint ID and `neon roles list --branch production` (only `neondb_owner`). `neon connection-string production --role-name neondb_owner` (profile `e1rhyme`) writes the owner URL to `.env.neon-production-owner.local`; `db-bootstrap.mts --branch production` runs from it and writes `.env.neon-production.local`; roles listed again (D2, owner answer D).
 - [ ] 1.3 Owner creates the GitHub Environment `neon-production`: deployment branch `main` only, owner as required reviewer. `MIGRATOR_DATABASE_URL` piped in from the file (D2, C5).
-- [ ] 1.4 `migrate-production` job in `ci.yml` (`push` gains `main`; needs `ci` and `db`; non-cancelling concurrency; migrate → seed → hook) (D2, D3).
+- [x] 1.4 `migrate-production` job in `ci.yml` (`push` gains `main`; needs `ci` and `db`; non-cancelling concurrency; migrate → seed → hook) (D2, D3).
 
 ## 2. Migrate, then deploy
 
-- [ ] 2.1 `vercel.json`: `git.deploymentEnabled.main = false` (D3).
+- [x] 2.1 `vercel.json`: `git.deploymentEnabled.main = false` (D3).
 - [ ] 2.2 Hook test on a throwaway branch with its own `deploymentEnabled: false` entry and hook: the hook deploys, and the deployment reports `deployment_status`. Branch, hook and entry removed afterwards. If it fails, amend D3 to the fallback before going on (D3).
 - [ ] 2.3 Owner creates the production deploy hook for `main` (Settings → Git → Deploy Hooks); `VERCEL_DEPLOY_HOOK_URL` stored in `neon-production` without being displayed (D3, C5).
 
@@ -29,8 +29,8 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 4. Checks, runbooks and the phase PR
 
-- [ ] 4.1 `e2e/release.spec.ts` (`PW_RELEASE=1`) and the `production-checks` job in `preview-headers.yml` (deployment_status Production, plus `workflow_dispatch`) (D6, D13).
-- [ ] 4.2 `monitor.yml`: label trigger and bypass secret removed (D8).
+- [x] 4.1 `e2e/release.spec.ts` (`PW_RELEASE=1`) and the `production-checks` job in `preview-headers.yml` (deployment_status Production, plus `workflow_dispatch`) (D6, D13).
+- [x] 4.2 `monitor.yml`: label trigger and bypass secret removed (D8).
 - [ ] 4.3 Search Console: owner creates the URL-prefix property and downloads the HTML file; committed as `public/google<token>.html` (D11, owner answer F).
 - [ ] 4.4 `docs/runbooks/release.md` (release steps, reviewer snapshot, rollback) and the `monitoring.md` and `firewall.md` updates (D3, D5, D8, D9).
 - [ ] 4.5 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1`; route table compared with develop's CI log (C2).

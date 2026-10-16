@@ -1,13 +1,53 @@
 name: preview-headers
 
 # Runs when Vercel reports a successful preview deployment and checks that the
-# deployed response carries every header from lib/security/headers.ts.
-on: deployment_status
+# deployed response carries every header from lib/security/headers.ts. A Production deployment
+# (or a manual dispatch from main) runs production-checks instead (Phase 16 spec, D6).
+on:
+  deployment_status:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  # The production URL, not the deployment's own URL: Vercel's Standard Protection covers every
+  # deployment URL except the production domain. Production is public, so no bypass secret is
+  # used, and the commit checked out is main's, so no fork guard is needed. The custom-domain
+  # amendment changes PRODUCTION_URL.
+  production-checks:
+    name: production-checks
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION_URL: https://redhat-media.vercel.app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      # A deployment reports success as it is promoted; give the domain a minute to follow.
+      - if: github.event_name == 'deployment_status'
+        run: sleep 60
+      - name: Check served security headers
+        run: node scripts/check-preview-headers.mts "$PRODUCTION_URL"
+      - name: Smoke and release checks against production
+        env:
+          PW_BASE_URL: ${{ env.PRODUCTION_URL }}
+          PW_RELEASE: "1"
+          E2E_PORTFOLIO_STATE: ready
+        run: pnpm test:e2e e2e/smoke.spec.ts e2e/release.spec.ts
+
   # The jobs below check out the deployment's commit and run it with the bypass secret. They run
   # only when that commit is the head of a branch in this repository, never for a fork's commit,
   # even one a maintainer approved on Vercel (Phase 15 security review).

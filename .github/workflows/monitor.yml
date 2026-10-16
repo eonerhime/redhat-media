@@ -1,10 +1,12 @@
 name: monitor
 
-# The hourly site and Neon monitor (Phase 15 spec, D7). A failed run makes GitHub email the
-# account that last changed the cron line below. GitHub runs `schedule` and `workflow_dispatch`
-# only from the default branch, so both start at the Phase 16 release. Until then a test alert is
-# sent by adding the `test-alert` label to a PR: the run does the real checks, then fails on
-# purpose with "TEST ALERT — not an incident".
+# The hourly site and Neon monitor (Phase 15 spec, D7), against production from the Phase 16
+# release (Phase 16 spec, D8). A failed run makes GitHub email the account that last changed the
+# cron line below. GitHub runs `schedule` and `workflow_dispatch` only from the default branch,
+# `main`. A test alert is a dispatch with `test_alert` ticked: the run does the real checks, then
+# fails on purpose with "TEST ALERT — not an incident". Production is public, so no bypass secret
+# is sent, and the `monitor` environment is limited to `main`, so no PR branch can read its
+# credential.
 on:
   schedule:
     - cron: "17 * * * *"
@@ -14,8 +16,6 @@ on:
         description: Fail on purpose after the checks, to test the alert email
         type: boolean
         default: false
-  pull_request:
-    types: [labeled]
 
 permissions:
   contents: read
@@ -23,9 +23,8 @@ permissions:
 jobs:
   monitor:
     name: monitor
-    if: github.event_name != 'pull_request' || github.event.label.name == 'test-alert'
     runs-on: ubuntu-latest
-    # Holds MONITOR_DATABASE_URL (rhm_readonly): the preview branch in Phase 15, production from 16.
+    # Holds MONITOR_DATABASE_URL: the production rhm_readonly, direct connection (Phase 16).
     environment: monitor
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,6 +38,5 @@ jobs:
         env:
           MONITOR_BASE_URL: ${{ vars.MONITOR_BASE_URL }}
           MONITOR_DATABASE_URL: ${{ secrets.MONITOR_DATABASE_URL }}
-          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
-          MONITOR_TEST_ALERT: ${{ (github.event_name == 'pull_request' || inputs.test_alert) && '1' || '' }}
+          MONITOR_TEST_ALERT: ${{ inputs.test_alert && '1' || '' }}
         run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/monitor.mts
