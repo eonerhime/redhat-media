@@ -34,6 +34,8 @@ curl -s -o /dev/null -w "%{http_code}\n" https://redhat-media.vercel.app/       
 
 If real visitors report "429 Too Many Requests", raise the limit in rule 3 and record the new value here.
 
+**Vercel's own DDoS mitigation acts first on fast bursts.** On 2026-10-16, a test of 1,300 requests from one IP, 25 at a time, got 200 for the first 58. Everything after that, within about 5 seconds, got 403 with `X-Vercel-Mitigated: challenge` (the "Vercel Security Checkpoint"), before rule 3 could reach its count. A browser passes that checkpoint by itself; `curl` from the same IP was still challenged 5 minutes later. Rule 3 is therefore the backstop for slower, sustained floods. When testing, look at the `X-Vercel-Mitigated` header: `deny` means a rule blocked the request, `challenge` means the checkpoint.
+
 ## Attack Challenge Mode
 
 It makes every browser pass a challenge before it reaches the site. Verified bots (search engines) are let through.
@@ -46,7 +48,7 @@ It makes every browser pass a challenge before it reaches the site. Verified bot
 
 **How:**
 
-1. Vercel → project `redhat-media` → **Firewall** → **Bot Management** → **Attack Challenge Mode** → turn it on.
+1. Vercel → project `redhat-media` → **Firewall** → **Rules** → **Danger Zone** → **Attack Mode** → **Enable Attack Mode**. The dashboard calls it "Attack Mode"; it is off normally (owner, 2026-10-16).
 2. Or, from a terminal linked to the project: `vercel firewall attack-mode enable --duration 1h`, which turns itself off after 1 hour (`6h` and `24h` are also allowed).
 
 **While it is on:** visitors see a short browser check before each new session. Link previews in WhatsApp and LinkedIn may fail. Uptime checks from the monitor may fail too; that is expected.

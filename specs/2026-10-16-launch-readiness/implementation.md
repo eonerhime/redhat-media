@@ -47,3 +47,10 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - With `DATABASE_URL` blank, the build logged "DATABASE_URL is not set", and the suite gave **359 passed, 20 skipped, 0 failed**.
   - **Route table (C2)**, compared with develop run 38883504229's `ci` log: every route keeps its rendering mode. `/dev/error` is new. `/_not-found` and the `/dev/*` fixtures now revalidate at 1d / 1w, because they include `<PublicShell>`, whose footer year is cached with `cacheLife("days")`. No public route changed.
   - The monitor's preview `rhm_readonly` password was generated into the git-ignored `.env.monitor-preview.local`, together with a one-statement `ALTER ROLE` file for the owner. The rehearsal salt is in `.env.salt-rehearsal.local`. None of them was printed.
+
+- **2026-10-16** — Owner steps A and B were done.
+  - **A:** `rhm_readonly` on the preview branch was re-keyed with one `ALTER ROLE` in the Neon SQL editor. Checked by connecting with the new URL: `current_user` is `rhm_readonly` and it sees 5 portfolio items. The one-off SQL file was deleted.
+  - **B:** Web Analytics and Speed Insights are enabled, and the three Firewall entries are set. The dashboard calls Attack Challenge Mode **Attack Mode**, under Firewall → Rules → Danger Zone, and it is off. The runbook was corrected. The owner rotated `RATE_LIMIT_SALT` on Preview (plan 6.2); the next push redeploys the preview.
+  - **Firewall checks (plan 5.1), against production (still the static page, same project):** `/.env`, `/.git/config`, `/wp-login.php`, `/xmlrpc.php` and `/index.php` answer **403**, and `/` answers 200.
+  - **Rate-limit burst:** 1,300 requests, 25 at a time, gave 58 × 200, then 403 with `X-Vercel-Mitigated: challenge` (Vercel's Security Checkpoint, its own DDoS mitigation), not the rule's 429. `curl` from this IP was still challenged 5 minutes later; a browser passes the checkpoint. The per-IP rule is the backstop for slower floods. Validation was reworded to what was observed.
+  - Vercel's account menu on Hobby has no "Notifications" page where the plan expected one (owner).

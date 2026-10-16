@@ -16,7 +16,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 2. Analytics
 
 - [x] 2.1 `@vercel/analytics` and `@vercel/speed-insights` pinned and rendered in the root layout on Vercel deployments only, with a unit test (D3).
-- [ ] 2.2 Owner turns on Web Analytics and Speed Insights in the Vercel dashboard (D3).
+- [x] 2.2 Owner turns on Web Analytics and Speed Insights in the Vercel dashboard (D3).
 - [ ] 2.3 The preview loads both scripts from its own origin, and `csp.spec.ts` logs no violation (D3, C4).
 
 ## 3. Accessibility, smoke test, Lighthouse
@@ -38,8 +38,8 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 5. Firewall
 
-- [ ] 5.1 Count the requests in a normal browsing session; the owner sets the three rules per owner answer E; `curl` checks: `/.env` gives 403 and a burst gives 429; record which deployments the rules cover (D8).
-- [ ] 5.2 Attack Challenge Mode availability on Hobby confirmed; `docs/runbooks/firewall.md` with the rules and the runbook (D8).
+- [x] 5.1 Count the requests in a normal browsing session; the owner sets the three rules per owner answer E; `curl` checks: `/.env` gives 403 and a burst gives 429; record which deployments the rules cover (D8).
+- [x] 5.2 Attack Challenge Mode availability on Hobby confirmed; `docs/runbooks/firewall.md` with the rules and the runbook (D8).
 
 ## 6. Secret rotation
 
