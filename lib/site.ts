@@ -5,11 +5,11 @@ export const siteName = "RedHat Media";
 
 export type NavItem = { href: string; label: string };
 
-// Every page in the nav exists from Phase 13 (Phase 1 spec, D3).
+// Every page in the nav exists from Phase 13. About comes first (Phase 1 spec, D3, amended 2026-10-16).
 export const navItems = [
+  { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ] as const satisfies readonly NavItem[];
 
