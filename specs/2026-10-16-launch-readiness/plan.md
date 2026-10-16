@@ -4,8 +4,8 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 0. Constitution first
 
-- [ ] 0.1 `specs/tech-stack.md`: the *Supporting tools* rows (Analytics, E2E, Performance, Monitoring, Edge protection), rule 8, the Firewall, Monitoring and rotation rows, the checklist pointer, and *Environment variables* (`MONITOR_DATABASE_URL`, `MONITOR_BASE_URL`), per the owner's answers.
-- [ ] 0.2 `specs/roadmap.md`: the Phase 16 additions (monitor on production, scheduled test alert, smoke test and PageSpeed Insights on production, Bot Protection review) and open question 9 (owner answer A).
+- [x] 0.1 `specs/tech-stack.md`: the *Supporting tools* rows (Analytics, E2E, Performance, Monitoring, Edge protection), rule 8, the Firewall, Monitoring and rotation rows, the checklist pointer, and *Environment variables* (`MONITOR_DATABASE_URL`, `MONITOR_BASE_URL`), per the owner's answers.
+- [x] 0.2 `specs/roadmap.md`: the Phase 16 additions (monitor on production, scheduled test alert, smoke test and PageSpeed Insights on production, Bot Protection review) and open question 9 (owner answer A).
 
 ## 1. Error pages
 
