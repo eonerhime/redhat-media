@@ -15,7 +15,9 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: "/:path*", headers: [...securityHeaders] }];
+    // `pnpm dev` alone adds 'unsafe-eval' to script-src (Phase 14 spec, D8).
+    const dev = process.env.NODE_ENV === "development";
+    return [{ source: "/:path*", headers: [...securityHeaders({ dev })] }];
   },
 };
 

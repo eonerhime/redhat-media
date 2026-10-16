@@ -5,15 +5,16 @@ import { Cta } from "@/components/shared/cta";
 import { StepList } from "@/components/shared/step-list";
 import { block } from "@/lib/content/block";
 import { visiblePillars } from "@/lib/content/services";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { contact, siteName } from "@/lib/site";
 
-// Title is the heading plus the site name until Phase 14 adds a template (Phase 6 spec, D8).
+// Title is the heading plus the site name (Phase 6 spec, D8; kept by Phase 14 spec, D1).
 export async function generateMetadata(): Promise<Metadata> {
   const [heading, description] = await Promise.all([
     block("about.heading"),
     block("about.meta.description"),
   ]);
-  return { title: `${heading} | ${siteName}`, description };
+  return pageMetadata({ title: `${heading} | ${siteName}`, description, path: "/about" });
 }
 
 // Each h2 sits in its own band and labels its region (Phase 6 spec, D5).

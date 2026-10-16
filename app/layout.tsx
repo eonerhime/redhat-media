@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Inter } from "next/font/google";
+import { env } from "@/lib/env";
 import "./globals.css";
 
 // Self-hosted at build time, so the CSP keeps font-src 'self' (Phase 1 spec, D2).
@@ -7,6 +8,8 @@ const archivo = Archivo({ subsets: ["latin"], display: "swap", variable: "--font
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 
 export const metadata: Metadata = {
+  // Every relative metadata URL resolves on the deployment's own origin (Phase 14 spec, D1).
+  metadataBase: new URL(env.siteUrl),
   title: "RedHat Media",
   description: "If it's media, it's ours to handle.",
 };

@@ -1,5 +1,6 @@
 // Fetches a deployed URL and asserts every header in lib/security/headers.ts
-// is served with the exact expected value (spec D6). Runs on Node 24, which
+// is served with the exact production value (spec D6), and that no report-only
+// policy is served now the CSP is enforced (Phase 14 spec, D8). Runs on Node 24, which
 // strips TypeScript types natively.
 //
 // Usage: node scripts/check-preview-headers.mts <url>
@@ -27,8 +28,9 @@ if (res.status !== 200) {
   process.exit(1);
 }
 
+const expected = securityHeaders();
 let failed = 0;
-for (const { key, value } of securityHeaders) {
+for (const { key, value } of expected) {
   const actual = res.headers.get(key);
   if (actual === value) {
     console.log(`ok   ${key}`);
@@ -38,8 +40,16 @@ for (const { key, value } of securityHeaders) {
   }
 }
 
+const reportOnly = res.headers.get("Content-Security-Policy-Report-Only");
+if (reportOnly === null) {
+  console.log("ok   no Content-Security-Policy-Report-Only");
+} else {
+  failed++;
+  console.error(`FAIL Content-Security-Policy-Report-Only is still served: ${reportOnly}`);
+}
+
 if (failed) {
   console.error(`${failed} header(s) missing or wrong on ${url}`);
   process.exit(1);
 }
-console.log(`All ${securityHeaders.length} security headers served by ${url}`);
+console.log(`All ${expected.length} security headers served by ${url}`);
