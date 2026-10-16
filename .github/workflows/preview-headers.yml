@@ -8,11 +8,36 @@ permissions:
   contents: read
 
 jobs:
-  preview-headers:
-    name: preview-headers
+  # The jobs below check out the deployment's commit and run it with the bypass secret. They run
+  # only when that commit is the head of a branch in this repository, never for a fork's commit,
+  # even one a maintainer approved on Vercel (Phase 15 security review).
+  same-repo:
+    name: same-repo
     if: >-
       github.event.deployment_status.state == 'success' &&
       startsWith(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.deployment.sha }}
+        run: |
+          heads=$(gh api "repos/$REPO/commits/$SHA/branches-where-head" --jq length 2>/dev/null || echo 0)
+          if [ "$heads" -gt 0 ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$SHA is not the head of a branch in $REPO; skipping the preview checks."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  preview-headers:
+    name: preview-headers
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,9 +64,8 @@ jobs:
   # axe, 404 and error specs run here too, against seeded data (Phase 15 spec, D4, D5, D11).
   preview-e2e:
     name: preview-e2e
-    if: >-
-      github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment.environment, 'Preview')
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,16 +89,15 @@ jobs:
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts \n            e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts
+          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts
 
   # Lighthouse on mobile for every template, three runs each, every category >= 0.90 (Phase 15
   # spec, D6). The bypass cookie is set for the preview's host only, and no report is kept,
   # because the logs of this public repository can be read by anyone.
   lighthouse:
     name: lighthouse
-    if: >-
-      github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment.environment, 'Preview')
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -91,9 +114,10 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           # The runner's Google Chrome, in its new headless mode.
           PW_CHANNEL: chrome
+          PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
         run: |
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/lighthouse.mts "${{ github.event.deployment_status.environment_url }}"
+          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/lighthouse.mts "$PREVIEW_URL"

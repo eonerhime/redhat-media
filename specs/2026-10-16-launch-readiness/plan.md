@@ -24,7 +24,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 3.1 `@axe-core/playwright` (owner answer C); `e2e/a11y.spec.ts`; every finding fixed (D4).
 - [x] 3.2 `e2e/smoke.spec.ts`: desktop, mobile and keyboard variants; CI and preview paths (D5).
 - [ ] 3.3 `smoke`, `a11y` and `csp` in `preview-e2e` (D11).
-- [ ] 3.4 Lighthouse per owner answer B: the `lighthouse` job running `scripts/lighthouse.mts` (`lighthouse` 13.5.0, bypass cookie on the preview host only), scores printed only (D6 amended, C6). Every template ≥ 0.90 in all four categories.
+- [x] 3.4 Lighthouse per owner answer B: the `lighthouse` job running `scripts/lighthouse.mts` (`lighthouse` 13.5.0, bypass cookie on the preview host only), scores printed only (D6 amended, C6). Every template ≥ 0.90 in all four categories.
 - [ ] 3.5 Manual checks: 200% zoom, and the owner's screen-reader spot check (D4).
 
 ## 4. Monitoring and alerting
@@ -34,7 +34,7 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [ ] 4.3 `.github/workflows/monitor.yml` (schedule, dispatch with `test_alert`, the `test-alert` label trigger). Owner creates the `monitor` environment with `MONITOR_DATABASE_URL` (preview `rhm_readonly`) and the repository variable `MONITOR_BASE_URL` (develop's preview URL) (D7, C6).
 - [ ] 4.4 Test alert: the owner adds the `test-alert` label to the PR, and the "Run failed" email arrives (D7, owner answer D).
 - [ ] 4.5 Neon Free usage alerts and Vercel deployment-failure notifications confirmed on and routed (D7).
-- [ ] 4.6 `docs/runbooks/monitoring.md` (D7).
+- [x] 4.6 `docs/runbooks/monitoring.md` (D7).
 
 ## 5. Firewall
 
@@ -43,13 +43,13 @@ Scope, decisions (D1–D11) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 6. Secret rotation
 
-- [ ] 6.1 `docs/runbooks/secret-rotation.md` (D9).
+- [x] 6.1 `docs/runbooks/secret-rotation.md` (D9).
 - [ ] 6.2 Rehearsal per owner answer F: `RATE_LIMIT_SALT` rotated on Vercel Preview, redeployed, `preview-e2e` green, time recorded (D9).
 
 ## 7. Security gate and close
 
 - [ ] 7.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1` (ready, then with `DATABASE_URL` blank). Route table compared with develop's CI log (C2).
-- [ ] 7.2 `/security-review` over the Milestone 1 code; findings fixed or accepted in writing (D10).
+- [x] 7.2 `/security-review` over the Milestone 1 code; findings fixed or accepted in writing (D10).
 - [ ] 7.3 Pre-launch checklist filled in `validation.md`, each item done, N/A with its phase, or Phase 16 (D10).
 - [ ] 7.4 PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green.
 - [ ] 7.5 Owner check on the preview (the 404 page, a phone walk-through), then every `validation.md` box ticked.

@@ -42,12 +42,17 @@ for (const width of widths) {
 
 test("control: the audit reports a planted violation", async ({ page }) => {
   await open(page, "/");
+  // Plant only after streaming and hydration settle, so React cannot replace the node first.
+  await page.waitForLoadState("networkidle");
   await page.evaluate(() => {
     const img = document.createElement("img");
     img.src = "/icon.png";
     img.id = "planted";
+    img.width = 32;
+    img.height = 32;
     document.querySelector("main")?.append(img);
   });
+  await expect(page.locator("#planted")).toBeVisible();
   expect(await audit(page)).toContain("image-alt: #planted");
 });
 
