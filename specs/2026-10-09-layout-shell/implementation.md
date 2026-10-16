@@ -96,3 +96,9 @@
 - The owner's source files stay untracked in `public/` and are not part of this PR.
 - PR #13: CI green (run 38561892803: `ci`, `db`, `gitleaks`), `preview-headers` passed, and the Vercel preview is Ready.
 - Owner check (2026-10-14): the logo is visible and the preview `redhat-media-git-feature-phase-01-logo-e1rhyme.vercel.app` is fine. The validation is fully ticked.
+
+## Amendment 2026-10-16: About first in the nav
+
+- The owner asked for About to come before Services in the menu. `navItems` in `lib/site.ts` is now About, Services, Portfolio, Contact. The desktop nav and the mobile menu both render from that list, so nothing else changed.
+- The shell tests read the expected labels from `navItems`, so no test changed.
+- Constitution: Phase 1 spec scope item and D3. No other spec, `tech-stack.md` or `roadmap.md` text gives the order.
