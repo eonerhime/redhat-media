@@ -133,9 +133,14 @@ test.describe("service pages that must not exist", () => {
   test("an unknown slug renders the not-found page with noindex", async ({ page }) => {
     const response = await page.goto("/services/branding");
     expect([200, 404]).toContain(response?.status());
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    // The page and the not-found boundary can each emit a robots meta; every one must say noindex.
+    const robots = await page
+      .locator('meta[name="robots"]')
+      .evaluateAll((metas) => metas.map((meta) => meta.getAttribute("content")));
+    expect(robots.length).toBeGreaterThan(0);
+    for (const content of robots) expect(content).toMatch(/noindex/);
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
-    // The not-found UI has its own h1 ("404" until Phase 15), never a service name.
+    // The not-found UI has its own h1 (the branded view from Phase 15), never a service name.
     for (const s of services) {
       await expect(
         page.getByRole("heading", { level: 1, name: defaults[s.nameKey], exact: true }),

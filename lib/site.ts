@@ -52,4 +52,20 @@ export const errorCopy = {
   heading: "Something went wrong",
   body: "This page could not be shown. Please try again.",
   retry: "Try again",
+  home: "Go to the homepage",
+} as const;
+
+// The 404 view's text (components/shared/not-found-view.tsx). Fixed like errorCopy: the root
+// not-found renders outside the public pages, and the CMS key pattern has no not-found prefix
+// (Phase 15 spec, D1, owner answer G).
+export const notFoundCopy = {
+  title: "Page not found",
+  heading: "Page not found",
+  body: "The page you're looking for isn't here. It may have moved, or the link may be mistyped.",
+  links: [
+    { href: "/", label: "Home" },
+    { href: "/services", label: "Services" },
+    { href: "/portfolio", label: "Portfolio" },
+  ],
+  cta: { href: "/contact", label: "Contact us" },
 } as const;

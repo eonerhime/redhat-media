@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { business, contact, mailtoHref } from "./site";
+import { business, contact, mailtoHref, navItems, notFoundCopy } from "./site";
 
 const digits = (value: string) => value.replace(/\D/g, "");
 
@@ -49,5 +49,18 @@ describe("business site data", () => {
 
   it("points at a logo file that exists", () => {
     expect(existsSync(join("public", business.logoOnLight))).toBe(true);
+  });
+});
+
+// Phase 15 spec, D1 (owner answer G): every 404 leads back to the work and to an inquiry.
+describe("notFoundCopy", () => {
+  it("links home, to services and to the portfolio, with contact as the call to action", () => {
+    expect(notFoundCopy.links.map((link) => link.href)).toEqual(["/", "/services", "/portfolio"]);
+    expect(notFoundCopy.cta).toEqual({ href: "/contact", label: "Contact us" });
+  });
+
+  it("links only to pages in the nav, plus home", () => {
+    const pages = new Set<string>(["/", ...navItems.map((item) => item.href)]);
+    for (const { href } of [...notFoundCopy.links, notFoundCopy.cta]) expect(pages).toContain(href);
   });
 });
