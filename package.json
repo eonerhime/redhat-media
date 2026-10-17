@@ -43,7 +43,7 @@
     "@playwright/test": "1.63.0",
     "@prisma/adapter-pg": "7.10.0",
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "24.19.1",
+    "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
