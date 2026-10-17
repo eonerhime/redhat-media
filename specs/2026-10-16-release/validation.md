@@ -4,9 +4,9 @@
 
 > The production URL serves the new site, a rehearsed restore is documented with its timing, and the old `index.html` is gone from `main`.
 
-- [ ] **Production URL serves the new site:** the hook-triggered production deployment is Ready, and `production-checks` is green on it (D3, D6).
+- [x] **Production URL serves the new site:** the hook-triggered production deployment is Ready, and `production-checks` is green on it (D3, D6).
 - [ ] **Rehearsed restore, with timing:** both rehearsal branches verified, each step's duration and the total recorded in `implementation.md`, and `docs/runbooks/restore.md` written (D10).
-- [ ] **`index.html` gone from `main`:** `git ls-tree origin/main` lists no `index.html` after the release merge (D5).
+- [x] **`index.html` gone from `main`:** `git ls-tree origin/main` lists no `index.html` after the release merge (D5).
 
 ## Before the release PR merges
 
@@ -20,8 +20,8 @@
 
 ## Release
 
-- [ ] `migrate-production` applied every migration and seeded 5 items and 5 covers, then fired the hook (D1–D3)
-- [ ] `production-checks`: every header present and the CSP enforced; the smoke test green in all three variants; `release.spec.ts` green (`/dev/*` 404, crawlable, production canonicals and sitemap, three share cards at 1200 × 630) (D6)
+- [x] `migrate-production` applied every migration and seeded 5 items and 5 covers, then fired the hook (D1–D3)
+- [x] `production-checks`: every header present and the CSP enforced; the smoke test green in all three variants; `release.spec.ts` green (`/dev/*` 404, crawlable, production canonicals and sitemap, three share cards at 1200 × 630) (D6)
 
 ## External checks
 
