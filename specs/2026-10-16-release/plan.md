@@ -18,7 +18,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 2. Migrate, then deploy
 
 - [x] 2.1 `vercel.json`: `git.deploymentEnabled.main = false` (D3).
-- [ ] 2.2 Hook test on a throwaway branch with its own `deploymentEnabled: false` entry and hook: the hook deploys, and the deployment reports `deployment_status`. Branch, hook and entry removed afterwards. If it fails, amend D3 to the fallback before going on (D3).
+- [x] 2.2 Hook test on a throwaway branch with its own `deploymentEnabled: false` entry and hook: the hook deploys, and the deployment reports `deployment_status`. Branch, hook and entry removed afterwards. If it fails, amend D3 to the fallback before going on (D3).
 - [x] 2.3 Owner creates the production deploy hook for `main` (Settings → Git → Deploy Hooks); `VERCEL_DEPLOY_HOOK_URL` stored in `neon-production` without being displayed (D3, C5).
 
 ## 3. Production environment
