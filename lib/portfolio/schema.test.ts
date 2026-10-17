@@ -32,8 +32,8 @@ const issues = (item: unknown) => {
   return result.success ? [] : result.error.issues.map((issue) => issue.path.join("."));
 };
 
-describe("the approved seed content (Phase 9 spec, Appendix A)", () => {
-  it("parses: five unique items with https links", () => {
+describe("the approved seed content (Phase 9 spec, Appendices A and B)", () => {
+  it("parses: nine unique items with https links", () => {
     const parsed = parsePortfolioSeed(portfolioSeed);
     expect(parsed.map((item) => item.slug)).toEqual([
       "sportspred",
@@ -41,6 +41,10 @@ describe("the approved seed content (Phase 9 spec, Appendix A)", () => {
       "afro-jamz",
       "toutmessages",
       "abara",
+      "memories-r-us",
+      "glowreeyah",
+      "epenal",
+      "alphadeck",
     ]);
     for (const item of parsed) {
       expect(item.liveUrl).toMatch(/^https:\/\//);
@@ -48,7 +52,7 @@ describe("the approved seed content (Phase 9 spec, Appendix A)", () => {
     }
   });
 
-  it("features SportsPred, AfroJamz and toutMessages, and links only HireFlow's repo", () => {
+  it("features SportsPred, AfroJamz and toutMessages, and links only the public repos", () => {
     const parsed = parsePortfolioSeed(portfolioSeed);
     expect(parsed.filter((item) => item.featured).map((item) => item.slug)).toEqual([
       "sportspred",
@@ -57,6 +61,15 @@ describe("the approved seed content (Phase 9 spec, Appendix A)", () => {
     ]);
     expect(parsed.filter((item) => item.repoUrl).map((item) => item.slug)).toEqual([
       "hireflow-track",
+      "glowreeyah",
+    ]);
+  });
+
+  it("names a client only for the two client projects (amendment 2026-10-17)", () => {
+    const parsed = parsePortfolioSeed(portfolioSeed);
+    expect(parsed.filter((item) => item.client).map((item) => [item.slug, item.client])).toEqual([
+      ["glowreeyah", "Glowreeyah Braimah"],
+      ["epenal", "Epenal Group"],
     ]);
   });
 
@@ -89,6 +102,8 @@ describe("portfolioSeedItemSchema (D3)", () => {
     ["a summary over 200 characters", { summary: "a".repeat(201) }, "summary"],
     ["a description over 1,200 characters", { description: "a".repeat(1201) }, "description"],
     ["a credit over 120 characters", { credit: "a".repeat(121) }, "credit"],
+    ["a client over 120 characters", { client: "a".repeat(121) }, "client"],
+    ["an empty client", { client: "  " }, "client"],
     ["an http creditUrl", { creditUrl: "http://someone.example.com" }, "creditUrl"],
     ["two highlights", { highlights: ["a", "b"] }, "highlights"],
     ["seven highlights", { highlights: Array(7).fill("a") }, "highlights"],

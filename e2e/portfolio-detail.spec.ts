@@ -75,6 +75,14 @@ test.describe("/portfolio/[slug] with published items", () => {
       await expect(credit).toHaveAttribute("href", new URL(item.creditUrl!).href);
       await expect(credit).toHaveAttribute("rel", "noopener noreferrer");
 
+      // Client work names its client; RHM's own products have no Client section (Phase 9 amendment).
+      const client = main.getByRole("region", {
+        name: defaults["portfolio.detail.client"],
+        exact: true,
+      });
+      if (item.client) await expect(client).toHaveText(new RegExp(`${item.client}$`));
+      else await expect(client).toHaveCount(0);
+
       await expect(main.getByRole("link", { name: defaults["home.cta.button"] })).toHaveAttribute(
         "href",
         "/contact",
@@ -113,6 +121,7 @@ test.describe("/portfolio/[slug] with published items", () => {
         ...item.highlights,
         ...item.techStack,
         item.credit!,
+        ...(item.client ? [item.client] : []),
         item.cover.alt,
         "(opens in a new tab)",
       ]);
