@@ -18,3 +18,10 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Runbooks: new `release.md` and `restore.md` (rehearsal row to fill in); `monitoring.md`, `firewall.md` (Bot Protection kept on Log, owner answer E) and `secret-rotation.md` updated.
   - `pnpm typecheck`, `pnpm lint` and `pnpm test` (964 passed) pass; `pnpm build` passes.
   - **Blocked:** the production role bootstrap (plan 1.2) was refused by the agent's permission classifier ("Secret-Store Writes"). Nothing was written. It waits for the owner's explicit go-ahead.
+
+- **2026-10-17** — Production roles (plan 1.2):
+  - Confirmed before writing anything: `production` is `br-round-lab-za6oxiqc` (default branch) on endpoint `ep-muddy-star-za4k6uom`, and `neon roles list --branch production` showed only `neondb_owner`.
+  - The agent's permission classifier refused to write the owner URL again ("Credential Materialization"), so the owner ran the four commands: `neon connection-string production --role-name neondb_owner` into `.env.neon-production-owner.local`, then `db-bootstrap.mts --branch production` from it. Output: `created [rhm_migrator, rhm_app, rhm_readonly], re-keyed []`; no secret printed. The `pg` sslmode deprecation warning is informational.
+  - Afterwards `neon roles list --branch production` shows `neondb_owner`, `rhm_app`, `rhm_readonly` and `rhm_migrator` (created 2026-10-17T11:54:40Z). Both `.env.neon-production*.local` files are git-ignored and untracked; the bootstrap file holds `DATABASE_URL`, `MIGRATOR_DATABASE_URL`, `READONLY_DATABASE_URL` and `RATE_LIMIT_SALT` (key names checked, values not read).
+
+- **2026-10-17** — `neon-production` environment (plan 1.3): the owner created it with themself as required reviewer (self-review allowed, since the owner approves their own releases) and a deployment branch policy of `main` only, then piped `MIGRATOR_DATABASE_URL` in from `.env.neon-production.local` with `gh secret set --body $v`. Checked by API: protection rules `required_reviewers` and `branch_policy`, branch policy `main` (type branch), secret `MIGRATOR_DATABASE_URL` set 2026-10-17T12:26:53Z (name only).

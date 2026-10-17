@@ -10,7 +10,7 @@
 
 ## Before the release PR merges
 
-- [ ] Production roles exist (`rhm_app`, `rhm_migrator`, `rhm_readonly`), confirmed by role list on the production endpoint (D2)
+- [x] Production roles exist (`rhm_app`, `rhm_migrator`, `rhm_readonly`), confirmed by role list on the production endpoint (D2)
 - [ ] `neon-production` has `MIGRATOR_DATABASE_URL` and `VERCEL_DEPLOY_HOOK_URL`, is limited to `main` and has the owner as required reviewer (D2, D3)
 - [ ] The hook test proved that a hook deploys with auto-deploy off and reports `deployment_status`, or D3 was amended to the fallback (D3)
 - [ ] Vercel Production has `DATABASE_URL`, `RATE_LIMIT_SALT`, `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, and neither `MIGRATOR_DATABASE_URL` nor `BOOTSTRAP_DATABASE_URL` (D4)

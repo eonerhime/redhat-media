@@ -11,8 +11,8 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 1. Production database (before the release)
 
 - [x] 1.1 `assertSeedTarget()` opt-in (`SEED_ALLOW_PRODUCTION=1`) with `seed-guard.test.ts` cases (D1, D13).
-- [ ] 1.2 Confirm the production branch by endpoint ID and `neon roles list --branch production` (only `neondb_owner`). `neon connection-string production --role-name neondb_owner` (profile `e1rhyme`) writes the owner URL to `.env.neon-production-owner.local`; `db-bootstrap.mts --branch production` runs from it and writes `.env.neon-production.local`; roles listed again (D2, owner answer D).
-- [ ] 1.3 Owner creates the GitHub Environment `neon-production`: deployment branch `main` only, owner as required reviewer. `MIGRATOR_DATABASE_URL` piped in from the file (D2, C5).
+- [x] 1.2 Confirm the production branch by endpoint ID and `neon roles list --branch production` (only `neondb_owner`). `neon connection-string production --role-name neondb_owner` (profile `e1rhyme`) writes the owner URL to `.env.neon-production-owner.local`; `db-bootstrap.mts --branch production` runs from it and writes `.env.neon-production.local`; roles listed again (D2, owner answer D).
+- [x] 1.3 Owner creates the GitHub Environment `neon-production`: deployment branch `main` only, owner as required reviewer. `MIGRATOR_DATABASE_URL` piped in from the file (D2, C5).
 - [x] 1.4 `migrate-production` job in `ci.yml` (`push` gains `main`; needs `ci` and `db`; non-cancelling concurrency; migrate → seed → hook) (D2, D3).
 
 ## 2. Migrate, then deploy
