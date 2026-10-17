@@ -24,7 +24,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 3. Production environment
 
 - [x] 3.1 Vercel Production: `DATABASE_URL` (pooled `rhm_app`), `RATE_LIMIT_SALT`, `NEXT_PUBLIC_SITE_URL`, piped from the file (D4, C5). `vercel env ls production` shows the names only.
-- [ ] 3.2 `.env.neon-production.local` and `.env.neon-production-owner.local` deleted once every value is stored (the monitor's value is stored in 5.1 first); `secret-rotation.md` production entries (D4).
+- [x] 3.2 `.env.neon-production.local` and `.env.neon-production-owner.local` deleted once every value is stored (the monitor's value is stored in 5.1 first); `secret-rotation.md` production entries (D4).
 - [x] 3.3 Dashboard check: production has no Deployment Protection; the project's production branch is `main` (D4).
 
 ## 4. Checks, runbooks and the phase PR
@@ -34,11 +34,11 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 4.3 Search Console: owner creates the URL-prefix property and downloads the HTML file; committed as `public/google<token>.html` (D11, owner answer F).
 - [x] 4.4 `docs/runbooks/release.md` (release steps, reviewer snapshot, rollback) and the `monitoring.md` and `firewall.md` updates (D3, D5, D8, D9).
 - [x] 4.5 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1`; route table compared with develop's CI log (C2).
-- [ ] 4.6 Phase PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green; owner approves; merged with a merge commit.
+- [x] 4.6 Phase PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green; owner approves; merged with a merge commit.
 
 ## 5. Release
 
-- [ ] 5.1 Owner sets `MONITOR_BASE_URL` to the production origin and limits the `monitor` environment to `main`; production `rhm_readonly` (direct) piped into `MONITOR_DATABASE_URL` (D8, C5).
+- [x] 5.1 Owner sets `MONITOR_BASE_URL` to the production origin and limits the `monitor` environment to `main`; production `rhm_readonly` (direct) piped into `MONITOR_DATABASE_URL` (D8, C5).
 - [ ] 5.2 Release PR `develop` → `main`: `branch-check`, `ci`, `db`, `gitleaks` green; every pre-release box in `validation.md` ticked; promoted as soon as the phase is done (owner answer G); merged with a merge commit (D5, C6).
 - [ ] 5.3 Owner approves `migrate-production` (snapshot skipped: empty target, recorded). Migrate, seed and hook green; production deployment Ready; `index.html` gone from `main` (D2, D3, D5).
 - [ ] 5.4 `production-checks` green (headers, smoke, `release.spec.ts`) (D6).
