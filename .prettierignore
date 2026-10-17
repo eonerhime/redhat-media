@@ -6,3 +6,5 @@ lib/generated/
 test-results/
 playwright-report/
 blob-report/
+# Google's Search Console token, kept byte-for-byte as downloaded.
+public/google*.html
