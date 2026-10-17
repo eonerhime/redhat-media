@@ -51,10 +51,10 @@
 
 ## Gates
 
-- [ ] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
-- [ ] The route table is unchanged (C2)
-- [ ] `pnpm test:e2e` passes locally and in CI; `preview-e2e` and `lighthouse` pass on the phase PR's preview
-- [ ] `pnpm test:db` passes (no schema change, C3)
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
+- [x] The route table is unchanged (C2)
+- [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` and `lighthouse` pass on the phase PR's preview
+- [x] `pnpm test:db` passes (no schema change, C3)
 - [ ] No secret appears in any log, report, artifact or transcript (C5)
-- [ ] The owner's files in `public/` were never committed (C8)
+- [x] The owner's logo sources are committed only in `assets/brand/source/`, never in `public/` (C8, amended 2026-10-17)
 - [ ] Every plan box ticked
