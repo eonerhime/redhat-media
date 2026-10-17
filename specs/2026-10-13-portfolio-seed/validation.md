@@ -35,3 +35,14 @@
 
 - [x] The `tech-stack.md`, `roadmap.md` and `CLAUDE.md` amendments are in the same PR
 - [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+
+## Amendment 2026-10-17: four more items (Appendix B)
+
+- [x] The owner approved the copy, the client names and the cover location (2026-10-17)
+- [x] Every live URL answers HTTP 200 (2026-10-17); repo links only for public repositories (HireFlow, Glowreeyah)
+- [x] `pnpm media:upload-seed` uploaded the four new covers (1200×750 WebP) and skipped the five existing ones
+- [x] `pnpm db:seed` on Neon `dev`: 9 items, 9 covers; `/portfolio` lists all nine locally, and the Glowreeyah and Epenal pages show their client
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` (967) and `pnpm build` pass locally; `pnpm test:e2e --workers=1` 380 passed and 1 failed, then `portfolio-detail.spec.ts` 18/18 after the fix in the log
+- [ ] CI is green on the PR (`ci`, `db` with `seed.db.test.ts` at 9 items, `gitleaks`, `preview-headers`, `preview-e2e`, `lighthouse`, Vercel)
+- [ ] After the merge, `migrate-preview` seeds Neon `preview` (4 created, 5 updated, 9 covers)
+- [ ] After the promotion, `migrate-production` seeds production the same way, and `https://redhat-media.vercel.app/portfolio` lists nine items

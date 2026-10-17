@@ -38,18 +38,20 @@ describe("runSeed", () => {
   it("is idempotent: a second run creates nothing", async () => {
     await runSeed(db, portfolioSeed);
     const second = await runSeed(db, portfolioSeed);
-    expect(second).toEqual({ created: 0, updated: 5, covers: 5 });
+    expect(second).toEqual({ created: 0, updated: 9, covers: 9 });
   });
 
-  it("loads five published items in the approved order, with https links", async () => {
+  it("loads nine published items in the approved order, with https links", async () => {
     const items = await db.portfolioItem.findMany({
       where: { id: { in: seedIds } },
       orderBy: { sortOrder: "asc" },
     });
     expect(items.map((item) => item.slug)).toEqual(portfolioSeed.map((item) => item.slug));
-    for (const item of items) {
+    for (const [index, item] of items.entries()) {
+      const seed = portfolioSeed[index]!;
       expect(item.published).toBe(true);
-      expect(item.publishedAt).toEqual(new Date("2026-10-13T00:00:00Z"));
+      expect(item.publishedAt).toEqual(new Date(`${seed.publishedAt}T00:00:00Z`));
+      expect(item.client).toBe(seed.client ?? null);
       expect(item.liveUrl).toMatch(/^https:\/\//);
       if (item.repoUrl) expect(item.repoUrl).toMatch(/^https:\/\/github\.com\//);
     }
@@ -59,7 +61,7 @@ describe("runSeed", () => {
     const covers = await db.mediaItem.findMany({
       where: { ownerType: "PORTFOLIO_ITEM", ownerId: { in: seedIds } },
     });
-    expect(covers).toHaveLength(5);
+    expect(covers).toHaveLength(9);
     expect(new Set(covers.map((cover) => cover.ownerId))).toEqual(new Set(seedIds));
     for (const cover of covers) {
       expect(cover.kind).toBe("IMAGE");

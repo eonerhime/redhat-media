@@ -26,6 +26,8 @@ export const portfolioSeedItemSchema = z.object({
   category: z.literal("WEB_APP"),
   summary: text(1, 200),
   description: text(1, 1200),
+  /** Named only for client work, with the client's agreement (Phase 9 amendment 2026-10-17). */
+  client: text(1, 120).optional(),
   credit: text(1, 120).optional(),
   /** Links the credit, e.g. to the technical lead's portfolio (Phase 12 spec, D8). */
   creditUrl: httpsUrlSchema.optional(),
