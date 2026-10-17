@@ -1,16 +1,15 @@
 # Runbook — Monitoring and alerts
 
-Built in Phase 15 (spec D7, `specs/2026-10-16-launch-readiness/spec.md`). The project is on Vercel **Hobby** and Neon **Free**. Neither can alert on errors, connections or query volume, so the monitor runs on GitHub Actions.
+Built in Phase 15 (spec D7, `specs/2026-10-16-launch-readiness/spec.md`), pointed at production in Phase 16 (spec D8, `specs/2026-10-16-release/spec.md`). The project is on Vercel **Hobby** and Neon **Free**. Neither can alert on errors, connections or query volume, so the monitor runs on GitHub Actions.
 
 ## What runs
 
 `.github/workflows/monitor.yml` runs `scripts/monitor.mts`:
 
 - **hourly**, at minute 17 (`schedule`);
-- **on demand** (Actions → monitor → Run workflow), with an optional `test_alert`;
-- **on the `test-alert` PR label** (see *Test alert*).
+- **on demand** (Actions → monitor → Run workflow), with an optional `test_alert`.
 
-GitHub runs `schedule` and `workflow_dispatch` **only from `main`**, so the hourly run starts at the Phase 16 release.
+GitHub runs `schedule` and `workflow_dispatch` **only from `main`**, so the hourly run started at the Phase 16 release. The `test-alert` PR label trigger of Phase 15 was removed then: the `monitor` environment is limited to `main`, so no PR branch can read the production credential.
 
 | Check | Fails when | First thing to look at |
 | --- | --- | --- |
@@ -30,25 +29,23 @@ The log prints check names, states and numbers only. The repository is public, s
 - The owner keeps GitHub → Settings → Notifications → **Actions** set to **Email**, with "Only notify for failed workflows".
 - A **Gmail filter** in the owner's mailbox forwards those emails to `redhatmediang@gmail.com`:
   - From: `notifications@github.com`
-  - Subject: `Run failed: monitor`. That phrase matches both forms GitHub sends: `[eonerhime/redhat-media] Run failed: monitor - …` (scheduled and dispatched runs) and `[eonerhime/redhat-media] PR run failed: monitor - …` (the `test-alert` label). The first test alert, on 2026-10-16, arrived as the second form.
+  - Subject: `Run failed: monitor`. That phrase matches both forms GitHub sends: `[eonerhime/redhat-media] Run failed: monitor - …` (scheduled and dispatched runs) and `[eonerhime/redhat-media] PR run failed: monitor - …` (the old `test-alert` label). The first test alert, on 2026-10-16, arrived as the second form.
   - Action: forward to `redhatmediang@gmail.com`
 - **Neon** emails usage warnings on Free (storage, data transfer, compute) at 80% and 100%, per project. They go to the Neon account's email.
 - **Vercel** emails deployment failures. They go to the Vercel account's email (Account Settings → Notifications).
 
 ## Test alert
 
-- **Before Phase 16:** on an open PR, add the label `test-alert`. The `monitor` job runs the real checks against `MONITOR_BASE_URL` (develop's preview) and the Neon preview branch. It then fails with "TEST ALERT — not an incident", and the email arrives within a few minutes. Remove the label afterwards. A label run shows a red `monitor` check on the PR; it is not a required check.
-- **From Phase 16:** Actions → monitor → Run workflow → tick `test_alert` → Run.
+Actions → monitor → Run workflow → branch `main` → tick `test_alert` → Run workflow. The run does every real check against production, then fails with "TEST ALERT — not an incident", and the email arrives within a few minutes. (Phase 15 used a PR label instead, before the workflow was on `main`.)
 
 ## Settings
 
 | Name | Kind | Value |
 | --- | --- | --- |
-| `MONITOR_BASE_URL` | Repository variable | develop's preview URL in Phase 15; the production URL from Phase 16 |
-| `MONITOR_DATABASE_URL` | Secret in the GitHub Environment `monitor` | `rhm_readonly`, **direct** (non-pooled) connection, `sslmode=require`: the preview branch in Phase 15, production from Phase 16 |
-| `VERCEL_AUTOMATION_BYPASS_SECRET` | Repository secret (existing) | Lets the monitor past preview protection. Sent only to `MONITOR_BASE_URL`'s origin. |
+| `MONITOR_BASE_URL` | Repository variable | `https://redhat-media.vercel.app` (production, from Phase 16; develop's preview in Phase 15) |
+| `MONITOR_DATABASE_URL` | Secret in the GitHub Environment `monitor` | `rhm_readonly`, **direct** (non-pooled) connection, `sslmode=require`: production from Phase 16 (the preview branch in Phase 15). The environment's deployment branches are limited to `main` |
 
-The thresholds live in `lib/monitor/monitor-core.ts`, so changing one goes through a reviewed PR. Phase 16 recalibrates the query-volume limit on production.
+The thresholds live in `lib/monitor/monitor-core.ts`, so changing one goes through a reviewed PR. Phase 16 recalibrates the query-volume limit from a production sample (result recorded in `specs/2026-10-16-release/implementation.md`).
 
 ## Keep it running
 

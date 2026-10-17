@@ -4,15 +4,15 @@ on:
   pull_request:
     branches: [develop, main]
   push:
-    branches: [develop]
+    branches: [develop, main]
 
 permissions:
   contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  # Pushes to develop run migrate-preview; never cut a migration off mid-run
-  # (Phase 7 spec, D11).
+  # Pushes to develop and main run a migrate job; never cut a migration off mid-run
+  # (Phase 7 spec, D11; Phase 16 spec, D2).
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -126,6 +126,54 @@ jobs:
         env:
           MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
         run: pnpm db:seed
+
+  migrate-production:
+    name: migrate-production
+    # Migrate, then deploy (Phase 16 spec, D1-D3), on pushes to main after ci and db pass. The
+    # environment neon-production is limited to main and waits for the owner's approval, which is
+    # when to take a Neon snapshot if the release carries a migration (docs/runbooks/release.md).
+    # vercel.json turns off automatic deployments of main, so the deploy hook below is what starts
+    # the production build, against a migrated and seeded database.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [ci, db]
+    runs-on: ubuntu-latest
+    environment: neon-production
+    concurrency:
+      group: migrate-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: prisma migrate deploy (Neon production)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+        run: |
+          if [ -z "$MIGRATOR_DATABASE_URL" ]; then
+            echo "::error::Secret MIGRATOR_DATABASE_URL is not set in environment neon-production"
+            exit 1
+          fi
+          pnpm db:deploy
+      - name: Seed the approved portfolio content (Phase 16 spec, D1)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+          SEED_ALLOW_PRODUCTION: "1"
+        run: pnpm db:seed
+      - name: Start the production build (deploy hook)
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::error::Secret VERCEL_DEPLOY_HOOK_URL is not set in environment neon-production"
+            exit 1
+          fi
+          # The hook URL is a secret: print only the job state Vercel returns.
+          curl -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL" |
+            node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log("Deploy hook:", r.job?.state ?? "no job state")'
 
   gitleaks:
     name: gitleaks

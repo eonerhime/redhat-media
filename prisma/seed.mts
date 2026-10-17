@@ -16,7 +16,10 @@ import { portfolioSeed } from "./seed-data/portfolio.ts";
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 const url = process.env.MIGRATOR_DATABASE_URL;
-const host = assertSeedTarget(url, { VERCEL_ENV: process.env.VERCEL_ENV });
+const host = assertSeedTarget(url, {
+  VERCEL_ENV: process.env.VERCEL_ENV,
+  SEED_ALLOW_PRODUCTION: process.env.SEED_ALLOW_PRODUCTION,
+});
 console.log(`Seed: target ${host}`);
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });

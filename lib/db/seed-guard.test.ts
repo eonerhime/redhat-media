@@ -28,6 +28,30 @@ describe("assertSeedTarget (Phase 9 spec, D7)", () => {
     expect(() => assertSeedTarget(url, {})).toThrow("Refusing to seed the production branch");
   });
 
+  it.each([
+    ["no opt-in", {}],
+    ["an opt-in other than 1", { SEED_ALLOW_PRODUCTION: "true" }],
+  ])("refuses production with %s", (_, env) => {
+    expect(() => assertSeedTarget(neon(PRODUCTION_ENDPOINT_ID), env)).toThrow(
+      "only migrate-production may",
+    );
+  });
+
+  it("accepts production with SEED_ALLOW_PRODUCTION=1 (Phase 16 spec, D1)", () => {
+    expect(assertSeedTarget(neon(PRODUCTION_ENDPOINT_ID), { SEED_ALLOW_PRODUCTION: "1" })).toBe(
+      `${PRODUCTION_ENDPOINT_ID}.c-2.eu-west-2.aws.neon.tech`,
+    );
+  });
+
+  it("refuses VERCEL_ENV=production even with the opt-in", () => {
+    expect(() =>
+      assertSeedTarget(neon(PRODUCTION_ENDPOINT_ID), {
+        VERCEL_ENV: "production",
+        SEED_ALLOW_PRODUCTION: "1",
+      }),
+    ).toThrow("VERCEL_ENV is production");
+  });
+
   it("refuses VERCEL_ENV=production, whatever the URL", () => {
     expect(() =>
       assertSeedTarget(neon("ep-purple-mountain-zavlw8ji"), { VERCEL_ENV: "production" }),
