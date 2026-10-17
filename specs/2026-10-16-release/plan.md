@@ -33,7 +33,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 4.2 `monitor.yml`: label trigger and bypass secret removed (D8).
 - [x] 4.3 Search Console: owner creates the URL-prefix property and downloads the HTML file; committed as `public/google<token>.html` (D11, owner answer F).
 - [x] 4.4 `docs/runbooks/release.md` (release steps, reviewer snapshot, rollback) and the `monitoring.md` and `firewall.md` updates (D3, D5, D8, D9).
-- [ ] 4.5 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1`; route table compared with develop's CI log (C2).
+- [x] 4.5 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`, `pnpm test:e2e --workers=1`; route table compared with develop's CI log (C2).
 - [ ] 4.6 Phase PR into `develop`: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e` and `lighthouse` green; owner approves; merged with a merge commit.
 
 ## 5. Release
