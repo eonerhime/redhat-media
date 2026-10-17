@@ -110,7 +110,7 @@ One finding shapes the release: **the database must be migrated and seeded befor
 - **C5 — Secrets never displayed.** No value appears on screen, in the transcript, a log, an artifact or an issue. Values move by pipe from a git-ignored file, or by `Set-Clipboard`, never by selecting text in the IDE. Actions logs on this repo are public.
 - **C6 — `main` only through the release PR.** Nothing is pushed to `main`. The release PR is merged only after its checks are green and the owner says go.
 - **C7 — Owner actions spelled out.** Every dashboard, terminal and phone step is written as numbered clicks and commands, saying what is on the clipboard and where it came from.
-- **C8 — Never commit the owner's files** `public/RedHat.Media 2 Lines.jpg` and `public/RedHat.Media 2L Gmail Profile - png.png`. Files are staged by name.
+- **C8 — The owner's logo sources stay out of `public/`.** `RedHat.Media 2 Lines.jpg` and `RedHat.Media 2L Gmail Profile - png.png` are committed in `assets/brand/source/`, which the site does not serve (owner, 2026-10-17; amended from "never commit"). Files are staged by name.
 
 ## Owner questions
 
