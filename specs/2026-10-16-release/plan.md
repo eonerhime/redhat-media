@@ -39,9 +39,9 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 ## 5. Release
 
 - [x] 5.1 Owner sets `MONITOR_BASE_URL` to the production origin and limits the `monitor` environment to `main`; production `rhm_readonly` (direct) piped into `MONITOR_DATABASE_URL` (D8, C5).
-- [ ] 5.2 Release PR `develop` → `main`: `branch-check`, `ci`, `db`, `gitleaks` green; every pre-release box in `validation.md` ticked; promoted as soon as the phase is done (owner answer G); merged with a merge commit (D5, C6).
-- [ ] 5.3 Owner approves `migrate-production` (snapshot skipped: empty target, recorded). Migrate, seed and hook green; production deployment Ready; `index.html` gone from `main` (D2, D3, D5).
-- [ ] 5.4 `production-checks` green (headers, smoke, `release.spec.ts`) (D6).
+- [x] 5.2 Release PR `develop` → `main`: `branch-check`, `ci`, `db`, `gitleaks` green; every pre-release box in `validation.md` ticked; promoted as soon as the phase is done (owner answer G); merged with a merge commit (D5, C6).
+- [x] 5.3 Owner approves `migrate-production` (snapshot skipped: empty target, recorded). Migrate, seed and hook green; production deployment Ready; `index.html` gone from `main` (D2, D3, D5).
+- [x] 5.4 `production-checks` green (headers, smoke, `release.spec.ts`) (D6).
 
 ## 6. After go-live
 
