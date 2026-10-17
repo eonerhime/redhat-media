@@ -1,0 +1,163 @@
+name: preview-headers
+
+# Runs when Vercel reports a successful preview deployment and checks that the
+# deployed response carries every header from lib/security/headers.ts. A Production deployment
+# (or a manual dispatch from main) runs production-checks instead (Phase 16 spec, D6).
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # The production URL, not the deployment's own URL: Vercel's Standard Protection covers every
+  # deployment URL except the production domain. Production is public, so no bypass secret is
+  # used, and the commit checked out is main's, so no fork guard is needed. The custom-domain
+  # amendment changes PRODUCTION_URL.
+  production-checks:
+    name: production-checks
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION_URL: https://redhat-media.vercel.app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      # A deployment reports success as it is promoted; give the domain a minute to follow.
+      - if: github.event_name == 'deployment_status'
+        run: sleep 60
+      - name: Check served security headers
+        run: node scripts/check-preview-headers.mts "$PRODUCTION_URL"
+      - name: Smoke and release checks against production
+        env:
+          PW_BASE_URL: ${{ env.PRODUCTION_URL }}
+          PW_RELEASE: "1"
+          E2E_PORTFOLIO_STATE: ready
+        run: pnpm test:e2e e2e/smoke.spec.ts e2e/release.spec.ts
+
+  # The jobs below check out the deployment's commit and run it with the bypass secret. They run
+  # only when that commit is the head of a branch in this repository, never for a fork's commit,
+  # even one a maintainer approved on Vercel (Phase 15 security review).
+  same-repo:
+    name: same-repo
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.deployment.sha }}
+        run: |
+          heads=$(gh api "repos/$REPO/commits/$SHA/branches-where-head" --jq length 2>/dev/null || echo 0)
+          if [ "$heads" -gt 0 ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$SHA is not the head of a branch in $REPO; skipping the preview checks."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  preview-headers:
+    name: preview-headers
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Check served security headers
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
+            exit 1
+          fi
+          node scripts/check-preview-headers.mts "$PREVIEW_URL"
+
+  # The portfolio as a visitor sees it: the deployed preview, reading the
+  # CI-seeded Neon preview branch and real Cloudinary images. The CI build has
+  # no database, so this is where the ready state is proven (Phase 10 spec, D11).
+  # csp.spec.ts checks the enforced policy on the deployed headers (Phase 14 spec, D11). The smoke,
+  # axe, 404 and error specs run here too, against seeded data (Phase 15 spec, D4, D5, D11).
+  preview-e2e:
+    name: preview-e2e
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Portfolio and CSP e2e against the preview
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          PW_BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          E2E_PORTFOLIO_STATE: ready
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
+            exit 1
+          fi
+          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts
+
+  # Lighthouse on mobile for every template, three runs each, every category >= 0.90 (Phase 15
+  # spec, D6). The bypass cookie is set for the preview's host only, and no report is kept,
+  # because the logs of this public repository can be read by anyone.
+  lighthouse:
+    name: lighthouse
+    needs: same-repo
+    if: needs.same-repo.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lighthouse against the preview
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          # The runner's Google Chrome, in its new headless mode.
+          PW_CHANNEL: chrome
+          PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
+            exit 1
+          fi
+          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/lighthouse.mts "$PREVIEW_URL"

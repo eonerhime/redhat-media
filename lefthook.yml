@@ -1,0 +1,12 @@
+# Pre-commit checks (specs/tech-stack.md → Supporting tools → Git hooks).
+# Fails closed: a missing gitleaks binary blocks the commit.
+pre-commit:
+  jobs:
+    - name: gitleaks
+      run: node scripts/gitleaks-staged.mjs
+    - name: prettier
+      glob: "*.{js,mjs,cjs,ts,tsx,mts,json,css,yml,yaml}"
+      run: pnpm exec prettier --check {staged_files}
+    - name: eslint
+      glob: "*.{js,mjs,cjs,ts,tsx,mts}"
+      run: pnpm exec eslint --max-warnings 0 {staged_files}

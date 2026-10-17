@@ -1,0 +1,112 @@
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+const rawUnsafe =
+  "Use Prisma's tagged $queryRaw / $executeRaw templates instead (specs/tech-stack.md).";
+
+// Images go through <MediaImage>, which checks the public ID and adds the blur
+// placeholder (Phase 8 spec, D10).
+const cloudinaryImport = {
+  group: ["next-cloudinary", "next-cloudinary/*"],
+  message: "Render images through <MediaImage> from @/components/media/media-image.",
+};
+
+// The server SDK holds the API secret: local scripts only until Phase 28
+// (Phase 9 spec, D6). A path, not a pattern: "cloudinary" as a pattern would
+// also match @/lib/media/cloudinary.
+const cloudinarySdk = {
+  name: "cloudinary",
+  message: "The cloudinary SDK is for scripts/ only until Phase 28 (Phase 9 spec, D6).",
+};
+
+// Pages read copy through block() and services through visibleServices() / visiblePillars()
+// (tech-stack.md → Architectural rules 3; Phase 3 spec, D7).
+const appImports = [
+  {
+    group: ["**/content/defaults"],
+    message: "Read copy through block() from @/lib/content/block.",
+  },
+  {
+    group: ["**/content/services"],
+    importNames: ["services"],
+    allowTypeImports: true,
+    message: "Read services through visibleServices() / visiblePillars().",
+  },
+  {
+    // Database access goes through server modules in lib/ (Phase 7 spec, D6).
+    // Model types may still be imported.
+    group: ["**/lib/generated/**"],
+    allowTypeImports: true,
+    message: "Query the database through a server module in lib/ (getDb()).",
+  },
+  {
+    group: ["@prisma/*", "@neondatabase/serverless", "pg"],
+    message: "Database drivers stay in lib/db.ts (Phase 7 spec, D6).",
+  },
+];
+
+// Videos go through <VideoEmbed>, so no iframe loads before a click (Phase 8 spec, D10).
+const iframeRule = {
+  selector: "JSXOpeningElement[name.name='iframe']",
+  message: "Embed videos with <VideoEmbed> from @/components/media/video-embed.",
+};
+
+// Off-site links go through <ExternalLink>, which checks https and sets
+// rel="noopener noreferrer" (Phase 9 spec, D4).
+const targetBlankRule = {
+  selector: "JSXAttribute[name.name='target'][value.value='_blank']",
+  message: "Link off-site with <ExternalLink> from @/components/shared/external-link.",
+};
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  {
+    rules: {
+      // React escapes output; raw HTML injection is banned (specs/tech-stack.md).
+      "react/no-danger": "error",
+      "no-restricted-properties": [
+        "error",
+        { property: "$queryRawUnsafe", message: rawUnsafe },
+        { property: "$executeRawUnsafe", message: rawUnsafe },
+      ],
+    },
+  },
+  {
+    rules: {
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [cloudinaryImport] }],
+    },
+  },
+  {
+    files: ["app/**", "components/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { paths: [cloudinarySdk], patterns: [...appImports, cloudinaryImport] },
+      ],
+    },
+  },
+  {
+    files: ["components/media/**"],
+    rules: {
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: appImports }],
+    },
+  },
+  {
+    files: ["scripts/**"],
+    rules: { "no-restricted-imports": ["error", { patterns: [cloudinaryImport] }] },
+  },
+  {
+    files: ["**/*.tsx", "**/*.jsx"],
+    ignores: ["components/media/video-facade.tsx"],
+    rules: { "no-restricted-syntax": ["error", iframeRule, targetBlankRule] },
+  },
+  {
+    files: ["components/shared/external-link.tsx"],
+    rules: { "no-restricted-syntax": ["error", iframeRule] },
+  },
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lib/generated/**"]),
+]);
+
+export default eslintConfig;

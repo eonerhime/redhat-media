@@ -1,0 +1,10 @@
+# Markdown is hand-formatted (specs tables, README).
+**/*.md
+pnpm-lock.yaml
+.next/
+lib/generated/
+test-results/
+playwright-report/
+blob-report/
+# Google's Search Console token, kept byte-for-byte as downloaded.
+public/google*.html

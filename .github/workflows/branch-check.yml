@@ -1,0 +1,26 @@
+name: branch-check
+
+# Releases only: main accepts PRs from this repo's develop branch, nothing else.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  branch-check:
+    name: branch-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only develop may merge into main
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          if [ "$HEAD_REF" != "develop" ] || [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "::error::PRs into main must come from $BASE_REPO:develop (got $HEAD_REPO:$HEAD_REF)"
+            exit 1
+          fi
+          echo "OK: $HEAD_REPO:$HEAD_REF -> main"

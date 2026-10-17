@@ -1,0 +1,191 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Pushes to develop and main run a migrate job; never cut a migration off mid-run
+  # (Phase 7 spec, D11; Phase 16 spec, D2).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    env:
+      # Public (it is in every image URL), so a plain value: Dependabot runs
+      # cannot read secrets or variables (Phase 8 spec, D4).
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: lezxe6hz
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
+      - run: pnpm build
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+        env:
+          # The build has no database, so /portfolio prerenders its unavailable
+          # state; the ready state is checked on the Vercel preview (Phase 10 spec, D11).
+          E2E_PORTFOLIO_STATE: unavailable
+      - name: Dependency audit (fails on high/critical)
+        run: pnpm audit --prod --audit-level high
+
+  db:
+    name: db
+    # Database tests on a throwaway Postgres: bootstrap the roles, apply the
+    # migrations as rhm_migrator, check for drift, then run pnpm test:db as
+    # each role (Phase 7 spec, D9). No production secret is involved.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rhm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rhm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Bootstrap roles
+        env:
+          BOOTSTRAP_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rhm
+        run: |
+          node scripts/db-bootstrap.mts --branch ci --out "$RUNNER_TEMP/roles.env"
+          set -a; . "$RUNNER_TEMP/roles.env"; set +a
+          node -e 'for (const k of ["DATABASE_URL", "MIGRATOR_DATABASE_URL", "READONLY_DATABASE_URL"]) console.log("::add-mask::" + decodeURIComponent(new URL(process.env[k]).password))'
+          {
+            echo "MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
+            echo "TEST_APP_DATABASE_URL=$DATABASE_URL"
+            echo "TEST_MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
+            echo "TEST_READONLY_DATABASE_URL=$READONLY_DATABASE_URL"
+          } >> "$GITHUB_ENV"
+      - name: Apply migrations as rhm_migrator
+        run: pnpm db:deploy
+      - name: Drift check (migrations match schema.prisma)
+        run: pnpm exec prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - name: Seed twice (the CLI runs under plain Node and is idempotent; Phase 9 spec, D8)
+        run: pnpm db:seed && pnpm db:seed
+      - run: pnpm test:db
+
+  migrate-preview:
+    name: migrate-preview
+    # Migrations reach Neon only from CI (Phase 7 spec, D11): the preview
+    # branch, after every push to develop that passes ci and db.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: [ci, db]
+    runs-on: ubuntu-latest
+    environment: neon-preview
+    concurrency:
+      group: migrate-preview
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: prisma migrate deploy (Neon preview)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+        run: |
+          if [ -z "$MIGRATOR_DATABASE_URL" ]; then
+            echo "::error::Secret MIGRATOR_DATABASE_URL is not set in environment neon-preview"
+            exit 1
+          fi
+          pnpm db:deploy
+      - name: Seed the Neon preview branch (Phase 9 spec, D8)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+        run: pnpm db:seed
+
+  migrate-production:
+    name: migrate-production
+    # Migrate, then deploy (Phase 16 spec, D1-D3), on pushes to main after ci and db pass. The
+    # environment neon-production is limited to main and waits for the owner's approval, which is
+    # when to take a Neon snapshot if the release carries a migration (docs/runbooks/release.md).
+    # vercel.json turns off automatic deployments of main, so the deploy hook below is what starts
+    # the production build, against a migrated and seeded database.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [ci, db]
+    runs-on: ubuntu-latest
+    environment: neon-production
+    concurrency:
+      group: migrate-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: prisma migrate deploy (Neon production)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+        run: |
+          if [ -z "$MIGRATOR_DATABASE_URL" ]; then
+            echo "::error::Secret MIGRATOR_DATABASE_URL is not set in environment neon-production"
+            exit 1
+          fi
+          pnpm db:deploy
+      - name: Seed the approved portfolio content (Phase 16 spec, D1)
+        env:
+          MIGRATOR_DATABASE_URL: ${{ secrets.MIGRATOR_DATABASE_URL }}
+          SEED_ALLOW_PRODUCTION: "1"
+        run: pnpm db:seed
+      - name: Start the production build (deploy hook)
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::error::Secret VERCEL_DEPLOY_HOOK_URL is not set in environment neon-production"
+            exit 1
+          fi
+          # The hook URL is a secret: print only the job state Vercel returns.
+          curl -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL" |
+            node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log("Deploy hook:", r.job?.state ?? "no job state")'
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false

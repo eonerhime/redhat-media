@@ -1,0 +1,286 @@
+# Tech Stack — RedHat Media Platform
+
+This file is the approved list of technologies. Adding a library that is not listed here needs this file to be updated first (see README §2).
+
+The current site is one static `index.html` with inline CSS and no build step. It is replaced in full by the stack below. Its copy, contact details and brand colours are carried over (see *Design tokens*).
+
+## Core
+
+Versions were checked against the npm registry on 2026-10-09. Phase 0 pins exact versions in `package.json` and the lockfile; later upgrades go through Dependabot PRs.
+
+| Concern | Choice | Version line | Notes |
+| --- | --- | --- | --- |
+| Runtime | **Node.js LTS** | 24.x | Same major on local machines, CI and Vercel (`engines` field). |
+| Framework | **Next.js (App Router)** + React | Next 16.4 / React 19.3 | Server Components by default, Server Actions for mutations. Turbopack is the default bundler for dev and build, so there is **no custom `webpack` config**. In Next 16 the request interceptor file is `proxy.ts` (formerly `middleware.ts`). |
+| Language | **TypeScript**, `strict: true` | 6.0.x | No implicit `any`. Every server action's input and output is typed with Zod. **Do not adopt TS 7 yet**: `typescript-eslint` currently supports `<6.1.0`. Revisit when its peer range includes 7. |
+| Styling | **Tailwind CSS** v4 | 4.3 | CSS-first configuration: `@import "tailwindcss"` plus an `@theme` block in `app/globals.css`, compiled by the `@tailwindcss/turbopack` loader (the Next 16.4 template default, wired in `next.config.ts`). There is no `tailwind.config.js` or PostCSS config. Design tokens are defined once in `@theme`. |
+| Database | **Neon** (serverless PostgreSQL) | Postgres 17 | Project `redhat-media` on the Free plan, region AWS Europe (London) `aws-eu-west-2`, with Vercel functions pinned to `lhr1` (`vercel.json`). Branches: `production` (root and default; production from Phase 16), `preview` (Vercel Preview env, migrated by CI) and `dev` (local). **Neither Neon–Vercel integration is used**: env vars are set by hand, so Vercel only ever holds the `rhm_app` credential (Phase 7 spec, D1, D2). |
+| ORM | **Prisma 7** | 7.10 | npm's `latest` tag currently points at **8.0.0-rc**. Pin `prisma` and `@prisma/client` to `^7`. Prisma 7 style:<br>• Schema in `prisma/schema.prisma`, with generator `prisma-client` (output `lib/generated/prisma`, git-ignored and generated in CI).<br>• CLI/migration URL in `prisma.config.ts` (`MIGRATOR_DATABASE_URL`, CI only).<br>• Runtime client through `@prisma/adapter-neon` + `@neondatabase/serverless` with `DATABASE_URL`. `new PrismaClient({ adapter: new PrismaNeon({ connectionString }) })`: in 7.x the adapter takes a `PoolConfig` and builds its own pool (Phase 7 spec, D6).<br>• Migrations are committed. |
+| Validation | **Zod** | 4.6 | Shared schemas in `lib/validation/`, used by both forms and server actions. Env vars are validated with Zod at startup. |
+| Auth (staff only) | **Better Auth** (email + password, Prisma adapter, `admin` and `twoFactor` plugins) | 1.7 | Built-in session handling and rate limiting (database storage). Roles are `admin`, `editor` and `sales`. Public sign-up is disabled (`emailAndPassword.disableSignUp: true`). |
+| Media: images | **Cloudinary** (`next-cloudinary`, `cloudinary` SDK on the server) | 6.19.3 (exact; 7.x is in beta) / 2.11.0 (exact; a devDependency for the local seed-media script from Phase 9, moved to `dependencies` when Phase 28 first uses it at runtime) | Signed uploads go straight from the browser to Cloudinary, which then handles delivery and responsive transforms. The database stores **public IDs**, not URLs. |
+| Media: video | **Video by URL** (YouTube, Vimeo) | — | No video files are hosted. Videos are embedded with a lightweight click-to-play facade (see *In-place CMS* → video). |
+| Email | **Resend** + React Email | 6.32 / 1.0 | Sends the team notification and the client acknowledgment. Requires a **verified sending domain**. `vercel.app` cannot be verified, so this depends on a custom domain (roadmap open question 2). |
+| Bot protection | **Cloudflare Turnstile** (`@marsidev/react-turnstile`) | 1.6 | The widget runs on high-intent forms, and the token is verified on the server against `challenges.cloudflare.com`. |
+| Hosting | **Vercel** (existing project `redhat-media`) | — | Preview deploy per branch. Production builds from `main` are started by CI, after `migrate-production` has migrated and seeded the database, through a deploy hook; `vercel.json` turns off automatic deployments of `main` (Phase 16 spec, D3). **Hobby plan**, kept by the owner on 2026-10-16 after reviewing Vercel's fair-use terms (roadmap open question 9). Hobby has no Alerts or Log Drains, and keeps runtime logs for 1 hour (Phase 15 spec, D7). |
+
+## Supporting tools
+
+| Concern | Choice |
+| --- | --- |
+| Package manager | pnpm 12 (version pinned through `packageManager`). Dependency build scripts are denied by default; each one is listed in `pnpm-workspace.yaml` → `allowBuilds`. |
+| Lint / format | ESLint 10 (flat config, `eslint-config-next`, `typescript-eslint`) + Prettier |
+| Unit tests | Vitest (validation, utilities, video-URL parsing, rate limiter, server-action logic, auth guards) |
+| Database tests | `pnpm test:db` runs the `*.db.test.ts` files (rate limiter, role privileges) against a real Postgres 17: a service container in the CI `db` job, Docker locally, or the Neon `dev` branch. They connect through **`@prisma/adapter-pg` + `pg`** (devDependencies, used by tests and scripts only; the runtime stays on `@prisma/adapter-neon`). |
+| E2E / smoke tests | Playwright (`@playwright/test`, Chromium), run in the CI `ci` job after `pnpm build`. From Phase 10, `e2e/portfolio.spec.ts` also runs against each Vercel preview (`preview-e2e`, with `PW_BASE_URL` and the `VERCEL_AUTOMATION_BYPASS_SECRET` already used by `preview-headers`), because the CI build has no database (Phase 10 spec, D11). From Phase 1: layout at 360/768/1440px, rendered contrast, reduced motion and mobile nav. From Phase 15:<br>• `e2e/smoke.spec.ts` walks home → services → portfolio → detail → contact by clicking links, in desktop, mobile and keyboard-only variants;<br>• `e2e/a11y.spec.ts` runs **`@axe-core/playwright`** (4.13.0, devDependency) on every route and expects zero WCAG 2.2 A/AA violations;<br>• both also run in `preview-e2e` (Phase 15 spec, D4, D5).<br>Later: portfolio → inquiry submit and edit-mode happy paths. |
+| Fonts | `next/font` (self-hosted at build time, so there is no third-party font request and the CSP has no font host). **Archivo** (headings) and **Inter** (body), both variable, `latin` subset, `display: swap`. |
+| Analytics | Vercel Web Analytics (`@vercel/analytics` 2.0.1) + Speed Insights (`@vercel/speed-insights` 2.0.0), rendered in the root layout **only on Vercel deployments**: `next start` locally and in CI has no `/_vercel/*` scripts. They load from the site's own origin, so the CSP is unchanged. Web Analytics is cookieless. Hobby includes 50,000 events a month and 10,000 Speed Insights data points over 30 days (Phase 15 spec, D3). |
+| Performance | **Lighthouse** (`lighthouse` 13.5.0, devDependency), driven by `scripts/lighthouse.mts` in the `lighthouse` job on every preview: mobile, three runs per template (median), every category ≥ 0.90. Playwright opens Chrome with Vercel's bypass cookie set for the preview's host only, because Lighthouse's `extraHeaders` would send the secret to every origin. `is-crawlable` is skipped on previews only, because they send `X-Robots-Tag: noindex`. Scores are printed; no report is kept (Phase 15 spec, D6, amended). |
+| Monitoring | `scripts/monitor.mts` in `.github/workflows/monitor.yml`. It runs hourly and on dispatch, live on `main` from Phase 16, against the production URL. It checks the site and, as the production `rhm_readonly`, Neon connections and query volume. The `monitor` environment is limited to `main`, and a test alert is sent with `workflow_dispatch` (`test_alert: true`) (Phase 16 spec, D8). A failed run emails the owner, and a Gmail filter forwards it to the team inbox. Vercel Alerts and Log Drains need Pro, and the project stays on Hobby (Phase 15 spec, D7). |
+| Bot / spam protection | Turnstile (verified on the server) + honeypot + minimum time-to-submit + database-backed rate limit on every public form, from the first form (Phase 18). |
+| Edge protection | Vercel Firewall and an Attack Challenge Mode runbook (`docs/runbooks/firewall.md`). Hobby allows 3 custom rules, 1 of which may rate-limit. From Phase 15:<br>• the Bot Protection managed ruleset in **Log** mode. Kept on Log at the Milestone 1 release (owner, 2026-10-16): Challenge would block the unverified link-preview fetchers (WhatsApp, LinkedIn), external validators and the monitor, on a site with no write path yet. Revisited in Phase 18 (Phase 16 spec, D9);<br>• Deny scanner paths;<br>• a per-IP rate limit.<br>One custom rule stays free (Phase 15 spec, D8). |
+| Git hooks | **lefthook** pre-commit: `gitleaks git --pre-commit --staged` (`protect` is deprecated), plus Prettier and ESLint on staged files. Contributors install the gitleaks binary locally (see `CLAUDE.md`). |
+| Supply chain | Dependabot, **gitleaks** (CI + pre-commit), `pnpm audit --prod` in CI, pinned lockfile, GitHub Actions pinned to commit SHAs. The repo is **public**, so GitHub's native secret-scanning **push protection** and **rulesets** are used as well, with the CI checks kept as defence in depth. |
+
+## Architectural rules
+
+1. **Server-first rendering.** Public pages are Server Components, statically generated or ISR. `/portfolio` is partially prerendered: its shell is static, and the filtered listing renders per request from the cached portfolio read (Phase 11 spec, D2). `/portfolio/[slug]` is prerendered for every published slug; a slug published after a deploy renders on its first request and is then cached, with no redeploy (Phase 12 spec, D1). **Public server components never read the login session**, so the pages stay static (see *In-place CMS*). Use client components only where interaction requires them: filters, the inquiry stepper, the lightbox, video facades and edit controls.
+2. **Filter state lives in the URL** (`/portfolio?category=web-apps`). Filtered views can then be shared and indexed. The filters are plain links: no parameter means All, then `web-apps` (`WEB_APP`), `photography`, `videography` and `marketing` (`DIGITAL_MARKETING`, `SOCIAL_MEDIA` and `ONLINE_PRESENCE`). A filter with no published items is hidden, and an unknown or empty `category` value shows All (Phase 11 spec, D1, D3). Portfolio items have real pages at `/portfolio/[slug]`; the in-grid modal (Phase 22) is an intercepting route over the same URL, so deep links always work.
+3. **Services are configuration, not database rows.** The six services are a typed config in `content/services.ts`, keyed by `ServiceCategory`, grouped into three pillars, with their copy read through `block()`:
+   - **Production:** Photography, Videography.
+   - **Growth:** Digital Marketing, Social Media Marketing, Online Presence Management.
+   - **Build:** Web & App Development.
+
+   **Each service can be muted.** The config holds a `muted` default (false for all six), and from Phase 31 a `ServiceSetting` row overrides it, the same way `ContentBlock` overrides `content/defaults.ts`. Public code never filters the raw list; it reads services through one helper (`visibleServices()`, from Phase 2). From Phase 3, ESLint enforces this: `app/**` and `components/**` cannot import the raw `services` value or `content/defaults` (copy goes through `block()`). A muted service is hidden **everywhere** a visitor can reach:
+   - the homepage pillars, `/services` and any nav or footer listing (a pillar whose services are all muted is hidden too);
+   - its `/services/[slug]` page, which returns 404 (static params still list all six, so unmuting needs no redeploy);
+   - `sitemap.ts` and JSON-LD;
+   - the inquiry form and stepper choices, the `?service=` pre-fill (ignored), and **server-side inquiry validation**, which rejects a muted service.
+
+   Muting changes nothing else. Its copy, media, past inquiries and portfolio items are kept, so unmuting restores the service as it was. Portfolio items in a matching category stay published, and only their "Start a project" pre-fill drops the muted service. At least one service must stay visible.
+4. **Save first, then email.** The inquiry server action writes to Neon *before* calling Resend. An email failure is logged and shown to admins, and is never shown to the client as a lost submission.
+5. **Server-side authorisation everywhere.** Every mutation (server action or route handler) starts with `requireRole(minRole)` from `lib/auth/guards.ts`. The role hierarchy is `sales` < `editor` < `admin`. The check re-reads the session and role from the database and returns a typed 401/403 result. `proxy.ts` may redirect `/cms` for UX only. The role the browser receives only decides whether edit controls appear; it is never trusted.
+6. **Hidden staff entry at `/cms`.** The public site has **no login link, button or footer mention** of staff access.
+   - A visitor who is not signed in and opens any `/cms/*` page is sent to `/cms/login`. After sign-in they go to the `/cms` dashboard, where "Edit site" opens `/` with editing turned on.
+   - Every `/cms` page sends `noindex, nofollow` (both the meta tag and the `X-Robots-Tag` header) and is left out of `sitemap.ts`. It is **not** listed in `robots.txt`, because a `Disallow: /cms` line would advertise the path.
+   - Login errors are generic ("Invalid email or password").
+   - Hiding the path only reduces bot noise and is **not** a security control. Rule 5 still applies.
+7. **Secrets** live only in Vercel environment variables. `.env.example` is committed and `.env*` files are git-ignored. Nothing prefixed `NEXT_PUBLIC_` may be a secret.
+8. **Errors.** Every data-fetching route has a `loading.tsx` and an `error.tsx`. One `app/(public)/error.tsx` serves every public route; its copy is fixed text in `lib/site.ts`, not content blocks, so it still renders when the content store is what failed (Phase 10 spec, D6). From Phase 15, `app/error.tsx` and `app/global-error.tsx` catch errors in the layouts with the same copy. One branded `<NotFoundView>` (copy in `lib/site.ts`, `notFoundCopy`) serves both `notFound()` in public pages and unmatched URLs, inside the shared `<PublicShell>` (Phase 15 spec, D1, D2). Cached data reads return a failure result instead of throwing, because a throw inside `"use cache"` fails the prerender. Server actions return typed `{ ok, error }` results and do not throw to the client. The client **always** checks the result, keeps the editor or form open on failure, and shows the error.
+9. **SEO.** Use the Metadata API on every route through one helper, `pageMetadata()` in `lib/seo/metadata.ts` (title, description, canonical, Open Graph, Twitter card). The root layout sets `metadataBase` from `env.siteUrl`, so previews never claim production URLs (Phase 14 spec, D1). Plus:
+   - **Canonical URLs:** every public route sends one for its own path, with no query string. The exception is `/portfolio`, which sends none, so its filtered views stay indexable (rule 2). Pages marked `noindex` (an unknown slug, the unavailable state) send no canonical (Phase 14 spec, D2).
+   - **Open Graph images** (1200 × 630 PNG, `next/og`):
+     - a site card for `/`, `/services`, `/about`, `/portfolio` and `/contact`;
+     - a card per service;
+     - a card per portfolio item, built from its Cloudinary cover.
+
+     A muted, unknown or coverless item, or a failed read, falls back to the site card. The cards render inside `"use cache"` helpers (`lib/seo/og-images.ts`), so they prerender (Phase 14 spec, D3).
+   - `sitemap.ts` (visible services and published items only; it still lists the other pages when the portfolio read fails) and `robots.ts` (no `Disallow` lines, rule 6).
+   - JSON-LD, with every business value taken from `lib/site.ts`:
+     - `Organization` on `/` (`@id` `{siteUrl}/#organization`);
+     - `LocalBusiness` (Lagos, city only) on `/contact`, whose `parentOrganization` points at that `@id` (Phase 14 spec, D6);
+     - `Service` per service page, `CreativeWork` per portfolio item (these name that `@id` as provider and creator) and `VideoObject` for embedded videos. Portfolio items use `CreativeWork` whatever their category: Google's Software App result requires a price and a rating or review, which RHM's case studies do not have and must not invent (Phase 12 spec, D10). `VideoObject` carries `uploadDate` only when it is known; Phase 30 decides how to record it.
+10. **Accessibility.** Semantic HTML, visible focus states, WCAG 2.2 AA contrast and `prefers-reduced-motion` respected. Every image has alt text, and the editor requires it. Every edit control is keyboard-reachable and labelled.
+11. **Performance budget.** Mobile Lighthouse ≥ 90 on every public template. The LCP image is prioritised, every other image is lazy-loaded through Cloudinary responsive transforms, and no iframe loads before a click.
+12. **Content Security Policy.** One enforced policy from Phase 14 (`lib/security/headers.ts`). `img-src` allows Cloudinary and video-thumbnail hosts. `frame-src` allows only `www.youtube-nocookie.com`, `player.vimeo.com` and, from Phase 18, `challenges.cloudflare.com`.
+    - **`script-src` keeps `'unsafe-inline'`.** Next.js renders inline bootstrap and RSC payload scripts on every page, and they differ per page and per build. A static header cannot list hashes for them, and nonces would make every page dynamic (rule 1).
+    - **SRI was measured and not adopted.** A Phase 14 build with `experimental.sri` and `script-src 'self'` logged 560 violations across 17 templates, so the flag is not used (Phase 14 spec, D7).
+    - **`style-src` keeps `'unsafe-inline'`** for `next/font`, `next/image` and React `style` props.
+    - **XSS defence** therefore rests on React escaping, the lint bans on `dangerouslySetInnerHTML` and `*RawUnsafe`, `<JsonLd>` escaping, and no `'unsafe-eval'` or wildcard sources outside `pnpm dev`.
+13. **Cache refresh after writes.** Every CMS mutation refreshes the affected routes with `revalidatePath` / tag APIs. Next 16 offers `updateTag` for read-your-own-writes inside Server Actions; the exact API is confirmed in the Phase 27 spec. Public portfolio reads are cached functions in `lib/portfolio/read.ts`, all tagged `portfolio` (`cacheLife("hours")`): the list read and, from Phase 12, the per-item read behind `/portfolio/[slug]`. Phase 31's portfolio mutations refresh that one tag (Phase 10 spec, D2; Phase 12 spec, D2).
+
+## Design tokens (carried over from the current site)
+
+Defined once in the `app/globals.css` `@theme` block. Tailwind's default colour palette is removed (`--color-*: initial`), so these are the only colours available.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--color-brand` | `#ed1c24` | Large display accents, focus rings |
+| `--color-brand-deep` | `#d0181f` | Primary button fills |
+| `--color-ink` | `#1a1a1a` | Page background (dark theme base) |
+| `--color-fg` | `#f5f5f5` | Body text, headings, button labels |
+| `--color-muted` | `#808285` | Secondary text ≥ 16px, on `ink` only |
+| `--color-line` | `#2e2e2e` | Decorative dividers and borders only, never text |
+
+**Contrast (WCAG 2.x ratios, measured in Phase 1):**
+
+| Pairing | Ratio | Allowed use |
+| --- | --- | --- |
+| `fg` on `ink` | 15.96 | Any text |
+| `muted` on `ink` | 4.52 | Text ≥ 16px only. It drops to 4.03 on a lighter surface such as `#242424`, so it is never used off `ink`. |
+| `brand` on `ink` | 3.97 | Large text (≥ 24px, or ≥ 18.66px bold), focus rings and UI parts only |
+| `fg` on `brand` | 4.02 | Not for text. Buttons use `brand-deep`. |
+| `fg` on `brand-deep` | 5.03 | Button labels |
+| `brand-deep` against `ink` | 3.18 | Button edge (meets 3:1 for UI parts) |
+
+An automated check (a Vitest pairing test plus a Playwright test of every rendered text element) enforces these from Phase 1.
+
+**Logo:** the header shows the owner's RedHat Media logo as a light-on-dark variant, `public/brand/logo.png` (transparent; "MEDIA" and the silhouette in `fg`, the red and grey as designed), rendered with `next/image` and `loading="eager"`. It replaced the CSS wordmark on 2026-10-14 (roadmap open question 1). It is the one image that does not go through `<MediaImage>` or Cloudinary, so the header makes no third-party request. The owner's source files are not committed. A redesign means re-rendering that file (Phase 1 spec, D1 as amended 2026-10-14). The favicon and Apple touch icon are static PNGs (`app/icon.png`, `app/apple-icon.png`) cut from the owner's red-hat silhouette, `public/MIRH.jpg` (Phase 1 spec, D1 as amended 2026-10-10).
+
+## Security baseline (built in from Phase 0, not bolted on)
+
+Every control below has a **"from" phase**. A phase is not done until its controls exist *and* are tested.
+
+### Edge & transport
+
+| Control | From |
+| --- | --- |
+| HTTPS only and HSTS (`max-age=63072000; includeSubDomains`). Add `preload` only once a custom domain exists and every subdomain is confirmed HTTPS. | 0 |
+| Headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, mic and geolocation off) | 0 |
+| Anti-framing, enforced from day one: browsers ignore `frame-ancestors` in a report-only policy, so a small **enforced** CSP (`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) and `X-Frame-Options: DENY` were sent alongside the report-only policy. From Phase 14 these directives are part of the one enforced policy. | 0 → 14 |
+| CSP: a **static header CSP** set in `next.config.ts` from `lib/security/headers.ts`, with no nonces, so pages stay static/ISR.<br>• **Report-only** from Phase 0.<br>• **Enforced** from Phase 14 as one policy (self, Cloudinary and video-thumbnail images, YouTube/Vimeo frames). The report-only header is gone, and `scripts/check-preview-headers.mts` fails if a deployment sends one.<br>• `script-src` keeps `'unsafe-inline'` after the Phase 14 hash/SRI assessment (rule 12, Phase 14 spec D7).<br>• `pnpm dev` alone adds `'unsafe-eval'`. `next build`, previews and production never send it, and a test enforces that (D8).<br>• Previews send the production policy, because the Vercel Toolbar is off for previews (D9).<br>• Turnstile is added in Phase 18 along with its test. | 0 → 14 → 18 |
+| Vercel Firewall rules (Bot Protection, scanner-path deny, per-IP rate limit), plus a runbook for Attack Challenge Mode during an attack. The rules are recorded exactly in `docs/runbooks/firewall.md` (Phase 15 spec, D8). | 15 |
+
+### Abuse & brute-force protection
+
+| Control | From |
+| --- | --- |
+| `lib/security/rate-limit.ts`: a Postgres-backed fixed-window limiter (`RateLimitHit` table). IPs are stored as SHA-256 hashes salted with `RATE_LIMIT_SALT`. **No in-memory limiters**, because each serverless instance would keep its own counts. | 7 |
+| Public forms: Turnstile + honeypot + minimum time-to-submit + 5 per 10 min / 20 per day per IP. Errors are generic. | 18 |
+| Auth (Better Auth): `rateLimit.storage: "database"`, plus strict `customRules` on `/sign-in/*`, `/forget-password`, `/reset-password` and `/two-factor/*` | 24 |
+| Per-account lockout: 5 failed sign-ins lock the account for 15 min, whatever the IP. The lock is written to security logs (alerting from Phase 15) and becomes an `AuditEvent` once Phase 25 lands. An admin can unlock early from Phase 33. | 24 / 25 / 33 |
+| Sign-in happens **only** through the client API to `/api/auth/*`. Never call `auth.api.signIn*` from a server action, because server-side calls skip Better Auth's rate limiting. | 24 |
+| Every CMS mutation has a per-user rate limit (e.g. 60/min) to limit damage from a stolen session | 27+ |
+
+### Authentication & sessions
+
+| Control | From |
+| --- | --- |
+| No public sign-up. Staff join through single-use invite links that expire after 48h. | 24 / 33 |
+| Passwords: minimum 12 characters, checked against breach lists (`haveIBeenPwned` plugin), hashed by Better Auth | 24 |
+| **TOTP 2FA required for all staff.** Sales staff see client personal data, and editors can change the public site. | 24 |
+| Sessions: secure, httpOnly, `SameSite=Lax` cookies with an 8h lifetime. A fresh session is required for sensitive actions (role changes, user management). Sessions are revoked when a user is deactivated or resets their password. | 24 / 33 |
+| `trustedOrigins` pinned to the production and preview domains. Next.js server actions also check the request origin, which blocks cross-site form attacks (CSRF). | 24 |
+
+### Authorization & application
+
+| Control | From |
+| --- | --- |
+| `requireRole()` at the start of every mutation, plus a **CI check that fails on unguarded server actions** (with an allowlist for public actions such as the inquiry form) | 25 |
+| Zod on every input, with explicit length caps. Fixed lists of allowed keys and fields for CMS writes. | 17 / 27 / 31 |
+| `AuditEvent` on every mutation (actor, action, entity, diff) | 25 |
+| Uploads: server-signed Cloudinary uploads with a fixed folder, format and size limit. The folder is checked again before attaching. | 28 |
+| No fetches to user-supplied URLs (prevents SSRF). Video handling extracts the ID and calls only fixed endpoints (`i.ytimg.com/vi/{id}/hqdefault.jpg`, built from the ID with no fetch, and `vimeo.com/api/oembed.json?url=https://vimeo.com/{id}`). A Vimeo thumbnail is used only if it is `https://i.vimeocdn.com/…` (Phase 8 spec, D8). | 8 / 30 |
+| Cloudinary hardening: *Fetched URL* delivery restricted, console 2FA, strict transformations off until Phase 34 reviews them. `<MediaImage>` renders only public IDs under `rhm/{portfolio_item|service|page}/…`, never full URLs (Phase 8 spec, D2, D6). | 8 |
+| `dangerouslySetInnerHTML` is banned by lint; React escapes all rendered output, and the bold-only renderer builds elements, not HTML. JSON-LD goes through the shared `<JsonLd>` component: the JSON is the text child of `<script type="application/ld+json">`, with every `<` written as `\u003c`, so no markup can close the tag. As a data block it is never executed, so the CSP does not apply to it. Email templates escape user input and never place it in headers or the subject line. | 0 / 5 / 20 |
+| External portfolio links (`liveUrl`, `repoUrl`) must be `https:`: validated on write with `httpsUrlSchema` (no credentials, no port, a domain name), checked again on render by `<ExternalLink>`, and always rendered with `rel="noopener noreferrer"`. Lint allows `target="_blank"` only in `<ExternalLink>` and the video facade (Phase 9 spec, D2–D4). | 9 |
+
+### Database security & data protection (Neon + Prisma)
+
+| Control | From |
+| --- | --- |
+| **Least-privilege roles**, created per branch by `scripts/db-bootstrap.mts` (owner credential from the owner's terminal only; random passwords, written to a git-ignored `.env.neon-<branch>.local`, never printed; re-run to rotate). Their grants and default privileges are the first Prisma migration (`…_roles`):<br>• `rhm_app` (runtime) has SELECT/INSERT/UPDATE/DELETE on app tables only. It has no DDL rights and owns no table.<br>• `rhm_migrator` owns the schema and is used **only** by CI migrations. Its direct connection string is a GitHub Actions secret and is never set in Vercel.<br>• `rhm_readonly` is for support and reporting. | 7 |
+| The migrator runs `ALTER DEFAULT PRIVILEGES`, so tables created later automatically grant DML to `rhm_app`. Better Auth tables are generated into `schema.prisma` with the Better Auth CLI and applied through **Prisma migrations**. Better Auth's own migrate command is never run against the database. | 7 / 24 |
+| TLS is required on every connection (`sslmode=require`), and Neon encrypts data at rest | 7 |
+| **SQL injection:** Prisma queries are parameterised. `$queryRawUnsafe` and `$executeRawUnsafe` are **banned by ESLint**; raw SQL is allowed only through tagged `$queryRaw` templates. | 0 / 7 |
+| The DB client module imports `server-only`, so it can never reach a client bundle | 7 |
+| Migrations run as `prisma migrate deploy` from CI only, and are reviewed in PRs: `migrate-preview` on pushes to `develop`, and `migrate-production` on pushes to `main`, in the GitHub Environment `neon-production` (branch `main` only, the owner as required reviewer). `migrate-production` migrates, seeds, then starts the production build, so a migration must work with the code already in production (expand, then contract). **`prisma db push` and manual DDL against production are forbidden.** | 7 / 16 |
+| Production is a Neon **protected branch** where the plan allows. **On the Free plan (Phase 7) protected branches are unavailable**; until an upgrade, production rests on being the root branch (not deletable), CI-only migrations, a single 2FA console member and a manual snapshot before each production migration, taken by the owner at the `migrate-production` reviewer step. Preview and dev branches hold **seed data only**. Production holds the approved portfolio content, written only by `migrate-production`. `pnpm db:seed` upserts by fixed IDs and refuses the production endpoint unless `SEED_ALLOW_PRODUCTION=1` is set (only `migrate-production` sets it), and always refuses `VERCEL_ENV=production`. CI seeds `preview` in `migrate-preview` and `production` in `migrate-production`, and `dev` is seeded locally (Phase 9 spec, D7, D8; Phase 16 spec, D1). From Phase 31 the production run is create-only, so it never overwrites a staff edit. | 7 / 9 / 16 |
+| Backups: Neon point-in-time restore. **Window confirmed in Phase 7: 6 hours on Free** (fixed, capped at 1 GB of changes; Launch allows up to 7 days). Decide on Launch before Phase 18, when inquiries arrive. A **restore rehearsal** before go-live (Phase 16: point-in-time branches of `production`, timed; the real recovery path is an in-place restore, `docs/runbooks/restore.md`), then a quarterly drill | 7 / 16 / 35 |
+| Neon and Vercel console access: named accounts only, 2FA required, fewest possible members | 7 |
+| **Personal data (Nigeria Data Protection Act 2023):**<br>• Inquiries hold personal data, so access is restricted to `sales` and above.<br>• IPs are stored only as salted hashes.<br>• Consent to the privacy notice is recorded on submit (`consentAt`).<br>• **Retention:** closed inquiries are anonymised after 24 months, and rate-limit rows are purged after 30 days (scheduled job). | 17 / 18 / 23 / 32 |
+| Monitoring: alerts on Neon connection saturation (≥ 80% of usable connections) and unusual query volume (more than 60 transactions a minute over a 60-second sample, 10× a measured baseline; computes younger than 5 minutes are not sampled), plus site checks, from the GitHub Actions monitor. Neon has no such alerts of its own, and its Free plan emails usage warnings only. It is built in Phase 15 and live on `main` from Phase 16 against production, where the limit is confirmed from a production sample (`docs/runbooks/monitoring.md`; Phase 15 spec, D7; Phase 16 spec, D8). Failed logins appear in security logs from Phase 24. | 15 / 16 / 24 |
+
+### Supply chain & secrets
+
+| Control | From |
+| --- | --- |
+| Secrets only in Vercel env (separate values for Production and Preview), Zod-validated at startup, never `NEXT_PUBLIC_*` | 0 |
+| gitleaks secret scanning (CI + lefthook pre-commit) and GitHub secret-scanning push protection. `pnpm audit --prod` in CI fails on high/critical findings. Dependabot is configured from Phase 0, but GitHub reads its config from the default branch (`main`), so it only becomes active at Phase 16. Until then `pnpm audit` is the dependency gate. | 0 / 16 |
+| GitHub **rulesets** on `main` and `develop`: a PR is required, required status checks must pass, and force-push and deletion are blocked. `main` additionally requires the CI `branch-check`, so only PRs from `develop` can merge. Required approvals are 0, because a sole owner cannot approve their own PR; the owner reviews by merging. | 0 |
+| Vercel preview responses are checked by CI for the required headers, using a "Protection Bypass for Automation" secret held only in GitHub Actions | 0 |
+| Secret rotation runbook, `docs/runbooks/secret-rotation.md`: DB roles, `RATE_LIMIT_SALT`, the bypass secret, Cloudinary, the Neon API key, the monitor credential and, from Phase 16, the production roles, the production `RATE_LIMIT_SALT` and the deploy hook URL. Better Auth, Resend and Turnstile are filled in by their phases. Rehearsed in Phase 15 on `RATE_LIMIT_SALT` (Preview) (Phase 15 spec, D9). | 15 |
+
+### Pre-launch security checklist (Phase 15 gate, repeated at 23 and 34)
+
+Each run records every item as done (with evidence), N/A until the phase that brings the feature, or deferred to a named phase. The Phase 15 run is in `specs/2026-10-16-launch-readiness/validation.md`.
+
+- [ ] All headers present, and the CSP enforced with no violations
+- [ ] Rate-limit, Turnstile, honeypot and lockout tests green (where the feature exists)
+- [ ] Authorization tests cover every server action, and the unguarded-action CI check passes
+- [ ] Least-privilege DB role in use, migrator credentials absent from the runtime, production branch protected, restore rehearsed
+- [ ] No `*RawUnsafe`, `dangerouslySetInnerHTML` or `NEXT_PUBLIC_` secrets
+- [ ] Dependency audit clean (no high or critical findings)
+- [ ] Alerting tested, and the Firewall and rotation runbooks written
+- [ ] `/security-review` findings resolved or accepted in writing
+
+## In-place CMS ("Editing: On/Off")
+
+This follows the same pattern as the Epenal Group platform, which fixed known gaps in the `memories-r-us` and `cecilia-onerhime` reference projects.
+
+### Roles
+
+| Role | Can do |
+| --- | --- |
+| `sales` | Inquiry inbox in `/cms`: view inquiries and change their status. No edit toggle. |
+| `editor` | Everything `sales` can, plus the edit toggle: text blocks, images, videos, portfolio items and muting or unmuting services. |
+| `admin` | Everything `editor` can, plus staff user management and the audit log. |
+
+### How it works
+
+1. **`EditModeProvider`** (client) is mounted in the `(public)` layout. After the page loads in the browser, it calls `GET /api/cms/session`, which is `no-store` and returns `{ role }` or `{ role: null }` with a 200. Public pages therefore stay static.
+2. When the role is `editor` or higher, a fixed bottom-right **"Editing: On / Off"** pill appears, with "CMS" and "Sign out" links. Its state and the last-known role are cached in `sessionStorage` and read only after the page has loaded, so the pill does not flicker on navigation.
+3. Only one editor popover can be open at a time. Escape closes it.
+4. **Text, `<Editable blockKey fallback multiline richText>`**:
+   - Saves through server action `updateContentBlock`. The action checks `requireRole("editor")`, then a Zod check that the key matches `^(home|about|services|portfolio|contact|footer)\.[a-zA-Z0-9.]+$` and that the value is ≤ 5,000 characters. It then upserts and refreshes the affected routes.
+   - Saving an empty value deletes the row, so the page falls back to its default.
+   - Defaults live in `content/defaults.ts`, read through `block(key)`. This applies from Phase 2, so turning on editing later needs no rewrite.
+5. **Images, `<EditableImage slot>` and `<EditableGallery owner>`**:
+   - Editors can upload, replace, delete, drag-to-reorder, and edit **alt text** (required) and captions.
+   - The server action `signCloudinaryUpload` **fixes the folder** (`rhm/{ownerType}/{ownerId}`), the allowed formats (jpg, png, webp, avif) and a 15 MB maximum.
+   - `attachMedia` verifies the returned public ID sits under that folder before saving.
+   - Replace and delete call Cloudinary `destroy` on the old asset after the database change, and any failure is logged.
+6. **Video by URL**:
+   - Server action `attachVideo` accepts only YouTube (`watch`, `youtu.be`, `/shorts/`, `/embed/`) and Vimeo (`vimeo.com/{id}`, `player.vimeo.com/video/{id}`). Anything else is rejected with a clear error.
+   - The database stores the provider, the video ID and the canonical URL, never embed HTML.
+   - Public rendering is a thumbnail facade. The `<iframe>` (`youtube-nocookie.com`, `player.vimeo.com`) is injected only on click.
+7. **Portfolio items in place**:
+   - Pencils on detail fields map to `updateRecordField`, with a fixed list of editable fields and a typed Zod schema per field.
+   - Editors toggle Draft/Published and Featured on cards.
+   - "Add item" opens a modal. Delete asks for confirmation and removes the item's Cloudinary assets.
+8. **Service muting in place** (rule 3):
+   - With editing on, each service card on `/services` and on the homepage pillars shows a **Mute** toggle. A muted service is no longer in the static page, so `/services` also shows a "Muted services" tray, which lists them with **Unmute**. The tray's data comes from a `no-store` endpoint that only editors and admins can read, so visitors' HTML never contains muted services.
+   - Server action `setServiceMuted(category, muted)` checks `requireRole("editor")` and validates `category` against the `ServiceCategory` enum with Zod. It refuses to mute the last visible service, then upserts the `ServiceSetting` row.
+   - The action refreshes every route that lists services: `/`, `/services`, the service's own page, `/contact` and the sitemap.
+   - Turning editing off shows exactly what a visitor sees (mission principle 10).
+9. **After every change:** refresh the affected routes (rule 13) and write an `AuditEvent`.
+
+## Schema decisions (changes vs. README §5)
+
+These are deliberate departures from the README blueprint. README §5 is updated to match in Phase 0.
+
+| Change | Reason |
+| --- | --- |
+| `ServiceCategory` gains **`ONLINE_PRESENCE`**. **`BRANDING` is dropped**: the owner confirmed six services on 2026-10-10 (roadmap open question 6). Adding it later is an enum value plus one config entry. | The current site sells Online Presence Management, and the README enum omitted it. Enums list only services RHM actually sells. |
+| `Inquiry.selectedService` becomes **`services ServiceCategory[]`** (at least one) | The scope selector lets a client ask for several services at once (e.g. a launch video plus a website). |
+| `Inquiry.budgetRange` becomes a **`BudgetRange` enum**. Add `timeline` (enum), `consentAt` (DateTime) and `ackSentAt` (DateTime?); keep `emailSentAt` for the team notification. | Gives typed, reportable scope. Records consent under NDPA, and tracks both emails separately. |
+| `PortfolioItem` adds `client String?`, `credit String?` (e.g. "Technical lead: Emo Onerhime"), `highlights String[]` (architecture / outcome bullets) and `publishedAt DateTime?`. `repoUrl` is shown only for public repositories. From Phase 12, `creditUrl String?` (`https:` only) makes the credit a link, e.g. to `emo-onerhime.vercel.app` (Phase 12 spec, D8). | Supports the "RHM Web & App work, credited" framing and drafts before publishing. The mission asks for engineering credits to link to the personal portfolio. |
+| README's `StaffRole` enum is replaced by Better Auth's `user` / `session` / `account` / `verification` / `twoFactor` tables. The `role` text column is restricted to `admin`, `editor` or `sales` by a CHECK constraint and a TS union. Add `failedSignInCount`, `lockedUntil` and `deactivatedAt` on `user`. | These tables are generated by the Better Auth CLI, and the `admin` plugin stores the role as text. The lockout hook API is confirmed in the Phase 24 spec. |
+| `requireRole(minRole)` uses a **hierarchy** instead of the README's role arrays | One guard style that is simple to audit. `requireRole("sales")` lets editors and admins through as well. |
+| `MediaOwner.SERVICE` media uses `ownerId = ServiceCategory` value. There is **no `Service` model**. | Services are config (rule 3). Only their media, copy and muted state are editable. |
+| Add **`ServiceSetting`** (`category ServiceCategory @id`, `muted Boolean`, `updatedById String?`, `updatedAt`). It is created in Phase 31. With no row, the `content/services.ts` default applies. | Staff can mute a service from the CMS (rule 3, *In-place CMS* 8). It is one row per enum value, not a service table, so the config stays the source of truth for what a service *is*. |
+| `RateLimitHit`, `ContentBlock`, `MediaItem` and `AuditEvent` stay as in the README | Already match the Epenal-proven design. |
+
+## Environment variables
+
+`lib/env.ts` validates variables with Zod at build time. The schema **grows per phase**: a variable becomes required in the phase that first uses it, never earlier. `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is required on Vercel `preview` and `production` from Phase 8. It is public, so CI sets it as a plain value. `NEXT_PUBLIC_CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` exist from Phase 9 **only in the developer's `.env.local`**, for `pnpm media:upload-seed`; they are not in `lib/env.ts`, Vercel or CI until Phase 28 (Phase 8 spec, D4; Phase 9 spec, D6). `NEXT_PUBLIC_SITE_URL` is required when `VERCEL_ENV=production`. On previews it falls back to `https://$VERCEL_BRANCH_URL`, and locally to `http://localhost:3000`.
+
+GitHub Actions-only secrets (never in Vercel): `MIGRATOR_DATABASE_URL` (Phase 7, stored in the GitHub Environment `neon-preview` and used only by the `migrate-preview` job; from Phase 16 the production `rhm_migrator` is in the Environment `neon-production`, used only by `migrate-production`, beside `VERCEL_DEPLOY_HOOK_URL`, the production deploy hook) and `VERCEL_AUTOMATION_BYPASS_SECRET` (Phase 0, used by the preview header check). `MONITOR_DATABASE_URL` (Phase 15) is an `rhm_readonly` direct connection in the GitHub Environment `monitor` (limited to `main`): the preview branch in Phase 15, production from Phase 16. Beside it, the repository variable `MONITOR_BASE_URL` holds the origin the monitor checks (Phase 15 spec, D7). `BOOTSTRAP_DATABASE_URL` (a branch's `neondb_owner` URL) exists only in the owner's terminal while `scripts/db-bootstrap.mts` runs, and is never stored. On Vercel the build fails if `MIGRATOR_DATABASE_URL` or `BOOTSTRAP_DATABASE_URL` is set, and `DATABASE_URL` must use the `rhm_app` role with `sslmode=require` (Phase 7 spec, D7).
+
+```dotenv
+NEXT_PUBLIC_SITE_URL=          # canonical origin, e.g. https://redhat-media.vercel.app
+DATABASE_URL=                  # Neon pooled connection, rhm_app role (runtime)
+# Migrations: CI runs `prisma migrate deploy`; prisma.config.ts reads MIGRATOR_DATABASE_URL
+# (rhm_migrator direct connection, GitHub Actions secret only, never in Vercel).
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+NEXT_PUBLIC_CLOUDINARY_API_KEY=  # public; required by the signed upload widget
+CLOUDINARY_API_SECRET=
+RESEND_API_KEY=
+INQUIRY_NOTIFICATION_EMAIL=    # team inbox(es) for new inquiries
+EMAIL_FROM=                    # e.g. "RedHat Media <hello@<verified-domain>>"
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+RATE_LIMIT_SALT=               # random 32+ bytes; used to hash IPs
+```
