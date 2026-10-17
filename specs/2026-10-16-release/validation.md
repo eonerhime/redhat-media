@@ -14,9 +14,9 @@
 - [x] `neon-production` has `MIGRATOR_DATABASE_URL` and `VERCEL_DEPLOY_HOOK_URL`, is limited to `main` and has the owner as required reviewer (D2, D3)
 - [x] The hook test proved that a hook deploys with auto-deploy off and reports `deployment_status`, or D3 was amended to the fallback (D3)
 - [x] Vercel Production has `DATABASE_URL`, `RATE_LIMIT_SALT`, `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, and neither `MIGRATOR_DATABASE_URL` nor `BOOTSTRAP_DATABASE_URL` (D4)
-- [ ] The `monitor` environment holds the production `rhm_readonly`, is limited to `main`, and `MONITOR_BASE_URL` is the production origin (D8)
-- [ ] `.env.neon-production.local` is deleted, and no value was displayed (D4, C5)
-- [ ] The phase PR is merged into `develop` with every check green (plan 4.6)
+- [x] The `monitor` environment holds the production `rhm_readonly`, is limited to `main`, and `MONITOR_BASE_URL` is the production origin (D8)
+- [x] `.env.neon-production.local` is deleted, and no value was displayed (D4, C5)
+- [x] The phase PR is merged into `develop` with every check green (plan 4.6)
 
 ## Release
 
