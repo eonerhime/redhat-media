@@ -1,7 +1,8 @@
 // Portfolio seed content, approved by the owner on 2026-10-13 (Phase 9 spec,
-// Appendix A). Every highlight traces to the product's README or to
-// emo-onerhime.vercel.app; no metric is invented (D1). Cover files live in the
-// upload script's source folder, never in this repository (D6).
+// Appendix A) and extended on 2026-10-17 (Appendix B). Every highlight traces
+// to the product's README, specs or live site, or to emo-onerhime.vercel.app;
+// no metric is invented (D1). Cover files live in the upload script's source
+// folder, never in this repository (D6).
 
 import type { PortfolioSeedItem } from "../../lib/portfolio/schema.ts";
 
@@ -9,6 +10,7 @@ const credit = "Design & Engineering: Emo Onerhime";
 // The mission links engineering credits to the personal portfolio (Phase 12 spec, D8).
 const creditUrl = "https://emo-onerhime.vercel.app";
 const publishedAt = "2026-10-13";
+const addedAt = "2026-10-17";
 
 export const portfolioSeed: readonly PortfolioSeedItem[] = [
   {
@@ -178,6 +180,150 @@ export const portfolioSeed: readonly PortfolioSeedItem[] = [
     cover: {
       source: "abara.webp",
       alt: "Abara dashboard with quick actions, today's snapshot, recent sales and restocks, and inventory alerts.",
+    },
+  },
+  {
+    slug: "memories-r-us",
+    title: "Memories R US",
+    category: "WEB_APP",
+    summary: "A space of its own for every life event, from weddings to memorials.",
+    description:
+      "A multi-tenant platform for creating a dedicated digital space for a life event: a birthday, naming ceremony, wedding, house warming, promotion, burial or a recurring festival. Each space has its own address, a template chosen for the event's tone, and a guest-contribution flow that needs no visitor account. Event planners and agencies also get a public portfolio page.",
+    credit,
+    creditUrl,
+    highlights: [
+      "Guests add photos and tributes without an account, including by scanning a QR code at the event.",
+      "Templates matched to the occasion, from Editorial Memory and Quiet Gallery to Bright Celebration and Wedding.",
+      "Every space's records are isolated by tenant, with five ranked roles from owner to viewer.",
+      "A moderation queue for approving or rejecting guest tributes and media before they appear.",
+      "Paystack billing: one-time plans for single spaces and a monthly subscription for agencies.",
+    ],
+    techStack: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Tailwind CSS 4",
+      "PostgreSQL (Neon)",
+      "Vercel Blob",
+      "Paystack",
+      "Google OAuth",
+      "Sentry",
+      "Vitest",
+    ],
+    liveUrl: "https://memories-r-us.vercel.app",
+    featured: false,
+    publishedAt: addedAt,
+    cover: {
+      source: "memories-r-us.webp",
+      alt: "Memories R US home page with the headline “Keep every memory close.” and a Create your space button.",
+    },
+  },
+  {
+    slug: "glowreeyah",
+    title: "Glowreeyah",
+    category: "WEB_APP",
+    summary: "An artist and ministry platform with a built-in CMS.",
+    description:
+      "A full-stack site for a music artist and minister: music, blog, gallery, events, impact initiatives and bookings, all managed from a custom-built CMS behind a staff sign-in.",
+    client: "Glowreeyah Braimah",
+    credit,
+    creditUrl,
+    highlights: [
+      "Booking requests handled in the CMS: accept, decline or mark as reviewed, with an email to the requester each time.",
+      "A gallery of bulk-uploaded photos and YouTube or Vimeo videos, grouped by event or initiative, with a lightbox.",
+      "Blog excerpts generated from the post body, with a manual override.",
+      "A contact form on the homepage and its own page, saved to the database with an email notification.",
+      "Live chat on every public page, kept out of the CMS.",
+    ],
+    techStack: [
+      "Next.js 16",
+      "TypeScript",
+      "Tailwind CSS 4",
+      "MongoDB (Mongoose)",
+      "Cloudinary",
+      "NextAuth",
+      "Resend",
+      "Zod",
+      "Tawk.to",
+    ],
+    liveUrl: "https://glowreeyah-braimah.vercel.app",
+    repoUrl: "https://github.com/eonerhime/glowreeyah",
+    featured: false,
+    publishedAt: addedAt,
+    cover: {
+      source: "glowreeyah.webp",
+      alt: "Glowreeyah Braimah home page with her portrait, the tagline “Music. Ministry. Movement.” and Listen Now and Book Glowreeyah buttons.",
+    },
+  },
+  {
+    slug: "epenal",
+    title: "Epenal Group",
+    category: "WEB_APP",
+    summary: "Marine engineering, boat building and vessel leasing, rebuilt from WordPress.",
+    description:
+      "A corporate and catalog site for an indigenous Nigerian marine engineering company, rebuilt from a broken WordPress setup. Buyers browse boats and leasing equipment by specification, read the HSE policies and certificates, and request a quote for a specific vessel.",
+    client: "Epenal Group",
+    credit,
+    creditUrl,
+    highlights: [
+      "A boat catalog filtered by category, length overall, draft and horsepower, with the filters kept in the URL so results can be shared.",
+      "Vessel pages with a full spec table and a mixed image and video gallery.",
+      "Quote requests that name the vessel, saved to the database before any email is sent.",
+      "An HSE hub with policies, safety figures and downloadable certificates.",
+      "Security headers and an enforced Content Security Policy.",
+    ],
+    techStack: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Tailwind CSS 4",
+      "Prisma",
+      "PostgreSQL (Neon)",
+      "Cloudinary",
+      "Resend",
+      "Zod",
+      "Vitest",
+    ],
+    liveUrl: "https://epenal.vercel.app",
+    featured: false,
+    publishedAt: addedAt,
+    cover: {
+      source: "epenal.webp",
+      alt: "Epenal Group home page with the headline “Vessels, equipment and marine works for Nigeria's energy sector” beside a supply vessel at sea.",
+    },
+  },
+  {
+    slug: "alphadeck",
+    title: "AlphaDeck",
+    category: "WEB_APP",
+    summary: "An AI-assisted trading platform, validated on paper before real capital.",
+    description:
+      "A multi-market trading platform where four Claude-powered agents analyse Forex, Deriv synthetic indices and crypto on 15-minute cycles and place orders through the user's own broker accounts. It never holds user funds, and every strategy is validated in paper-trading mode before it trades real capital.",
+    credit,
+    creditUrl,
+    highlights: [
+      "Every trade decision passes through four Claude agents: market analyst, strategy, risk manager and execution.",
+      "Analysis on 15-minute cycles, with a prompt tuned to each instrument's market behaviour.",
+      "A paper-trading mode for validating a strategy before any real capital is at risk.",
+      "A live dashboard with multi-timeframe price charts, open positions and an agent log of every decision and its reasoning.",
+      "Orders go through the user's own Deriv or Binance account; AlphaDeck never holds funds.",
+    ],
+    techStack: [
+      "Next.js 14",
+      "Tailwind CSS",
+      "Lightweight Charts",
+      "Express",
+      "PostgreSQL (Neon)",
+      "Anthropic API",
+      "Deriv API",
+      "CCXT",
+    ],
+    liveUrl: "https://alphadeck.vercel.app",
+    featured: false,
+    publishedAt: addedAt,
+    cover: {
+      source: "alphadeck-dashboard.webp",
+      alt: "AlphaDeck dashboard in paper-test mode with module toggles, an account summary, a EUR/USD price chart and the agent log.",
     },
   },
 ];
