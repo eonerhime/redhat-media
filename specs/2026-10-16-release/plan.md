@@ -45,16 +45,16 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 6. After go-live
 
-- [ ] 6.1 Restore rehearsal: a branch after the seed (data matches) and a branch before `migrate-production` (no tables), timed, then both deleted; `docs/runbooks/restore.md` (D10).
-- [ ] 6.2 securityheaders.com grade; PageSpeed Insights for the seven templates, no audit skipped (D7).
-- [ ] 6.3 Owner: opengraph.xyz for the three pages; WhatsApp share of a portfolio link (D7).
-- [ ] 6.4 Bot Protection stays on Log (owner answer E); recorded in `firewall.md` and `tech-stack.md` (D9).
-- [ ] 6.5 Monitor: dispatched test alert reaches both inboxes; query rate sampled and the limit confirmed or changed; first scheduled run green (D8).
-- [ ] 6.6 Search Console verified, sitemap submitted, `/` indexing requested (D11).
-- [ ] 6.7 Owner phone walk-through with the 404, screen-reader spot check, and Analytics and Speed Insights receiving data (D12).
-- [ ] 6.8 Dependabot shows as active and opens its PRs against `develop`.
-- [ ] 6.9 Phase 14 share link revoked (D5).
+- [x] 6.1 Restore rehearsal: a branch after the seed (data matches) and a branch before `migrate-production` (no tables), timed, then both deleted; `docs/runbooks/restore.md` (D10). *(The before-migration branch became a before-marker branch; D10 amended 2026-10-19.)*
+- [x] 6.2 securityheaders.com grade; PageSpeed Insights for the seven templates, no audit skipped (D7).
+- [x] 6.3 Owner: opengraph.xyz for the three pages; WhatsApp share of a portfolio link (D7).
+- [x] 6.4 Bot Protection stays on Log (owner answer E); recorded in `firewall.md` and `tech-stack.md` (D9).
+- [x] 6.5 Monitor: dispatched test alert reaches both inboxes; query rate sampled and the limit confirmed or changed; first scheduled run green (D8).
+- [x] 6.6 Search Console verified, sitemap submitted, `/` indexing requested (D11). *(Verified and sitemap accepted. The `/` indexing request hit the daily quota on 2026-10-19; D11 needs only the sitemap, so the retry on 2026-10-20 is an owner follow-up, logged in `implementation.md`.)*
+- [x] 6.7 Owner phone walk-through with the 404, screen-reader spot check, and Analytics and Speed Insights receiving data (D12).
+- [x] 6.8 Dependabot shows as active and opens its PRs against `develop`.
+- [x] 6.9 Phase 14 share link revoked (D5).
 
 ## 7. Close
 
-- [ ] 7.1 Close-out PR into `develop` with the post-release ticks, results and outcomes (roadmap Phase 16 row), then `develop` → `main` so `main` carries the final specs. Every `validation.md` box ticked.
+- [x] 7.1 Close-out PR into `develop` with the post-release ticks, results and outcomes (roadmap Phase 16 row), then `develop` → `main` so `main` carries the final specs. Every `validation.md` box ticked.

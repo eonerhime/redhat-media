@@ -45,7 +45,9 @@ Actions → monitor → Run workflow → branch `main` → tick `test_alert` →
 | `MONITOR_BASE_URL` | Repository variable | `https://redhat-media.vercel.app` (production, from Phase 16; develop's preview in Phase 15) |
 | `MONITOR_DATABASE_URL` | Secret in the GitHub Environment `monitor` | `rhm_readonly`, **direct** (non-pooled) connection, `sslmode=require`: production from Phase 16 (the preview branch in Phase 15). The environment's deployment branches are limited to `main` |
 
-The thresholds live in `lib/monitor/monitor-core.ts`, so changing one goes through a reviewed PR. Phase 16 recalibrates the query-volume limit from a production sample (result recorded in `specs/2026-10-16-release/implementation.md`).
+The thresholds live in `lib/monitor/monitor-core.ts`, so changing one goes through a reviewed PR. Phase 16 confirmed the query-volume limit from a production sample: **3 transactions a minute** on 2026-10-19 (run 39262581542), below the preview baseline of 6, so the limit stays at 60, the floor (`specs/2026-10-16-release/implementation.md`).
+
+A scheduled run wakes the compute itself, so it is usually younger than 5 minutes and not sampled. To take a sample, dispatch runs back to back until one reports a rate (each run keeps the compute awake for the next).
 
 ## Keep it running
 
