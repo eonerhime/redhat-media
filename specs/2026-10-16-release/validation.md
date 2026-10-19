@@ -40,9 +40,9 @@
 ## Search and owner checks
 
 - [x] Search Console property verified, sitemap submitted and accepted (D11)
-- [ ] Owner phone walk-through, including the 404 page (D12)
-- [ ] Owner screen-reader spot check on `/`, a service page and a portfolio item (D12)
-- [ ] Vercel Web Analytics shows the visits, and Speed Insights receives data (D12)
+- [x] Owner phone walk-through, including the 404 page (D12)
+- [x] Owner screen-reader spot check on `/`, a service page and a portfolio item (D12)
+- [x] Vercel Web Analytics shows the visits, and Speed Insights receives data (D12)
 
 ## Pre-launch security checklist (`tech-stack.md`, items Phase 15 deferred here)
 
