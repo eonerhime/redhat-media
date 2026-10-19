@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { BLUR_MAX_BYTES, fetchBlurDataUrl } from "./blur-core";
+import { BLUR_MAX_BYTES, blurStyle, fetchBlurDataUrl } from "./blur-core";
 import type { FetchFn } from "./fetch-capped";
 
 const ID = "rhm/page/dev-media/sample";
@@ -75,5 +75,16 @@ describe("fetchBlurDataUrl (Phase 8 spec, D5)", () => {
     const fetchFn = respond(JPEG);
     await expect(fetchBlurDataUrl(fetchFn, "c", "https://evil.example/a", "1/1")).rejects.toThrow();
     expect(fetchFn).not.toHaveBeenCalled();
+  });
+});
+
+describe("blurStyle (Phase 16 amendment to Phase 8 D5)", () => {
+  it("wraps the data: URL in next/image's blur SVG, sized to the image", () => {
+    const style = blurStyle("data:image/jpeg;base64,/9j/2Q==", 1600, 1000);
+    expect(style.backgroundImage).toMatch(/^url\("data:image\/svg\+xml;charset=utf-8,%3Csvg /);
+    expect(style.backgroundImage).toContain("viewBox='0 0 1600 1000'");
+    expect(style.backgroundImage).toContain("feGaussianBlur stdDeviation='20'");
+    expect(style.backgroundImage).toContain("href='data:image/jpeg;base64,/9j/2Q=='");
+    expect(style).toMatchObject({ backgroundSize: "cover", backgroundRepeat: "no-repeat" });
   });
 });

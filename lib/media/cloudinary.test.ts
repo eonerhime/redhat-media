@@ -3,6 +3,8 @@ import {
   ASPECTS,
   blurImageUrl,
   deliveryUrl,
+  fillUrl,
+  limitUrl,
   ogCoverUrl,
   heightFor,
   isRhmPublicId,
@@ -92,5 +94,35 @@ describe("ogCoverUrl (Phase 14 spec, D3)", () => {
 
   it("refuses anything that is not an rhm/ public ID", () => {
     expect(() => ogCoverUrl("demo", "https://evil.example/x.png")).toThrow();
+  });
+});
+
+describe("fillUrl (Phase 16 amendment to Phase 8 D5)", () => {
+  it("matches the URL CldImage built, height floored", () => {
+    expect(fillUrl("lezxe6hz", "rhm/portfolio_item/seed_alphadeck/cover", "16/10", 750)).toBe(
+      "https://res.cloudinary.com/lezxe6hz/image/upload/c_fill,w_750,h_468,g_auto/f_auto/q_auto/v1/rhm/portfolio_item/seed_alphadeck/cover",
+    );
+    expect(fillUrl("lezxe6hz", "rhm/portfolio_item/a/cover", "16/10", 828)).toContain(
+      "c_fill,w_828,h_517,",
+    );
+    expect(fillUrl("lezxe6hz", "rhm/portfolio_item/a/cover", "16/10", 3840)).toContain(
+      "c_fill,w_3840,h_2400,",
+    );
+  });
+
+  it("refuses anything that is not an rhm/ public ID", () => {
+    expect(() => fillUrl("demo", "https://evil.example/x.png", "1/1", 640)).toThrow();
+  });
+});
+
+describe("limitUrl (Phase 16 amendment to Phase 8 D5)", () => {
+  it("matches the URL CldImage built for the lightbox", () => {
+    expect(limitUrl("lezxe6hz", "rhm/portfolio_item/seed_sportspred/cover", 640)).toBe(
+      "https://res.cloudinary.com/lezxe6hz/image/upload/c_limit,w_640/f_auto/q_auto/v1/rhm/portfolio_item/seed_sportspred/cover",
+    );
+  });
+
+  it("refuses anything that is not an rhm/ public ID", () => {
+    expect(() => limitUrl("demo", "rhm/page/a?x=1", 640)).toThrow();
   });
 });

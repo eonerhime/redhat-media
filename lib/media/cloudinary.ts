@@ -1,7 +1,7 @@
 // Cloudinary public-ID rules and image geometry (Phase 8 spec, D5, D6).
 // The database stores public IDs, never URLs (tech-stack.md → Core).
 
-/** `rhm/{ownerType}/…`; full URLs never match, so CldImage cannot proxy them. */
+/** `rhm/{ownerType}/…`; full URLs never match, so no image URL can point anywhere else. */
 const RHM_PUBLIC_ID = /^rhm\/(portfolio_item|service|page)\/[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/;
 
 export function isRhmPublicId(id: string): boolean {
@@ -47,4 +47,26 @@ export function deliveryUrl(cloudName: string, publicId: string): string {
 export function ogCoverUrl(cloudName: string, publicId: string): string {
   if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
   return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,g_auto,w_1200,h_630/q_auto,f_jpg/${publicId}`;
+}
+
+/**
+ * One srcset rendition for `<MediaImage>`: the `aspect` crop at `width`. The URL is the one
+ * next-cloudinary's CldImage built before Phase 16 (height floored from the 1600 px slot,
+ * `v1/` before the ID), so Cloudinary keeps serving the derivatives it already has.
+ */
+export function fillUrl(
+  cloudName: string,
+  publicId: string,
+  aspect: Aspect,
+  width: number,
+): string {
+  if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
+  const height = Math.floor((heightFor(aspect) * width) / IMAGE_WIDTH);
+  return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_${width},h_${height},g_auto/f_auto/q_auto/v1/${publicId}`;
+}
+
+/** One srcset rendition of the whole image, scaled down to `width` and never cropped. */
+export function limitUrl(cloudName: string, publicId: string, width: number): string {
+  if (!isRhmPublicId(publicId)) throw new Error(`Not an rhm/ public ID: ${publicId}`);
+  return `https://res.cloudinary.com/${cloudName}/image/upload/c_limit,w_${width}/f_auto/q_auto/v1/${publicId}`;
 }
