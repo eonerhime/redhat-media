@@ -34,8 +34,8 @@
 ## Monitor
 
 - [ ] A dispatched test alert ran every real check against production and reached both inboxes (D8)
-- [ ] The query-volume limit is confirmed or changed from a production sample, and recorded in `monitor-core.ts`, `monitoring.md` and `tech-stack.md` (D8)
-- [ ] The first scheduled run on `main` is green (D8)
+- [x] The query-volume limit is confirmed or changed from a production sample, and recorded in `monitor-core.ts`, `monitoring.md` and `tech-stack.md` (D8)
+- [x] The first scheduled run on `main` is green (D8)
 
 ## Search and owner checks
 
