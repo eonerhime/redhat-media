@@ -47,7 +47,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 - [x] 6.1 Restore rehearsal: a branch after the seed (data matches) and a branch before `migrate-production` (no tables), timed, then both deleted; `docs/runbooks/restore.md` (D10). *(The before-migration branch became a before-marker branch; D10 amended 2026-10-19.)*
 - [x] 6.2 securityheaders.com grade; PageSpeed Insights for the seven templates, no audit skipped (D7).
-- [ ] 6.3 Owner: opengraph.xyz for the three pages; WhatsApp share of a portfolio link (D7).
+- [x] 6.3 Owner: opengraph.xyz for the three pages; WhatsApp share of a portfolio link (D7).
 - [x] 6.4 Bot Protection stays on Log (owner answer E); recorded in `firewall.md` and `tech-stack.md` (D9).
 - [x] 6.5 Monitor: dispatched test alert reaches both inboxes; query rate sampled and the limit confirmed or changed; first scheduled run green (D8).
 - [ ] 6.6 Search Console verified, sitemap submitted, `/` indexing requested (D11).

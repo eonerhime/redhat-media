@@ -26,8 +26,8 @@
 ## External checks
 
 - [x] securityheaders.com rates the production URL A or better (D7)
-- [ ] opengraph.xyz shows the title, description and 1200 × 630 card for `/`, a service page and a portfolio item (D7)
-- [ ] A portfolio link shared in WhatsApp shows its card (D7)
+- [x] opengraph.xyz shows the title, description and 1200 × 630 card for `/`, a service page and a portfolio item (D7)
+- [x] A portfolio link shared in WhatsApp shows its card (D7)
 - [x] PageSpeed Insights, mobile, no audit skipped: every template ≥ 90 in all four categories (D7)
 - [x] Bot Protection decision recorded, with the evidence for it (D9)
 
