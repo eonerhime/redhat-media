@@ -5,7 +5,7 @@
 > The production URL serves the new site, a rehearsed restore is documented with its timing, and the old `index.html` is gone from `main`.
 
 - [x] **Production URL serves the new site:** the hook-triggered production deployment is Ready, and `production-checks` is green on it (D3, D6).
-- [ ] **Rehearsed restore, with timing:** both rehearsal branches verified, each step's duration and the total recorded in `implementation.md`, and `docs/runbooks/restore.md` written (D10).
+- [x] **Rehearsed restore, with timing:** both rehearsal branches verified, each step's duration and the total recorded in `implementation.md`, and `docs/runbooks/restore.md` written (D10).
 - [x] **`index.html` gone from `main`:** `git ls-tree origin/main` lists no `index.html` after the release merge (D5).
 
 ## Before the release PR merges
@@ -25,11 +25,11 @@
 
 ## External checks
 
-- [ ] securityheaders.com rates the production URL A or better (D7)
+- [x] securityheaders.com rates the production URL A or better (D7)
 - [ ] opengraph.xyz shows the title, description and 1200 × 630 card for `/`, a service page and a portfolio item (D7)
 - [ ] A portfolio link shared in WhatsApp shows its card (D7)
-- [ ] PageSpeed Insights, mobile, no audit skipped: every template ≥ 90 in all four categories (D7)
-- [ ] Bot Protection decision recorded, with the evidence for it (D9)
+- [x] PageSpeed Insights, mobile, no audit skipped: every template ≥ 90 in all four categories (D7)
+- [x] Bot Protection decision recorded, with the evidence for it (D9)
 
 ## Monitor
 
@@ -47,7 +47,7 @@
 ## Pre-launch security checklist (`tech-stack.md`, items Phase 15 deferred here)
 
 - [ ] Least-privilege DB role in use on production (`rhm_app`), migrator credentials absent from the Vercel runtime, restore rehearsed. The protected branch stays accepted in writing on Neon Free (Phase 7 D10)
-- [ ] Dependabot active, with PRs targeting `develop`
+- [x] Dependabot active, with PRs targeting `develop`
 
 ## Gates
 
