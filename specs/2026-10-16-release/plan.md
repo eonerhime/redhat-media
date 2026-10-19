@@ -49,7 +49,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [x] 6.2 securityheaders.com grade; PageSpeed Insights for the seven templates, no audit skipped (D7).
 - [ ] 6.3 Owner: opengraph.xyz for the three pages; WhatsApp share of a portfolio link (D7).
 - [x] 6.4 Bot Protection stays on Log (owner answer E); recorded in `firewall.md` and `tech-stack.md` (D9).
-- [ ] 6.5 Monitor: dispatched test alert reaches both inboxes; query rate sampled and the limit confirmed or changed; first scheduled run green (D8).
+- [x] 6.5 Monitor: dispatched test alert reaches both inboxes; query rate sampled and the limit confirmed or changed; first scheduled run green (D8).
 - [ ] 6.6 Search Console verified, sitemap submitted, `/` indexing requested (D11).
 - [ ] 6.7 Owner phone walk-through with the 404, screen-reader spot check, and Analytics and Speed Insights receiving data (D12).
 - [x] 6.8 Dependabot shows as active and opens its PRs against `develop`.
