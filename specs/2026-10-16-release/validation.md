@@ -46,7 +46,7 @@
 
 ## Pre-launch security checklist (`tech-stack.md`, items Phase 15 deferred here)
 
-- [ ] Least-privilege DB role in use on production (`rhm_app`), migrator credentials absent from the Vercel runtime, restore rehearsed. The protected branch stays accepted in writing on Neon Free (Phase 7 D10)
+- [x] Least-privilege DB role in use on production (`rhm_app`), migrator credentials absent from the Vercel runtime, restore rehearsed. The protected branch stays accepted in writing on Neon Free (Phase 7 D10)
 - [x] Dependabot active, with PRs targeting `develop`
 
 ## Gates
@@ -55,6 +55,6 @@
 - [x] The route table is unchanged (C2)
 - [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` and `lighthouse` pass on the phase PR's preview
 - [x] `pnpm test:db` passes (no schema change, C3)
-- [ ] No secret appears in any log, report, artifact or transcript (C5)
+- [x] No secret appears in any log, report, artifact or transcript (C5)
 - [x] The owner's logo sources are committed only in `assets/brand/source/`, never in `public/` (C8, amended 2026-10-17)
-- [ ] Every plan box ticked
+- [x] Every plan box ticked
