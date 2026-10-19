@@ -24,7 +24,9 @@ export const saturationLimit = 0.8;
 /**
  * Query volume fails above this many transactions a minute, over a sample taken inside the run.
  * Pages are cached, so visitors barely reach the database: a busy e2e run against the dev branch
- * gave 6 a minute, and this is 10× that (plan task 4.2). Phase 16 recalibrates it on production.
+ * gave 6 a minute, and this is 10× that (plan task 4.2). Phase 16 confirmed it on production: a
+ * sample on 2026-10-19 (monitor run 39262581542) gave 3 a minute, so the busier baseline is still
+ * the preview's 6 and the limit stays 60, the floor.
  */
 export const transactionsPerMinuteLimit = 60;
 

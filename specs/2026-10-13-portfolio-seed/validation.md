@@ -43,6 +43,6 @@
 - [x] `pnpm media:upload-seed` uploaded the four new covers (1200×750 WebP) and skipped the five existing ones
 - [x] `pnpm db:seed` on Neon `dev`: 9 items, 9 covers; `/portfolio` lists all nine locally, and the Glowreeyah and Epenal pages show their client
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` (967) and `pnpm build` pass locally; `pnpm test:e2e --workers=1` 380 passed and 1 failed, then `portfolio-detail.spec.ts` 18/18 after the fix in the log
-- [ ] CI is green on the PR (`ci`, `db` with `seed.db.test.ts` at 9 items, `gitleaks`, `preview-headers`, `preview-e2e`, `lighthouse`, Vercel)
-- [ ] After the merge, `migrate-preview` seeds Neon `preview` (4 created, 5 updated, 9 covers)
-- [ ] After the promotion, `migrate-production` seeds production the same way, and `https://redhat-media.vercel.app/portfolio` lists nine items
+- [x] CI is green on the PR: `ci`, `db` (with `seed.db.test.ts` at 9 items), `gitleaks`, `preview-headers`, `lighthouse` and Vercel. **Deviation:** `preview-e2e` failed only on the 4 new items, because the previews were built before the preview branch was seeded (see the log). It passed against production instead.
+- [x] After the merge, `migrate-preview` seeds Neon `preview` (4 created, 5 updated, 9 covers): run on `3fe7613`
+- [x] After the promotion, `migrate-production` seeds production the same way, and `https://redhat-media.vercel.app/portfolio` lists nine items: run 39075171156; portfolio specs against production 31 passed
