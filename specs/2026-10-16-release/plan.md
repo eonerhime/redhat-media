@@ -53,7 +53,7 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 - [ ] 6.6 Search Console verified, sitemap submitted, `/` indexing requested (D11).
 - [ ] 6.7 Owner phone walk-through with the 404, screen-reader spot check, and Analytics and Speed Insights receiving data (D12).
 - [x] 6.8 Dependabot shows as active and opens its PRs against `develop`.
-- [ ] 6.9 Phase 14 share link revoked (D5).
+- [x] 6.9 Phase 14 share link revoked (D5).
 
 ## 7. Close
 
