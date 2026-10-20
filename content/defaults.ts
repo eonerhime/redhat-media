@@ -251,8 +251,7 @@ export const defaults = {
   "contact.form.services.legend": "What do you need? *",
   "contact.form.services.hint": "Choose all that apply.",
   "contact.form.notes.label": "Tell us about the project *",
-  "contact.form.notes.hint":
-    "What you need, who it's for, and any deadline or budget you have in mind.",
+  "contact.form.notes.hint": "What you need, who it's for, and anything else we should know.",
   "contact.form.consent.label":
     "I agree that RedHat Media may store these details to reply to my inquiry, as described in the",
   "contact.form.consent.link": "privacy notice",
@@ -266,6 +265,76 @@ export const defaults = {
   "contact.form.success.heading": "Thanks, we've received your inquiry",
   "contact.form.success.body":
     "We reply within one working day. If it's urgent, call or WhatsApp us on the numbers on this page.",
+
+  // Phase 19 scope stepper (owner-approved, Phase 19 spec, Appendix A). {n}, {total}, {step} and
+  // {email} are filled in at render time. The USD hints use ₦1,465.49/$ (CBN NFEM rate of
+  // 16 October 2026 plus 10%), rounded and marked "about".
+  "contact.form.progress": "Step {n} of {total}",
+  "contact.form.stepHeading": "Step {n} of {total}: {step}",
+  "contact.form.steps.services": "What do you need?",
+  "contact.form.steps.types": "What kind of project?",
+  "contact.form.steps.budget": "What's your budget?",
+  "contact.form.steps.timeline": "When do you need it?",
+  "contact.form.steps.details": "Your details",
+  "contact.form.steps.review": "Check and send",
+  "contact.form.types.hint": 'Choose all that apply for each service, or "Not sure yet".',
+  "contact.form.budget.legend": "Budget range *",
+  "contact.form.budget.hint":
+    "A rough range helps us suggest the right approach. Amounts are in naira; dollar amounts are approximate.",
+  "contact.form.budget.under500k": "Under ₦500,000 (about $340)",
+  "contact.form.budget.from500kTo1500k": "₦500,000 – ₦1.5 million (about $340 – $1,000)",
+  "contact.form.budget.from1500kTo5m": "₦1.5 million – ₦5 million (about $1,000 – $3,400)",
+  "contact.form.budget.from5mTo15m": "₦5 million – ₦15 million (about $3,400 – $10,200)",
+  "contact.form.budget.over15m": "Over ₦15 million (over about $10,200)",
+  "contact.form.budget.notSure": "Not sure yet",
+  "contact.form.timeline.legend": "Timeline *",
+  "contact.form.timeline.asap": "As soon as possible (within 2 weeks)",
+  "contact.form.timeline.within1Month": "Within a month",
+  "contact.form.timeline.oneToThreeMonths": "In 1–3 months",
+  "contact.form.timeline.overThreeMonths": "In more than 3 months",
+  "contact.form.timeline.flexible": "Flexible / not sure",
+  "contact.form.review.intro": "Check your answers before you send them.",
+  "contact.form.review.services": "Services",
+  "contact.form.review.types": "Project type",
+  "contact.form.review.budget": "Budget",
+  "contact.form.review.timeline": "Timeline",
+  "contact.form.review.details": "Your details",
+  "contact.form.review.change": "Change",
+  "contact.form.review.changeLabel": "Change {step}",
+  "contact.form.next": "Continue",
+  "contact.form.back": "Back",
+  "contact.form.noscript":
+    "This form needs JavaScript. You can still reach us by email at {email} or call one of the numbers on this page.",
+
+  // Phase 19 project types per service (owner-approved, Phase 19 spec, Appendix B). The ids are
+  // in content/project-types.ts; a key is contact.form.types.<service id>.<type>.
+  "contact.form.types.photography.event": "Event coverage",
+  "contact.form.types.photography.product": "Product photography",
+  "contact.form.types.photography.portrait": "Portraits and headshots",
+  "contact.form.types.photography.brand": "Brand and corporate shoot",
+  "contact.form.types.photography.notSure": "Not sure yet",
+  "contact.form.types.videography.promo": "Promotional video or advert",
+  "contact.form.types.videography.event": "Event coverage",
+  "contact.form.types.videography.interview": "Interviews and testimonials",
+  "contact.form.types.videography.social": "Short clips for social media",
+  "contact.form.types.videography.notSure": "Not sure yet",
+  "contact.form.types.digitalMarketing.launch": "A campaign for a launch or event",
+  "contact.form.types.digitalMarketing.ads": "Ongoing paid ads (Google, Meta)",
+  "contact.form.types.digitalMarketing.audit": "An audit and marketing plan",
+  "contact.form.types.digitalMarketing.notSure": "Not sure yet",
+  "contact.form.types.socialMedia.management": "Ongoing account management",
+  "contact.form.types.socialMedia.content": "Content creation only",
+  "contact.form.types.socialMedia.campaign": "A campaign for a launch or event",
+  "contact.form.types.socialMedia.notSure": "Not sure yet",
+  "contact.form.types.onlinePresence.setup": "Setting up profiles and listings",
+  "contact.form.types.onlinePresence.upkeep": "Ongoing upkeep and review replies",
+  "contact.form.types.onlinePresence.recovery": "Recovering or securing an account",
+  "contact.form.types.onlinePresence.notSure": "Not sure yet",
+  "contact.form.types.webApp.website": "A website",
+  "contact.form.types.webApp.webApp": "A web app",
+  "contact.form.types.webApp.shop": "An online shop",
+  "contact.form.types.webApp.improve": "Improving an existing site or app",
+  "contact.form.types.webApp.notSure": "Not sure yet",
 
   // Phase 18 privacy notice (owner-approved, Phase 18 spec, Appendix B). Each heading is the
   // appendix's section name.

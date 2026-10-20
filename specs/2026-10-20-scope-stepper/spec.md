@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 2, Phase 19
 - **Branch:** `feature/phase-19-scope-stepper` (from `develop` at `dd4a340`)
 - **Started:** 2026-10-20
-- **Status:** approved by the owner 2026-10-20 (Appendices A and B, with review notes 1 and 2 applied)
+- **Status:** done 2026-10-20 (PRs #41, #42); owner-approved 2026-10-20 (Appendices A and B, with review notes 1 and 2 applied)
 
 ## What and why
 
@@ -129,7 +129,7 @@ Phase 18 keys not listed here are unchanged. `{n}`, `{total}`, `{step}`, `{servi
 | `review.timeline` | Timeline |
 | `review.details` | Your details |
 | `review.change` | Change |
-| `review.changeLabel` | Change {step} |
+| `review.changeLabel` | Change {step} (`{step}` is the group's label, e.g. "Change Budget") |
 | `next` | Continue |
 | `back` | Back |
 | `noscript` | This form needs JavaScript. You can still reach us by email at {email} or call one of the numbers on this page. |

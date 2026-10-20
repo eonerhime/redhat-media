@@ -3,7 +3,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { submitInquiry } from "./actions";
 import { CopyEmail } from "@/components/contact/copy-email";
-import { inquiryFormCopy } from "@/components/contact/inquiry-copy";
+import {
+  inquiryChoices,
+  inquiryFormCopy,
+  inquiryServiceOption,
+} from "@/components/contact/inquiry-copy";
 import { InquiryForm } from "@/components/contact/inquiry-form";
 import { ButtonLink } from "@/components/shared/button-link";
 import { ExternalLink } from "@/components/shared/external-link";
@@ -108,15 +112,13 @@ export default async function Contact() {
         block("contact.form.heading"),
         block("contact.form.intro"),
         inquiryFormCopy(),
-        visibleServices().then((list) =>
-          Promise.all(
-            list.map(async (s) => ({ category: s.category, name: await block(s.nameKey) })),
-          ),
-        ),
-      ]).then(([formHeading, formIntro, copy, services]) => ({
+        inquiryChoices(),
+        visibleServices().then((list) => Promise.all(list.map(inquiryServiceOption))),
+      ]).then(([formHeading, formIntro, copy, choices, services]) => ({
         formHeading,
         formIntro,
         copy,
+        choices,
         services,
         turnstileSiteKey: inquiry.turnstileSiteKey,
       }))
@@ -200,6 +202,7 @@ export default async function Contact() {
               <InquiryForm
                 action={submitInquiry}
                 copy={form.copy}
+                choices={form.choices}
                 services={form.services}
                 turnstileSiteKey={form.turnstileSiteKey}
               />

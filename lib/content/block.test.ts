@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaults } from "../../content/defaults";
+import { projectTypes } from "../../content/project-types";
 import { pillars, services } from "../../content/services";
 import { block, type BlockKey } from "./block";
 import { BLOCK_KEY_PATTERN } from "./keys";
@@ -233,6 +234,38 @@ describe("verbatim port of the legacy page", () => {
       ),
       "footer.privacy",
     ];
+    const phase19Keys = [
+      ...[
+        "progress",
+        "stepHeading",
+        ...["services", "types", "budget", "timeline", "details", "review"].map(
+          (s) => `steps.${s}`,
+        ),
+        "types.hint",
+        "budget.legend",
+        "budget.hint",
+        ...[
+          "under500k",
+          "from500kTo1500k",
+          "from1500kTo5m",
+          "from5mTo15m",
+          "over15m",
+          "notSure",
+        ].map((band) => `budget.${band}`),
+        "timeline.legend",
+        ...["asap", "within1Month", "oneToThreeMonths", "overThreeMonths", "flexible"].map(
+          (choice) => `timeline.${choice}`,
+        ),
+        "review.intro",
+        ...["services", "types", "budget", "timeline", "details", "change", "changeLabel"].map(
+          (item) => `review.${item}`,
+        ),
+        "next",
+        "back",
+        "noscript",
+      ].map((key) => `contact.form.${key}`),
+      ...Object.values(projectTypes).flatMap((list) => list.map((type) => type.labelKey)),
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -247,6 +280,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase12Keys,
         ...phase13Keys,
         ...phase18Keys,
+        ...phase19Keys,
       ].sort(),
     );
   });

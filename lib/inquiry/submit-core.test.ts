@@ -16,11 +16,14 @@ const NOW = new Date("2026-10-20T12:00:00.000Z");
 const IP = "203.0.113.7";
 
 const valid = {
+  services: ["PHOTOGRAPHY", "WEB_APP"],
+  projectTypes: ["PHOTOGRAPHY.EVENT", "PHOTOGRAPHY.PRODUCT", "WEB_APP.WEBSITE"],
+  budgetRange: "FROM_1_5M_TO_5M",
+  timeline: "WITHIN_1_MONTH",
   clientName: "Ada Obi",
   email: "ada@example.com",
   phone: "0803 123 4567",
   companyName: "",
-  services: ["PHOTOGRAPHY", "WEB_APP"],
   projectNotes: "A launch shoot and a landing page for our new product.",
   consent: "on",
 };
@@ -67,6 +70,19 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
     const expected = toInquiryData(inquiryInputSchema.parse(formValues(form())), NOW);
     expect(d.save).toHaveBeenCalledExactlyOnceWith(expected);
     expect(expected.phone).toBe("+2348031234567");
+  });
+
+  it("saves the full scope of a multi-service inquiry (Phase 19 spec, D4)", async () => {
+    const d = deps();
+    await submitInquiryCore(form(), IP, d);
+    expect(d.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        services: ["PHOTOGRAPHY", "WEB_APP"],
+        projectTypes: ["PHOTOGRAPHY.EVENT", "PHOTOGRAPHY.PRODUCT", "WEB_APP.WEBSITE"],
+        budgetRange: "FROM_1_5M_TO_5M",
+        timeline: "WITHIN_1_MONTH",
+      }),
+    );
   });
 
   it("checks both rate limits for the IP, then Turnstile with the inquiry action", async () => {
@@ -126,7 +142,14 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
   it("answers 400 with one message per invalid field and the submitted values, uncounted", async () => {
     const d = deps();
     const result = await submitInquiryCore(
-      form({ email: "ada@", phone: "12", services: [], consent: null }),
+      form({
+        email: "ada@",
+        phone: "12",
+        projectTypes: ["WEB_APP.WEBSITE"],
+        budgetRange: null,
+        timeline: "YESTERDAY",
+        consent: null,
+      }),
       IP,
       d,
     );
@@ -134,13 +157,23 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
       status: "invalid",
       code: 400,
       fieldErrors: {
+        projectTypes: "Choose at least one kind of project for Photography.",
+        budgetRange: 'Choose a budget range, or "Not sure yet".',
+        timeline: "Choose a timeline from the list.",
         email: "Enter a valid email address, like name@example.com.",
         phone:
           "Enter a phone number like 0803 123 4567, or with a country code like +44 20 7946 0000.",
-        services: "Choose at least one service.",
         consent: "Please agree to the privacy notice so we can keep your details.",
       },
-      values: { ...valid, email: "ada@", phone: "12", services: [], consent: false },
+      values: {
+        ...valid,
+        projectTypes: ["WEB_APP.WEBSITE"],
+        budgetRange: "",
+        timeline: "YESTERDAY",
+        email: "ada@",
+        phone: "12",
+        consent: false,
+      },
     });
     expect(d.rateLimit).not.toHaveBeenCalled();
     expect(d.save).not.toHaveBeenCalled();
@@ -150,7 +183,18 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
     const result = await submitInquiryCore(form({ clientName: "" }), IP, deps());
     if (result.status !== "invalid") throw new Error(`expected invalid, got ${result.status}`);
     expect(Object.keys(result.values).sort()).toEqual(
-      ["clientName", "companyName", "consent", "email", "phone", "projectNotes", "services"].sort(),
+      [
+        "budgetRange",
+        "clientName",
+        "companyName",
+        "consent",
+        "email",
+        "phone",
+        "projectNotes",
+        "projectTypes",
+        "services",
+        "timeline",
+      ].sort(),
     );
   });
 
@@ -164,6 +208,34 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
     });
     expect(d.rateLimit).not.toHaveBeenCalled();
     expect(d.save).not.toHaveBeenCalled();
+  });
+
+  it("refuses the project types of a muted service with it (Phase 19 spec, D4)", async () => {
+    const d = deps({ visibleCategories: async () => ["WEB_APP"] });
+    const result = await submitInquiryCore(
+      form({ services: ["PHOTOGRAPHY"], projectTypes: ["PHOTOGRAPHY.NOT_SURE"] }),
+      IP,
+      d,
+    );
+    expect(result).toMatchObject({
+      status: "invalid",
+      fieldErrors: { services: MUTED_SERVICE_ERROR },
+    });
+    expect(d.save).not.toHaveBeenCalled();
+  });
+
+  it("refuses a project type of a service not chosen, uncounted", async () => {
+    const d = deps();
+    const result = await submitInquiryCore(
+      form({ services: ["WEB_APP"], projectTypes: ["WEB_APP.SHOP", "PHOTOGRAPHY.EVENT"] }),
+      IP,
+      d,
+    );
+    expect(result).toMatchObject({
+      status: "invalid",
+      fieldErrors: { projectTypes: "Choose project types from the list." },
+    });
+    expect(d.rateLimit).not.toHaveBeenCalled();
   });
 
   it("answers 429 over the 10-minute limit, without the daily count or Turnstile", async () => {
@@ -225,6 +297,11 @@ describe("formValues", () => {
   it("reads the checkbox as a boolean and ignores file entries", () => {
     const data = form({ consent: null });
     data.append("services", new Blob(["x"]));
-    expect(formValues(data)).toMatchObject({ consent: false, services: valid.services });
+    data.append("projectTypes", new Blob(["x"]));
+    expect(formValues(data)).toMatchObject({
+      consent: false,
+      services: valid.services,
+      projectTypes: valid.projectTypes,
+    });
   });
 });

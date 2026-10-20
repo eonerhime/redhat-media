@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { fillToReview, formOn } from "./inquiry-steps";
 import { test } from "./portfolio-expect";
 import { routes } from "./routes";
 
@@ -58,4 +59,17 @@ test.describe("enforced CSP", () => {
       expect(await violations()).toEqual([]);
     });
   }
+
+  // Phase 19 spec, D10: the Turnstile widget mounts on the stepper's last step.
+  test("/contact raises no violations with the Turnstile widget on step 6", async ({ page }) => {
+    test.skip(!formOn, "INQUIRY_FORM_ENABLED is not 1 here");
+    const violations = await collectViolations(page);
+    await page.goto("/contact");
+    await fillToReview(page);
+    await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", {
+      timeout: 20_000,
+    });
+    await page.waitForTimeout(500);
+    expect(await violations()).toEqual([]);
+  });
 });

@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 import { RECOVER_KEY } from "../app/(dev)/dev/error/throw-once";
+import { continueButton, fillToReview, formOn, stepHeading } from "./inquiry-steps";
 import { test } from "./portfolio-expect";
 import { routes } from "./routes";
 
@@ -76,3 +77,29 @@ test.describe("axe on interactive states", () => {
     });
   }
 });
+
+// Phase 19 spec, D13: every step of the inquiry stepper, and a step showing its error summary,
+// at both widths. Wherever the form is on (CI, the preview).
+for (const width of widths) {
+  test.describe(`axe on the inquiry stepper at ${width}px`, () => {
+    test.skip(!formOn, "INQUIRY_FORM_ENABLED is not 1 here");
+    test.use({ viewport: { width, height: 900 } });
+
+    test("every step, and a step with errors", async ({ page }) => {
+      await open(page, "/contact");
+      const failures: string[] = [];
+      const record = async (state: string) =>
+        failures.push(...(await audit(page)).map((line) => `${state} → ${line}`));
+
+      await record("step 1");
+      await continueButton(page).click();
+      await expect(page.locator(":focus")).toContainText("Choose at least one service.");
+      await record("step 1 with errors");
+      await page.reload();
+      await fillToReview(page, undefined, async (n) => record(`step ${n}`));
+      await expect(stepHeading(page, 6)).toBeFocused();
+      await record("step 6");
+      expect(failures).toEqual([]);
+    });
+  });
+}

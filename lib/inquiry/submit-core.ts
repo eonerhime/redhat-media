@@ -1,4 +1,4 @@
-// The inquiry form's submit logic (Phase 18 spec, D3–D8). The server action in
+// The inquiry form's submit logic (Phase 18 spec, D3–D8; Phase 19 spec, D4). The server action in
 // app/(public)/contact/actions.ts reads the client IP and passes the real
 // dependencies; tests pass fakes, so every path runs without a network or database.
 
@@ -50,14 +50,20 @@ const text = (formData: FormData, name: string): string => {
   return typeof value === "string" ? value : "";
 };
 
+const list = (formData: FormData, name: string): string[] =>
+  formData.getAll(name).filter((value) => typeof value === "string");
+
 /** The D2 fields as submitted, echoed back on `invalid` (D4). Never the honeypot, time or token. */
 export function formValues(formData: FormData): InquiryFormValues {
   return {
+    services: list(formData, "services"),
+    projectTypes: list(formData, "projectTypes"),
+    budgetRange: text(formData, "budgetRange"),
+    timeline: text(formData, "timeline"),
     clientName: text(formData, "clientName"),
     email: text(formData, "email"),
     phone: text(formData, "phone"),
     companyName: text(formData, "companyName"),
-    services: formData.getAll("services").filter((value) => typeof value === "string"),
     projectNotes: text(formData, "projectNotes"),
     consent: formData.get("consent") !== null,
   };
@@ -110,6 +116,7 @@ export async function submitInquiryCore(
   }
 
   try {
+    // A muted service's project types go with it: types must belong to a chosen service (D4).
     const visible = new Set(await deps.visibleCategories());
     if (!parsed.data.services.every((category) => visible.has(category))) {
       return invalid({ services: MUTED_SERVICE_ERROR }, values);
