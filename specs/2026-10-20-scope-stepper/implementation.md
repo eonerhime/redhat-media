@@ -66,6 +66,21 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Preview (Ready): `redhat-media-git-feature-phase-19-scope-stepper-e1rhyme.vercel.app`.
   - `preview-e2e`: 109 passed, 3 skipped, **1 failed**, the saved keyboard submission. Neon `preview` has no `projectTypes` column until #41 merges. Every other stepper test passes on the deployed preview: the per-step axe audits, the step-6 CSP check, Back/Forward, Change and the server-invalid case.
   - **Next:** merge #41; `migrate-preview` on the `develop` push adds the column; merge `develop` into this branch (no tree change expected); re-run `preview-e2e` here; then the NVDA pass and the owner check (plan 5.3, 5.4).
+- **2026-10-20** — #41 merged by the owner (`d148f96`). Develop run 39463830235 is green, and its `migrate-preview` applied `20261020120000_inquiry_project_types` to Neon `preview`. `develop` merged into this branch (`08e429f`, no tree change). #42 on `08e429f`: every check is green, including `preview-e2e` (run 39470971353: 110 passed, 3 skipped), where the keyboard-only two-service submission reached the success panel.
+- **2026-10-20** — Plan 5.4, owner check on the preview from a phone:
+  - **A first try** went through a Phase 18 (single-page) preview, so its "Tester" row has no scope.
+  - **On the stepper preview** the row saved `services {SOCIAL_MEDIA,WEB_APP}`, `projectTypes ["SOCIAL_MEDIA.CONTENT","WEB_APP.WEBSITE","WEB_APP.WEB_APP"]`, `budgetRange FROM_5M_TO_15M` and `timeline ASAP` (read by the owner in the Neon console).
+  - The owner did not try Change, unticking a service or editing answers. Those are covered by `inquiry.spec.ts`, which passes locally and in `preview-e2e`.
+- **2026-10-20** — Plan 5.3, **NVDA pass** with the owner at the desk: NVDA 2026.2 (`nvda_noUIAccess.exe`, speech logged), Edge, local `next start` of this branch, driven by keyboard. Announced:
+  - page load: "main landmark, Tell us about your project, region, Step 1 of 6: What do you need?, region, Continue, button";
+  - blocked Continue: "Please fix the following:, list, Choose at least one service.";
+  - each step change: "Step 2 of 6: What kind of project?, heading, level 3", and the same for steps 3 to 6;
+  - a project-type group: "Photography, grouping, list with 5 items, Event coverage, check box, not checked";
+  - a budget option: "₦500,000 – ₦1.5 million (about $340 – $1,000), radio button, checked, 2 of 6";
+  - a field: "Phone or WhatsApp *, edit, required, Nigerian numbers like 0803 123 4567…" (the hint is read);
+  - the review: "Change Budget, button";
+  - after Send: "Thanks, we've received your inquiry, heading, level 3".
+  - **Defect found and fixed:** untouched budget and timeline radios and the consent checkbox were announced "required, invalid entry", because native `required` makes an unchecked radio or checkbox `:invalid`, which Chromium exposes as invalid. They now use `aria-required` (the budget and timeline fieldsets are `role="radiogroup"`), and the D9 step checks enforce the answer as before. New test `inquiry.spec.ts` "no control is exposed as invalid before a step check fails" reads the accessibility tree on every step; before the fix it listed 6 budget radios, 5 timeline radios and the consent box. After the fix: inquiry, a11y, CSP, contact and smoke specs 92 passed, 1 skipped; unit tests pass; JS 197,848 B gzipped (+3.5 kB). NVDA's raw log was deleted (it also captured other windows).
 
 ## Deviations from plan
 
@@ -76,6 +91,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **A server `invalid` adds a history entry** for the step it opens, like every other step change, so the in-form and browser Back both return to the review (D7 kept: "both Backs behave the same").
 
 ## Issues and fixes
+
+- NVDA announced untouched required radios and the consent checkbox as "invalid entry" (native `required`); fixed with `aria-required` (plan 5.3 entry).
 
 - The React Compiler lint (`react-hooks/purity`) flagged `performance.now()` and `Math.random()` in event handlers and effects. The cause was an inline `onClick={() => show(index)}` inside a render helper, which the compiler read as a render-time call. The Change buttons now use one handler that reads `data-step`.
 - Components declared inside `InquiryForm` would remount on every render and drop the uncontrolled answers, so the step section and summary are render helpers instead.

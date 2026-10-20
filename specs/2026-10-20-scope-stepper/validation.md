@@ -4,7 +4,7 @@
 
 > A multi-service inquiry is saved with its full scope. The Playwright test completes the stepper by keyboard only.
 
-- [ ] **A multi-service inquiry is saved with its full scope:** services, project types, budget and timeline in the row; on a real Postgres and on the Vercel preview (D2, D13)
+- [x] **A multi-service inquiry is saved with its full scope:** services, project types, budget and timeline in the row; on a real Postgres and on the Vercel preview (D2, D13)
 - [x] **The Playwright test completes the stepper by keyboard only**, with two services, locally and in CI (D13)
 
 ## Stepper
@@ -20,13 +20,13 @@
 ## Data
 
 - [x] **Migration** is additive: `projectTypes` `TEXT[] NOT NULL DEFAULT '{}'`; Phase 18 rows read back with an empty list; `rhm_readonly` still cannot read `Inquiry` (D2, C3)
-- [ ] `migrate-preview` applies it in CI
+- [x] `migrate-preview` applies it in CI
 
 ## Accessibility and performance
 
 - [x] **Zero axe violations** on every step at 360 and 1440 px (D13)
 - [x] **Focus and announcements:** focus moves to each step's heading ("Step n of 6: …"); `aria-current="step"` on the progress list (D8)
-- [ ] **Screen reader:** NVDA pass on the preview, with what was announced recorded in `implementation.md` (owner answer H)
+- [x] **Screen reader:** NVDA pass on the preview, with what was announced recorded in `implementation.md` (owner answer H)
 - [x] **JS budget:** `/contact` client JS grows by at most 15 kB gzipped over Phase 18, with both figures recorded (D14)
 - [x] **Lighthouse** job green on `/contact` (D14)
 
@@ -39,5 +39,5 @@
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
 - [x] `pnpm test:db` passes locally and in the CI `db` job
-- [ ] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the multi-service submission
+- [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the multi-service submission
 - [ ] Owner check on the preview (plan 5.4)

@@ -252,6 +252,27 @@ test.describe("scope stepper", () => {
     await expect(reviewGroup(page, copy("review.budget"))).toHaveText(budgetLabels[2]);
   });
 
+  // The NVDA pass (plan 5.3) heard "required, invalid entry" on untouched radios and the consent
+  // box, from native `required`. Nothing is invalid until a step check says so (D9).
+  test("no control is exposed as invalid before a step check fails", async ({ page }) => {
+    const cdp = await page.context().newCDPSession(page);
+    const invalid = async () => {
+      const { nodes } = await cdp.send("Accessibility.getFullAXTree");
+      return nodes
+        .filter((node) => !node.ignored)
+        .filter((node) =>
+          node.properties?.some((p) => p.name === "invalid" && p.value.value !== "false"),
+        )
+        .map((node) => `${node.role?.value} "${node.name?.value}"`);
+    };
+    const seen: string[] = [];
+    await fillToReview(page, DETAILS, async (n) => {
+      seen.push(...(await invalid()).map((line) => `step ${n}: ${line}`));
+    });
+    seen.push(...(await invalid()).map((line) => `step 6: ${line}`));
+    expect(seen).toEqual([]);
+  });
+
   test("the honeypot is neither focusable by Tab nor announced", async ({ page }) => {
     const honeypot = page.locator('input[name="website"]');
     await expect(honeypot).toHaveAttribute("tabindex", "-1");

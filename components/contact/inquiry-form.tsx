@@ -497,9 +497,13 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
     options: InquiryChoice[],
     hint?: string,
   ) => (
+    // aria-required, not native `required`: an unchecked required radio is :invalid, which screen
+    // readers announce as "invalid entry" before anything is chosen. The step check covers it (D9).
     <fieldset
       id={fieldId(field)}
+      role="radiogroup"
       tabIndex={-1}
+      aria-required="true"
       aria-invalid={errors[field] ? true : undefined}
       aria-describedby={describedBy(field, Boolean(hint), errors)}
       className="focus:outline-none"
@@ -510,7 +514,7 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
         {options.map((option) => (
           <li key={option.value}>
             <label className={choiceLabel}>
-              <input type="radio" name={field} value={option.value} required className={box} />
+              <input type="radio" name={field} value={option.value} className={box} />
               {option.label}
             </label>
           </li>
@@ -755,7 +759,8 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
                 id={fieldId("consent")}
                 type="checkbox"
                 name="consent"
-                required
+                // Not native `required`, for the reason given at radioGroup.
+                aria-required="true"
                 aria-invalid={errors.consent ? true : undefined}
                 aria-describedby={describedBy("consent", false, errors)}
                 className={`mt-1 ${box}`}
