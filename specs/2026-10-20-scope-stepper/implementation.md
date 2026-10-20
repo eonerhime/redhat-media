@@ -61,6 +61,11 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - Send focuses `heading "Thanks, we've received your inquiry"` inside a `status` with the body text;
     - browser Back after success leaves the panel.
   - The live NVDA pass needs a desktop with the test browser in front: with the owner present, or with no other window open.
+- **2026-10-20** — PR #42 CI on `09c39b0`:
+  - `ci` (run 39461191092; it includes the CI-mode keyboard run, which shows the generic message with no database), `db`, `gitleaks`, `preview-headers`, `lighthouse` (run 39461259836) and Vercel are green.
+  - Preview (Ready): `redhat-media-git-feature-phase-19-scope-stepper-e1rhyme.vercel.app`.
+  - `preview-e2e`: 109 passed, 3 skipped, **1 failed**, the saved keyboard submission. Neon `preview` has no `projectTypes` column until #41 merges. Every other stepper test passes on the deployed preview: the per-step axe audits, the step-6 CSP check, Back/Forward, Change and the server-invalid case.
+  - **Next:** merge #41; `migrate-preview` on the `develop` push adds the column; merge `develop` into this branch (no tree change expected); re-run `preview-e2e` here; then the NVDA pass and the owner check (plan 5.3, 5.4).
 
 ## Deviations from plan
 

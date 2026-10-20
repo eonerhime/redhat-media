@@ -5,7 +5,7 @@
 > A multi-service inquiry is saved with its full scope. The Playwright test completes the stepper by keyboard only.
 
 - [ ] **A multi-service inquiry is saved with its full scope:** services, project types, budget and timeline in the row; on a real Postgres and on the Vercel preview (D2, D13)
-- [ ] **The Playwright test completes the stepper by keyboard only**, with two services, locally and in CI (D13)
+- [x] **The Playwright test completes the stepper by keyboard only**, with two services, locally and in CI (D13)
 
 ## Stepper
 
@@ -28,7 +28,7 @@
 - [x] **Focus and announcements:** focus moves to each step's heading ("Step n of 6: …"); `aria-current="step"` on the progress list (D8)
 - [ ] **Screen reader:** NVDA pass on the preview, with what was announced recorded in `implementation.md` (owner answer H)
 - [x] **JS budget:** `/contact` client JS grows by at most 15 kB gzipped over Phase 18, with both figures recorded (D14)
-- [ ] **Lighthouse** job green on `/contact` (D14)
+- [x] **Lighthouse** job green on `/contact` (D14)
 
 ## Security
 
@@ -38,6 +38,6 @@
 ## Gates
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
-- [ ] `pnpm test:db` passes locally and in the CI `db` job
+- [x] `pnpm test:db` passes locally and in the CI `db` job
 - [ ] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the multi-service submission
 - [ ] Owner check on the preview (plan 5.4)
