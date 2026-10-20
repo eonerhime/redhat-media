@@ -5,7 +5,7 @@ import { testPg } from "./test-client";
 // Least-privilege roles (Phase 7 spec, D3, D4, D9). Roadmap "Done when": a
 // test proves rhm_app cannot run DDL. Every statement here is fixed text.
 
-const TABLES = ['"PortfolioItem"', '"MediaItem"', '"RateLimitHit"'];
+const TABLES = ['"PortfolioItem"', '"MediaItem"', '"RateLimitHit"', '"Inquiry"'];
 const DENIED = "42501"; // insufficient_privilege
 
 let app: pg.Client;
@@ -96,14 +96,27 @@ describe("rhm_readonly", () => {
       code: DENIED,
     });
   });
+
+  // Inquiry holds personal data; its migration revokes the default grant (Phase 17 spec, D4).
+  it("has no privilege on Inquiry", async () => {
+    await expect(readonly.query('SELECT count(*) FROM "Inquiry"')).rejects.toMatchObject({
+      code: DENIED,
+    });
+    for (const privilege of ["SELECT", "INSERT", "UPDATE", "DELETE"])
+      expect(
+        await scalar(readonly, `SELECT has_table_privilege('"Inquiry"', '${privilege}')`),
+        privilege,
+      ).toBe(false);
+  });
 });
 
 describe("rhm_migrator", () => {
   it("owns every app table", async () => {
     const { rows } = await migrator.query(
-      "SELECT tablename, tableowner FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('PortfolioItem', 'MediaItem', 'RateLimitHit') ORDER BY tablename",
+      "SELECT tablename, tableowner FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('PortfolioItem', 'MediaItem', 'RateLimitHit', 'Inquiry') ORDER BY tablename",
     );
     expect(rows).toEqual([
+      { tablename: "Inquiry", tableowner: "rhm_migrator" },
       { tablename: "MediaItem", tableowner: "rhm_migrator" },
       { tablename: "PortfolioItem", tableowner: "rhm_migrator" },
       { tablename: "RateLimitHit", tableowner: "rhm_migrator" },
