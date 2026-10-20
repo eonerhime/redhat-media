@@ -26,5 +26,5 @@
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass; the route table is unchanged (C3) — locally 2026-10-20 (unit 1,036; no new route) and the `ci` job in CI run 39397756294 (PR #36)
 - [x] `pnpm test:db` passes locally and in the CI `db` job, with no schema drift (C5) — locally 30 passed, no drift; the `db` job in CI run 39397756294
 - [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview (C4) — locally (ready, Edge, `--workers=1`) 381 passed, 11 skipped (state- and release-conditional), 0 failed, 2026-10-20; `ci` in run 39397756294; `preview-e2e`, `preview-headers` and `lighthouse` in preview run 39397795249
-- [ ] `migrate-preview` applies the migration to the Neon `preview` branch after the merge (C6) —
-- [ ] Owner review —
+- [x] `migrate-preview` applies the migration to the Neon `preview` branch after the merge (C6) — develop run 39398766440 (`67a8510`): "Applying migration `20261020000000_inquiry`" at 09:14:24Z, then the seed; `ci`, `gitleaks`, `db` green
+- [x] Owner review — the owner reviewed and merged PR #36 at 09:10:36Z, 2026-10-20
