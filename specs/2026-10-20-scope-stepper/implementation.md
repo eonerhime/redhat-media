@@ -50,6 +50,17 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - `test:db` on the local Postgres 17: 34 passed;
   - `build`: `/contact` is `○` with the switch on and off.
   - Full `test:e2e --workers=1` against `next start` (Edge, switch on, `E2E_INQUIRY_SUBMIT=success`): 406 passed, 12 skipped, 2 failed. The failures were `shell.spec.ts` contrast on `/services/social-media-marketing` at 1440 px and the keyboard smoke test; neither touches the stepper. Both passed on re-run (5 passed): the 27.9-minute run shared the machine with an NVDA install.
+- **2026-10-20** — PR #42 (the stepper) opened into `develop`, on top of #41.
+- **2026-10-20** — Plan 5.3 (NVDA), **not done; still open**:
+  - NVDA 2026.2 installed (`winget install NVAccess.NVDA`). `nvda.exe` needs elevation, so it was started as `nvda_noUIAccess.exe` with speech logging.
+  - A visible Edge window driven by Playwright never took the foreground. Windows' foreground lock kept another, already-open browser window active, and NVDA read that window instead. Raising the Edge window from a script failed too.
+  - NVDA was stopped and its log deleted, because it held only that other window's content.
+  - **Fallback evidence** (Playwright accessibility snapshot of the focused element, local `next start`):
+    - Continue on an empty step 1 focuses the summary: "Please fix the following:", then the link "Choose at least one service." (`#inquiry-services`);
+    - each step change focuses `heading "Step n of 6: …" [level=3]`;
+    - Send focuses `heading "Thanks, we've received your inquiry"` inside a `status` with the body text;
+    - browser Back after success leaves the panel.
+  - The live NVDA pass needs a desktop with the test browser in front: with the owner present, or with no other window open.
 
 ## Deviations from plan
 
