@@ -106,9 +106,9 @@ generator client {
 // Six services only: BRANDING is not offered (owner, 2026-10-10; roadmap open question 6).
 enum ServiceCategory { WEB_APP PHOTOGRAPHY VIDEOGRAPHY DIGITAL_MARKETING SOCIAL_MEDIA ONLINE_PRESENCE }
 enum InquiryStatus   { NEW REVIEWING PROPOSAL_SENT CLOSED }
-// BudgetRange and InquiryTimeline values are defined in the Phase 17 spec (roadmap open question 7).
-// enum BudgetRange     { ... }
-// enum InquiryTimeline { ... }
+// Naira bands; labels (with a USD hint) are copy (Phase 17 spec, D2; roadmap open question 7).
+enum BudgetRange     { UNDER_500K FROM_500K_TO_1_5M FROM_1_5M_TO_5M FROM_5M_TO_15M OVER_15M NOT_SURE }
+enum InquiryTimeline { ASAP WITHIN_1_MONTH ONE_TO_THREE_MONTHS OVER_THREE_MONTHS FLEXIBLE }
 enum MediaKind       { IMAGE VIDEO }
 enum VideoProvider   { YOUTUBE VIMEO }
 enum MediaOwner      { PORTFOLIO_ITEM SERVICE PAGE }
@@ -176,7 +176,7 @@ model Inquiry {
   clientName      String
   companyName     String?
   email           String
-  phone           String              // required-ness confirmed in Phase 17 (open question 8)
+  phone           String              // required; stored as E.164 (Phase 17 spec, D6)
   services        ServiceCategory[]   // at least one, enforced by Zod
   budgetRange     BudgetRange?
   timeline        InquiryTimeline?

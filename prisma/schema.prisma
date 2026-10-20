@@ -21,6 +21,31 @@ enum ServiceCategory {
   ONLINE_PRESENCE
 }
 
+enum InquiryStatus {
+  NEW
+  REVIEWING
+  PROPOSAL_SENT
+  CLOSED
+}
+
+// Naira bands; labels (with a USD hint) are copy (Phase 17 spec, D2).
+enum BudgetRange {
+  UNDER_500K
+  FROM_500K_TO_1_5M
+  FROM_1_5M_TO_5M
+  FROM_5M_TO_15M
+  OVER_15M
+  NOT_SURE
+}
+
+enum InquiryTimeline {
+  ASAP
+  WITHIN_1_MONTH
+  ONE_TO_THREE_MONTHS
+  OVER_THREE_MONTHS
+  FLEXIBLE
+}
+
 enum MediaKind {
   IMAGE
   VIDEO
@@ -78,6 +103,26 @@ model MediaItem {
   updatedAt     DateTime       @updatedAt
 
   @@index([ownerType, ownerId, sortOrder])
+}
+
+// Phase 17 spec, D1. Written only through toInquiryData (lib/validation/inquiry.ts),
+// which applies the Zod length caps. rhm_readonly has no access (D4).
+model Inquiry {
+  id           String            @id @default(cuid())
+  clientName   String
+  companyName  String?
+  email        String
+  phone        String // required; E.164 (D6)
+  services     ServiceCategory[] // at least one, enforced by Zod
+  budgetRange  BudgetRange? // asked from Phase 19
+  timeline     InquiryTimeline? // asked from Phase 19
+  projectNotes String
+  status       InquiryStatus     @default(NEW)
+  consentAt    DateTime // privacy-notice consent (NDPA 2023)
+  emailSentAt  DateTime? // team notification (Phase 20)
+  ackSentAt    DateTime? // client acknowledgment (Phase 20)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 }
 
 // Shared fixed-window rate limiter (lib/security/rate-limit.ts, Phase 7 spec D8).
