@@ -202,6 +202,37 @@ describe("verbatim port of the legacy page", () => {
       "contact.brief.examples",
       "contact.brief.services",
     ];
+    const phase18Keys = [
+      ...[
+        "heading",
+        "intro",
+        "name.label",
+        "email.label",
+        "phone.label",
+        "phone.hint",
+        "company.label",
+        "services.legend",
+        "services.hint",
+        "notes.label",
+        "notes.hint",
+        "consent.label",
+        "consent.link",
+        "submit",
+        "submitting",
+        "errors.summary",
+        "errors.generic",
+        "errors.rateLimited",
+        "success.heading",
+        "success.body",
+      ].map((key) => `contact.form.${key}`),
+      "privacy.meta.description",
+      "privacy.heading",
+      "privacy.updated",
+      ...["who", "collect", "why", "basis", "processors", "retention", "rights", "contact"].flatMap(
+        (section) => [`privacy.${section}.heading`, `privacy.${section}.body`],
+      ),
+      "footer.privacy",
+    ];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -215,6 +246,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase11Keys,
         ...phase12Keys,
         ...phase13Keys,
+        ...phase18Keys,
       ].sort(),
     );
   });

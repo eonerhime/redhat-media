@@ -25,11 +25,11 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 3. Pages and copy
 
-- [ ] 3.1 Copy keys from Appendices A and B (as approved); `privacy` prefix in `BLOCK_KEY_PREFIXES` (D12).
-- [ ] 3.2 `components/contact/inquiry-form.tsx`: fields, honeypot, `elapsedMs`, widget, errors, pending, success (D2, D7, D9).
-- [ ] 3.3 `/contact`: the form section and layout, behind the switch (D1, D10).
-- [ ] 3.4 `app/(public)/privacy/page.tsx`, footer link, sitemap (D11).
-- [ ] 3.5 Build: `/contact` and `/privacy` prerendered (`○`) with the switch on and off (C2). Record it.
+- [x] 3.1 Copy keys from Appendices A and B (as approved); `privacy` prefix in `BLOCK_KEY_PREFIXES` (D12).
+- [x] 3.2 `components/contact/inquiry-form.tsx`: fields, honeypot, `elapsedMs`, widget, errors, pending, success (D2, D7, D9).
+- [x] 3.3 `/contact`: the form section and layout, behind the switch (D1, D10).
+- [x] 3.4 `app/(public)/privacy/page.tsx`, footer link, sitemap (D11).
+- [x] 3.5 Build: `/contact` and `/privacy` prerendered (`○`) with the switch on and off (C2). Record it.
 
 ## 4. Tests
 

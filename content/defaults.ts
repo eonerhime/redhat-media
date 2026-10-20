@@ -236,4 +236,67 @@ export const defaults = {
   "contact.brief.budget": "Your budget range",
   "contact.brief.examples": "Links or examples you like",
   "contact.brief.services": "See our services",
+
+  // Phase 18 inquiry form (owner-approved, Phase 18 spec, Appendix A). {email} is the site email
+  // from lib/site.ts, inserted at render time.
+  "contact.form.heading": "Tell us about your project",
+  "contact.form.intro":
+    "A few details help us reply with something useful. Fields marked * are required.",
+  "contact.form.name.label": "Your name *",
+  "contact.form.email.label": "Email *",
+  "contact.form.phone.label": "Phone or WhatsApp *",
+  "contact.form.phone.hint":
+    "Nigerian numbers like 0803 123 4567; international numbers with a country code, like +44.",
+  "contact.form.company.label": "Company or organisation",
+  "contact.form.services.legend": "What do you need? *",
+  "contact.form.services.hint": "Choose all that apply.",
+  "contact.form.notes.label": "Tell us about the project *",
+  "contact.form.notes.hint":
+    "What you need, who it's for, and any deadline or budget you have in mind.",
+  "contact.form.consent.label":
+    "I agree that RedHat Media may store these details to reply to my inquiry, as described in the",
+  "contact.form.consent.link": "privacy notice",
+  "contact.form.submit": "Send inquiry",
+  "contact.form.submitting": "Sending…",
+  "contact.form.errors.summary": "Please fix the following:",
+  "contact.form.errors.generic":
+    "We couldn't send your inquiry. Please try again, or email us at {email}.",
+  "contact.form.errors.rateLimited":
+    "You've sent several inquiries in a short time. Please try again later, or email us at {email}.",
+  "contact.form.success.heading": "Thanks, we've received your inquiry",
+  "contact.form.success.body":
+    "We reply within one working day. If it's urgent, call or WhatsApp us on the numbers on this page.",
+
+  // Phase 18 privacy notice (owner-approved, Phase 18 spec, Appendix B). Each heading is the
+  // appendix's section name.
+  "privacy.meta.description":
+    "How RedHat Media handles the details you send through the inquiry form, and your rights under the Nigeria Data Protection Act 2023.",
+  "privacy.heading": "Privacy notice",
+  "privacy.updated": "Last updated 20 October 2026.",
+  "privacy.who.heading": "Who we are",
+  "privacy.who.body":
+    "RedHat Media (RC 1379619) is a media company based in Lagos, Nigeria. This notice explains what we do with the details you send through our inquiry form.",
+  "privacy.collect.heading": "What we collect",
+  "privacy.collect.body":
+    "Your name, email address, phone number, company (if you give one), the services you're interested in, your project details, and the time you agreed to this notice. To protect the form from abuse we also keep a scrambled (hashed) version of your IP address, which cannot be turned back into the address.",
+  "privacy.why.heading": "Why",
+  "privacy.why.body":
+    "To reply to your inquiry, understand what you need and prepare a proposal. We don't use your details for marketing, and we don't sell them.",
+  "privacy.basis.heading": "Legal basis",
+  "privacy.basis.body":
+    "Your consent, which you give by ticking the box on the form. You can withdraw it at any time.",
+  "privacy.processors.heading": "Who processes it",
+  "privacy.processors.body":
+    "RedHat Media staff who handle inquiries, and the services that run this website: Neon (our database, hosted in London), Vercel (website hosting) and Cloudflare Turnstile (checks that a form is sent by a person, not a bot).",
+  "privacy.retention.heading": "How long we keep it",
+  "privacy.retention.body":
+    "We keep an inquiry while we're discussing your project. Once it's closed, we anonymise it after 24 months. The hashed IP records used to stop abuse are deleted after 30 days.",
+  "privacy.rights.heading": "Your rights",
+  "privacy.rights.body":
+    "Under the Nigeria Data Protection Act 2023 you can ask to see the details we hold about you, correct them, delete them, or withdraw your consent. You can also complain to the Nigeria Data Protection Commission.",
+  "privacy.contact.heading": "Contact",
+  "privacy.contact.body": "To use these rights or ask a question, email redhatmediang@gmail.com.",
+
+  // Phase 18: the footer's link to the notice (Phase 18 spec, D11).
+  "footer.privacy": "Privacy notice",
 } as const satisfies Record<BlockKeyShape, string>;

@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { submitInquiry } from "./actions";
 import { CopyEmail } from "@/components/contact/copy-email";
+import { inquiryFormCopy } from "@/components/contact/inquiry-copy";
+import { InquiryForm } from "@/components/contact/inquiry-form";
 import { ButtonLink } from "@/components/shared/button-link";
 import { ExternalLink } from "@/components/shared/external-link";
 import { JsonLd } from "@/components/shared/json-ld";
 import { block } from "@/lib/content/block";
+import { visibleServices } from "@/lib/content/services";
+import { env } from "@/lib/env";
 import { businessJsonLdInput } from "@/lib/seo/business";
 import { localBusinessJsonLd } from "@/lib/seo/json-ld";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -95,10 +100,80 @@ export default async function Contact() {
       ).map((key) => block(key)),
     ),
   ]);
+  // The inquiry form, behind its switch (Phase 18 spec, D1, D10). Read at build time: the page
+  // stays static, and with the switch off it renders exactly as before.
+  const inquiry = env.inquiryForm;
+  const form = inquiry
+    ? await Promise.all([
+        block("contact.form.heading"),
+        block("contact.form.intro"),
+        inquiryFormCopy(),
+        visibleServices().then((list) =>
+          Promise.all(
+            list.map(async (s) => ({ category: s.category, name: await block(s.nameKey) })),
+          ),
+        ),
+      ]).then(([formHeading, formIntro, copy, services]) => ({
+        formHeading,
+        formIntro,
+        copy,
+        services,
+        turnstileSiteKey: inquiry.turnstileSiteKey,
+      }))
+    : undefined;
   const [nextHeading, ...steps] = next;
   const [briefHeading, briefIntro, ...briefRest] = brief;
   const briefItems = briefRest.slice(0, -1);
   const servicesLink = briefRest[briefRest.length - 1];
+
+  const channelCards = (
+    <section
+      aria-labelledby="contact-channels"
+      className={form ? undefined : "container-page pb-16"}
+    >
+      <h2 id="contact-channels" className="sr-only">
+        {channels}
+      </h2>
+      <address className="not-italic">
+        {/* Beside the form from lg, the cards stack in its third of the row (D1). */}
+        <ul
+          className={
+            form ? "grid gap-6 md:grid-cols-2 lg:grid-cols-1" : "grid gap-6 md:grid-cols-2"
+          }
+        >
+          <ChannelCard label={email[0]}>
+            <a href={mailtoHref()} className={contactLink}>
+              {contact.email}
+            </a>
+            <Note>{email[1]}</Note>
+            <CopyEmail email={contact.email} label={email[2]} copiedLabel={email[3]} />
+          </ChannelCard>
+          <ChannelCard label={phone[0]}>
+            <a href={contact.phoneHref} className={contactLink}>
+              {contact.phoneDisplay}
+            </a>
+            <Note>{phone[1]}</Note>
+            <p className="mt-2 text-base text-muted">{phone[2]}</p>
+            <a href={contact.phoneHref} className={contactLink}>
+              {contact.phoneInternational}
+            </a>
+          </ChannelCard>
+          <ChannelCard label={whatsapp[0]}>
+            <ExternalLink href={contact.whatsappHref} className={contactLink}>
+              {whatsapp[1]}
+            </ExternalLink>
+            <Note>{whatsapp[2]}</Note>
+          </ChannelCard>
+          <ChannelCard label={location[0]}>
+            <p className="text-lg font-semibold">{contact.location}</p>
+            <Note>{location[1]}</Note>
+            <p className="mt-2 text-base text-muted">{location[2]}</p>
+            <p className="text-lg font-semibold">{contact.hours}</p>
+          </ChannelCard>
+        </ul>
+      </address>
+    </section>
+  );
 
   return (
     <>
@@ -113,44 +188,28 @@ export default async function Contact() {
         </div>
       </section>
 
-      <section aria-labelledby="contact-channels" className="container-page pb-16">
-        <h2 id="contact-channels" className="sr-only">
-          {channels}
-        </h2>
-        <address className="not-italic">
-          <ul className="grid gap-6 md:grid-cols-2">
-            <ChannelCard label={email[0]}>
-              <a href={mailtoHref()} className={contactLink}>
-                {contact.email}
-              </a>
-              <Note>{email[1]}</Note>
-              <CopyEmail email={contact.email} label={email[2]} copiedLabel={email[3]} />
-            </ChannelCard>
-            <ChannelCard label={phone[0]}>
-              <a href={contact.phoneHref} className={contactLink}>
-                {contact.phoneDisplay}
-              </a>
-              <Note>{phone[1]}</Note>
-              <p className="mt-2 text-base text-muted">{phone[2]}</p>
-              <a href={contact.phoneHref} className={contactLink}>
-                {contact.phoneInternational}
-              </a>
-            </ChannelCard>
-            <ChannelCard label={whatsapp[0]}>
-              <ExternalLink href={contact.whatsappHref} className={contactLink}>
-                {whatsapp[1]}
-              </ExternalLink>
-              <Note>{whatsapp[2]}</Note>
-            </ChannelCard>
-            <ChannelCard label={location[0]}>
-              <p className="text-lg font-semibold">{contact.location}</p>
-              <Note>{location[1]}</Note>
-              <p className="mt-2 text-base text-muted">{location[2]}</p>
-              <p className="text-lg font-semibold">{contact.hours}</p>
-            </ChannelCard>
-          </ul>
-        </address>
-      </section>
+      {form ? (
+        // D1: directly after the header; from lg the form takes two thirds of the row.
+        <div className="container-page grid gap-10 pb-16 lg:grid-cols-3">
+          <section aria-labelledby="contact-form" className="lg:col-span-2">
+            <h2 id="contact-form" className="font-display text-display-2 font-black tracking-tight">
+              {form.formHeading}
+            </h2>
+            <p className="mt-4 max-w-2xl text-lg text-muted">{form.formIntro}</p>
+            <div className="mt-8">
+              <InquiryForm
+                action={submitInquiry}
+                copy={form.copy}
+                services={form.services}
+                turnstileSiteKey={form.turnstileSiteKey}
+              />
+            </div>
+          </section>
+          {channelCards}
+        </div>
+      ) : (
+        channelCards
+      )}
 
       <div className="container-page grid gap-6 border-t border-line py-16 lg:grid-cols-2">
         <section
