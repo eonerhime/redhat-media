@@ -178,6 +178,6 @@ Phase 18 keys not listed here are unchanged. `{n}`, `{total}`, `{step}`, `{servi
 | | `WEB_APP.IMPROVE` | Improving an existing site or app |
 | | `WEB_APP.NOT_SURE` | Not sure yet |
 
-Two labels repeat across services ("Event coverage", "A campaign for a launch or event"). They stay as they are, because the stepper and review group types under their service. **Anywhere a type is shown outside its service group** (the Phase 20 emails, the Phase 32 inbox, any export), it is shown with its service, e.g. "Photography: Event coverage" (owner, 2026-10-20). `projectTypeLabel(id)` in `content/project-types.ts` returns both parts for that.
+Two labels repeat across services ("Event coverage", "A campaign for a launch or event"). They stay as they are, because the stepper and review group types under their service. **Anywhere a type is shown outside its service group** (the Phase 20 emails, the Phase 32 inbox, any export), it is shown with its service, e.g. "Photography: Event coverage" (owner, 2026-10-20). `projectTypeLabel(id)` in `lib/content/project-types.ts` returns both parts for that.
 
 Block keys use the service's camelCase `id` and a camelCase type, e.g. `contact.form.types.webApp.notSure`, because the key pattern bans `_` (*In-place CMS* 4).

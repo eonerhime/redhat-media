@@ -4,18 +4,18 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 
 ## 0. Constitution first
 
-- [ ] 0.1 `specs/roadmap.md`: Phase 19 row (project types, review step); open question 7 (owner answer A).
-- [ ] 0.2 `specs/tech-stack.md`: *Schema decisions* (`projectTypes`; budget and timeline required by the schema) (owner answers B, E).
-- [ ] 0.3 `README.md`: §5 `Inquiry` model gains `projectTypes String[]`.
+- [x] 0.1 `specs/roadmap.md`: Phase 19 row (project types, review step); open question 7 (owner answer A).
+- [x] 0.2 `specs/tech-stack.md`: *Schema decisions* (`projectTypes`; budget and timeline required by the schema) (owner answers B, E).
+- [x] 0.3 `README.md`: §5 `Inquiry` model gains `projectTypes String[]`.
 
 ## 1. Baseline
 
-- [ ] 1.1 Measure Phase 18's `/contact` client JS (sum of gzipped JS files `contact.html` loads, switch on) and record it in `implementation.md` (D14).
+- [x] 1.1 Measure Phase 18's `/contact` client JS (sum of gzipped JS files `contact.html` loads, switch on) and record it in `implementation.md` (D14).
 
 ## 2. Data and validation
 
 - [ ] 2.1 `content/project-types.ts` + `content/project-types.test.ts` (D1, D13).
-- [ ] 2.2 Prisma: `projectTypes String[] @default([])`, migration `20261020…_inquiry_project_types`, `prisma generate` (D2, C3).
+- [x] 2.2 Prisma: `projectTypes String[] @default([])`, migration `20261020…_inquiry_project_types`, `prisma generate` (D2, C3).
 - [ ] 2.3 `lib/validation/inquiry-messages.ts` (Zod-free); `inquiryInputSchema` project-type, budget and timeline rules; `toInquiryData`; tests (D3).
 - [ ] 2.4 `lib/inquiry/fields.ts` and `submit-core.ts`: new fields in step order, echoed on `invalid`; tests (D4).
 - [ ] 2.5 `submit.db.test.ts`: multi-service inquiry saved with its full scope; column default (D13).

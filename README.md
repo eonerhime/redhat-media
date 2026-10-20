@@ -179,8 +179,9 @@ model Inquiry {
   email           String
   phone           String              // required; stored as E.164 (Phase 17 spec, D6)
   services        ServiceCategory[]   // at least one, enforced by Zod
-  budgetRange     BudgetRange?
-  timeline        InquiryTimeline?
+  projectTypes    String[]      @default([])  // CATEGORY.TYPE ids from content/project-types.ts (Phase 19)
+  budgetRange     BudgetRange?        // required by Zod from Phase 19
+  timeline        InquiryTimeline?    // required by Zod from Phase 19
   projectNotes    String
   status          InquiryStatus @default(NEW)
   consentAt       DateTime            // privacy-notice consent (NDPA 2023)
