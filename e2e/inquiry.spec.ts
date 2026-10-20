@@ -1,8 +1,10 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { defaults } from "../content/defaults";
 import { resolveVisibility } from "../lib/content/services";
 import { services } from "../content/services";
 import { contact } from "../lib/site";
+// Sends the Vercel bypass header to a protected preview (PW_BASE_URL), like the other preview specs.
+import { test } from "./portfolio-expect";
 
 // Phase 18 spec, D13. The form is on wherever INQUIRY_FORM_ENABLED=1 (CI, Vercel Preview) and off
 // in production until Phase 20 (D10). E2E_INQUIRY_SUBMIT names what a valid submission shows:
