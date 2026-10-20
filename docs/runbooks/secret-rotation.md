@@ -33,7 +33,7 @@ Built in Phase 15 (spec D9, `specs/2026-10-16-launch-readiness/spec.md`).
 | Neon API key (CLI profile `e1rhyme`) | The Neon CLI's local config | Neon console → Account settings → API keys → create a new key, then revoke the old one; `neon auth --profile e1rhyme` | Neon CLI commands | `neon projects list --profile e1rhyme` |
 | `BETTER_AUTH_SECRET` | *Phase 24 fills this in* | | | |
 | `RESEND_API_KEY` | *Phase 20 fills this in* | | | |
-| `TURNSTILE_SECRET_KEY` | *Phase 18 fills this in* | | | |
+| `TURNSTILE_SECRET_KEY` (Phase 18) | Vercel **Production** only: the real widget's secret, beside its public `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (owner, before Phase 20). Vercel Preview, CI (`ci.yml`) and `.env.example` hold Cloudflare's public test secret, which is not a secret and never rotates (Phase 18 spec, D5) | Cloudflare dashboard → Turnstile → the `redhat-media.vercel.app` widget → Settings → Rotate Secret Key (old and new secrets both verify for two hours; Cloudflare docs, *Rotate secret key*); paste the new value into Vercel Production with *Vercel variable* below, then redeploy production | Until the redeploy, nothing: the old secret still verifies for those two hours. After that with no redeploy, every inquiry is refused (`rejected`, the generic message with the email address) | Submit an inquiry on production and see it in the `Inquiry` table, or, while the form is off there (until Phase 20), check that the production build passed `lib/env.ts` (it refuses test keys) |
 
 ## Database roles
 

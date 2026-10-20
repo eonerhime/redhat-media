@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-const className =
+// Also the inquiry form's submit button, its only action (Phase 18 spec, D1).
+export const buttonClassName =
   "inline-flex items-center rounded-md border border-brand-deep bg-brand-deep px-6 py-3 font-semibold text-fg transition-transform hover:-translate-y-0.5";
 
 // Primary CTA. fg on brand-deep is 5.03:1; the fill never switches to brand, where fg drops to
@@ -9,13 +10,13 @@ const className =
 export function ButtonLink({ href, children }: { href: string; children: React.ReactNode }) {
   if (!href.startsWith("/")) {
     return (
-      <a href={href} className={className}>
+      <a href={href} className={buttonClassName}>
         {children}
       </a>
     );
   }
   return (
-    <Link href={href} className={className}>
+    <Link href={href} className={buttonClassName}>
       {children}
     </Link>
   );

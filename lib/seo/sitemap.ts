@@ -27,6 +27,8 @@ export function sitemapEntries({
     "/portfolio",
     ...portfolioSlugs.map((slug) => `/portfolio/${slug}`),
     "/contact",
+    // The privacy notice, public even while the inquiry form is off (Phase 18 spec, D11).
+    "/privacy",
   ];
   return paths.map((path) => ({ url: `${siteUrl}${path === "/" ? "" : path}` }));
 }

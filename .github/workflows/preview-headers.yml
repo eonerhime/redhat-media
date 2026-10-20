@@ -124,12 +124,16 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           PW_BASE_URL: ${{ github.event.deployment_status.environment_url }}
           E2E_PORTFOLIO_STATE: ready
+          # The inquiry form is on for previews, which save to the preview branch, so one
+          # keyboard-only submission per run shows the success panel (Phase 18 spec, D13, C8).
+          INQUIRY_FORM_ENABLED: "1"
+          E2E_INQUIRY_SUBMIT: success
         run: |
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts
+          pnpm test:e2e e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts e2e/inquiry.spec.ts
 
   # Lighthouse on mobile for every template, three runs each, every category >= 0.90 (Phase 15
   # spec, D6). The bypass cookie is set for the preview's host only, and no report is kept,

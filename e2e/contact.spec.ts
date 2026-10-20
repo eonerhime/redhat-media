@@ -6,6 +6,8 @@ import { routes } from "./routes";
 
 // Phase 13 spec, D8. "Done when": every CTA on the site leads to /contact, and the links work on
 // mobile. No database is needed, so this runs in CI only.
+// The inquiry form section is on wherever INQUIRY_FORM_ENABLED=1 (Phase 18 spec, D10).
+const formOn = process.env.INQUIRY_FORM_ENABLED === "1";
 const mailto = `mailto:${contact.email}`;
 const subjectMailto = `${mailto}?subject=${encodeURIComponent(defaults["contact.email.subject"])}`;
 const siteValues = [
@@ -15,6 +17,8 @@ const siteValues = [
   contact.location,
   contact.hours,
   "(opens in a new tab)",
+  // The full stop after the consent label's privacy link (Phase 18 spec, Appendix A).
+  ...(formOn ? ["."] : []),
 ];
 
 /** WCAG 2.5.5 / Apple: at least 44 × 44 CSS px (D4). */
@@ -35,6 +39,7 @@ test.describe("contact page", () => {
     await expect(main.getByRole("heading", { level: 1 })).toHaveText(defaults["contact.heading"]);
     await expect(main).toContainText(defaults["contact.intro"]);
     await expect(main.getByRole("heading", { level: 2 })).toHaveText([
+      ...(formOn ? [defaults["contact.form.heading"]] : []),
       defaults["contact.channels.heading"],
       defaults["contact.next.heading"],
       defaults["contact.brief.heading"],
@@ -166,7 +171,8 @@ test.describe("contact page on a phone", () => {
 });
 
 // Every CTA on the site leads to /contact (roadmap Phase 13 "Done when").
-for (const route of routes.filter((r) => r !== "/contact"))
+// /privacy is a notice, not a sales page, so it carries no CTA (Phase 18 spec, D11).
+for (const route of routes.filter((r) => r !== "/contact" && r !== "/privacy"))
   test(`every CTA on ${route} leads to /contact`, async ({ page }) => {
     await page.goto(route);
     const ctas = page.locator("main").getByRole("link", { name: defaults["home.cta.button"] });

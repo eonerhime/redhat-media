@@ -20,6 +20,7 @@ describe("sitemapEntries() (Phase 14 spec, D4)", () => {
       "https://redhat-media.vercel.app/portfolio",
       "https://redhat-media.vercel.app/portfolio/sportspred",
       "https://redhat-media.vercel.app/contact",
+      "https://redhat-media.vercel.app/privacy",
     ]);
   });
 
@@ -31,7 +32,7 @@ describe("sitemapEntries() (Phase 14 spec, D4)", () => {
   });
 
   it("still lists the other pages when the portfolio read failed", () => {
-    expect(urls({ siteUrl, serviceSlugs: [], portfolioSlugs: [] })).toHaveLength(5);
+    expect(urls({ siteUrl, serviceSlugs: [], portfolioSlugs: [] })).toHaveLength(6);
   });
 
   it("never lists /dev, /cms or a query string", () => {

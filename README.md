@@ -40,7 +40,8 @@
 │   │   ├── about/         # Agency story, mission, and multidisciplinary capabilities
 │   │   ├── services/      # Services index and one page per service (six services in three pillars)
 │   │   ├── portfolio/     # Combined showcase (Engineering products from emo-onerhime + Media/Production case studies)
-│   │   └── contact/       # Project booking & inquiry form with rate limiting and Turnstile
+│   │   ├── contact/       # Project booking & inquiry form with rate limiting and Turnstile
+│   │   └── privacy/       # Privacy notice the inquiry form's consent checkbox links to (NDPA 2023)
 │   ├── cms/               # Staff area: unlinked from public navigation, noindex
 │   │   ├── login/         # Staff authentication (Better Auth), the only entry point signed-out
 │   │   └── (protected)/   # Dashboard, lead inbox, staff management, and audit logs (role-checked)

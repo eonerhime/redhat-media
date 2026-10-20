@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TURNSTILE_TEST_KEY } from "./security/turnstile-core";
 
 // The schema grows per phase: a variable becomes required in the phase that
 // first uses it (specs/tech-stack.md → Environment variables).
@@ -43,8 +44,38 @@ const envSchema = z
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optional(
       z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/, "Must be a Cloudinary cloud name"),
     ),
+    // The inquiry form's switch: off in production until Phase 20 (Phase 18 spec, D10).
+    INQUIRY_FORM_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
+    // Public: the widget's site key is in the page (D5).
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional(
+      z.string().regex(/^[0-9A-Za-z_-]{1,100}$/, "Must be a Turnstile site key"),
+    ),
+    TURNSTILE_SECRET_KEY: optional(z.string().min(1).max(200)),
   })
   .superRefine((env, ctx) => {
+    if (env.INQUIRY_FORM_ENABLED === "1") {
+      for (const key of ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"] as const) {
+        if (!env[key]) {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            message: "Required when INQUIRY_FORM_ENABLED=1",
+          });
+        }
+      }
+    }
+    if (env.VERCEL_ENV === "production") {
+      for (const key of ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"] as const) {
+        const value = env[key];
+        if (value && TURNSTILE_TEST_KEY.test(value)) {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            message: "Must not be a Cloudflare test key in production",
+          });
+        }
+      }
+    }
     if (env.VERCEL_ENV === "production" && !env.NEXT_PUBLIC_SITE_URL) {
       ctx.addIssue({
         code: "custom",
@@ -91,6 +122,11 @@ export type Env = {
   cloudinaryCloudName?: string;
   /** Vercel deployment target; unset locally and in CI. */
   vercelEnv?: "production" | "preview" | "development";
+  /**
+   * Set only while the inquiry form is switched on (`INQUIRY_FORM_ENABLED=1`), with its
+   * Turnstile keys (Phase 18 spec, D5, D10). The secret is read only by lib/security/turnstile.ts.
+   */
+  inquiryForm?: { turnstileSiteKey: string; turnstileSecretKey: string };
 };
 
 export function parseEnv(source: Record<string, string | undefined>): Env {
@@ -106,6 +142,9 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     DATABASE_URL,
     RATE_LIMIT_SALT,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    INQUIRY_FORM_ENABLED,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    TURNSTILE_SECRET_KEY,
   } = result.data;
   const siteUrl =
     NEXT_PUBLIC_SITE_URL ??
@@ -116,6 +155,13 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     rateLimitSalt: RATE_LIMIT_SALT,
     cloudinaryCloudName: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     vercelEnv: VERCEL_ENV,
+    inquiryForm:
+      INQUIRY_FORM_ENABLED === "1" && NEXT_PUBLIC_TURNSTILE_SITE_KEY && TURNSTILE_SECRET_KEY
+        ? {
+            turnstileSiteKey: NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+            turnstileSecretKey: TURNSTILE_SECRET_KEY,
+          }
+        : undefined,
   };
 }
 
