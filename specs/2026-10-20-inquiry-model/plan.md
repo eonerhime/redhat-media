@@ -27,5 +27,5 @@ Scope, decisions (D1–D9) and constraints (C1–C6) are in [`spec.md`](spec.md)
 ## 4. Close
 
 - [x] 4.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, `pnpm build` (route table unchanged, C3), `pnpm test:e2e --workers=1`. — unit 1,036; db 30; e2e (ready, Edge) 381 passed + 11 skipped, 0 failed.
-- [ ] 4.2 PR into `develop`: CI green (`ci`, `db` with the drift check, `gitleaks`, preview jobs); after the merge, `migrate-preview` applies the migration to `preview`.
-- [ ] 4.3 Every `validation.md` box ticked; owner review.
+- [x] 4.2 PR into `develop`: CI green (`ci`, `db` with the drift check, `gitleaks`, preview jobs); after the merge, `migrate-preview` applies the migration to `preview`. — PR #36, merge `67a8510`; develop run 39398766440 applied it to `preview`.
+- [x] 4.3 Every `validation.md` box ticked; owner review. — all but the monitor half of the `rhm_readonly` box, which can only be shown on production after the next `develop` → `main` release.
