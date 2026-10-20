@@ -17,12 +17,16 @@ import {
 
 // Roadmap Phase 17 "Done when": unit tests accept valid inquiries and reject
 // each invalid field with a specific message (Phase 17 spec, D5–D9, Appendix A).
+// Phase 19 adds the project-type rules and makes budget and timeline required (D3).
 
 const minimal = {
   clientName: "Ada Obi",
   email: "ada@example.com",
   phone: "0803 123 4567",
   services: ["PHOTOGRAPHY"],
+  projectTypes: ["PHOTOGRAPHY.NOT_SURE"],
+  budgetRange: "NOT_SURE",
+  timeline: "FLEXIBLE",
   projectNotes: "Product shoot for our new skincare line.",
   consent: true,
 };
@@ -31,6 +35,7 @@ const full = {
   ...minimal,
   companyName: "Glow Labs Ltd",
   services: ["WEB_APP", "VIDEOGRAPHY", "SOCIAL_MEDIA"],
+  projectTypes: ["WEB_APP.WEBSITE", "WEB_APP.SHOP", "VIDEOGRAPHY.PROMO", "SOCIAL_MEDIA.NOT_SURE"],
   budgetRange: "FROM_1_5M_TO_5M",
   timeline: "ONE_TO_THREE_MONTHS",
   projectNotes: "A launch video and a website.\nWe go live in March.",
@@ -49,6 +54,9 @@ describe("inquiryInputSchema: valid inquiries", () => {
       email: "ada@example.com",
       phone: "+2348031234567",
       services: ["PHOTOGRAPHY"],
+      projectTypes: ["PHOTOGRAPHY.NOT_SURE"],
+      budgetRange: "NOT_SURE",
+      timeline: "FLEXIBLE",
       projectNotes: "Product shoot for our new skincare line.",
       consent: true,
     });
@@ -76,16 +84,10 @@ describe("inquiryInputSchema: valid inquiries", () => {
     });
   });
 
-  it("treats blank optional fields as absent", () => {
-    const parsed = inquiryInputSchema.parse({
-      ...minimal,
-      companyName: "   ",
-      budgetRange: "",
-      timeline: "",
-    });
-    expect(parsed.companyName).toBeUndefined();
-    expect(parsed.budgetRange).toBeUndefined();
-    expect(parsed.timeline).toBeUndefined();
+  it("treats a blank company name as absent", () => {
+    expect(
+      inquiryInputSchema.parse({ ...minimal, companyName: "   " }).companyName,
+    ).toBeUndefined();
   });
 
   it("drops keys the client must not set", () => {
@@ -102,9 +104,12 @@ describe("inquiryInputSchema: valid inquiries", () => {
   });
 
   it("accepts every service, budget range and timeline", () => {
-    expect(
-      inquiryInputSchema.parse({ ...minimal, services: [...serviceCategories] }).services,
-    ).toEqual([...serviceCategories]);
+    const everyService = {
+      ...minimal,
+      services: [...serviceCategories],
+      projectTypes: serviceCategories.map((category) => `${category}.NOT_SURE`),
+    };
+    expect(inquiryInputSchema.parse(everyService).services).toEqual([...serviceCategories]);
     for (const budgetRange of budgetRanges)
       expect(inquiryInputSchema.parse({ ...minimal, budgetRange }).budgetRange).toBe(budgetRange);
     for (const timeline of inquiryTimelines)
@@ -160,7 +165,11 @@ describe("inquiryInputSchema: each invalid field has its own message (Appendix A
     ["services", "empty", [], "Choose at least one service."],
     ["services", "an unknown value", ["BRANDING"], "Choose services from the list."],
     ["services", "a repeat", ["WEB_APP", "WEB_APP"], "Choose each service only once."],
+    ["budgetRange", "missing", undefined, 'Choose a budget range, or "Not sure yet".'],
+    ["budgetRange", "empty", "", 'Choose a budget range, or "Not sure yet".'],
     ["budgetRange", "an unknown value", "1000000", "Choose a budget range from the list."],
+    ["timeline", "missing", undefined, 'Choose a timeline, or "Flexible / not sure".'],
+    ["timeline", "empty", " ", 'Choose a timeline, or "Flexible / not sure".'],
     ["timeline", "an unknown value", "YESTERDAY", "Choose a timeline from the list."],
     [
       "projectNotes",
@@ -208,13 +217,81 @@ describe("inquiryInputSchema: each invalid field has its own message (Appendix A
   it("reports every invalid field at once", () => {
     const issues = issuesFor({});
     expect(new Set(issues.map((issue) => issue.path[0]))).toEqual(
-      new Set(["clientName", "email", "phone", "services", "projectNotes", "consent"]),
+      new Set([
+        "clientName",
+        "email",
+        "phone",
+        "services",
+        "projectTypes",
+        "budgetRange",
+        "timeline",
+        "projectNotes",
+        "consent",
+      ]),
     );
   });
 
   it("allows line breaks and tabs in the project notes", () => {
     const notes = "Scope:\n\t- a website\r\n\t- a launch video";
     expect(inquiryInputSchema.parse({ ...minimal, projectNotes: notes }).projectNotes).toBe(notes);
+  });
+});
+
+describe("inquiryInputSchema: project types (Phase 19 spec, D1, D3)", () => {
+  const typesIssues = (services: string[], projectTypes: unknown) =>
+    issuesFor({ ...full, services, projectTypes }).map((issue) => [issue.path[0], issue.message]);
+
+  it("accepts several types per service, in any order", () => {
+    const projectTypes = ["VIDEOGRAPHY.SOCIAL", "PHOTOGRAPHY.EVENT", "VIDEOGRAPHY.EVENT"];
+    expect(
+      inquiryInputSchema.parse({ ...full, services: ["PHOTOGRAPHY", "VIDEOGRAPHY"], projectTypes })
+        .projectTypes,
+    ).toEqual(projectTypes);
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["not a list", "PHOTOGRAPHY.EVENT"],
+    ["an unknown id", ["PHOTOGRAPHY.WEDDING"]],
+    ["a service name, not a type", ["PHOTOGRAPHY"]],
+    ["a repeat", ["PHOTOGRAPHY.EVENT", "PHOTOGRAPHY.EVENT"]],
+    ["a type of a service not chosen", ["PHOTOGRAPHY.EVENT", "WEB_APP.SHOP"]],
+    ["far too many", Array.from({ length: 40 }, () => "PHOTOGRAPHY.EVENT")],
+  ])("refuses %s", (_, projectTypes) => {
+    expect(typesIssues(["PHOTOGRAPHY"], projectTypes)).toEqual([
+      ["projectTypes", "Choose project types from the list."],
+    ]);
+  });
+
+  it("asks for at least one type for each chosen service, naming it", () => {
+    expect(typesIssues(["PHOTOGRAPHY", "WEB_APP", "DIGITAL_MARKETING"], ["WEB_APP.SHOP"])).toEqual([
+      ["projectTypes", "Choose at least one kind of project for Photography."],
+      ["projectTypes", "Choose at least one kind of project for Digital Marketing."],
+    ]);
+  });
+
+  it('refuses "Not sure yet" with other types of the same service', () => {
+    expect(
+      typesIssues(
+        ["WEB_APP", "PHOTOGRAPHY"],
+        ["WEB_APP.NOT_SURE", "WEB_APP.SHOP", "PHOTOGRAPHY.NOT_SURE"],
+      ),
+    ).toEqual([
+      [
+        "projectTypes",
+        'For Web & App Development, choose "Not sure yet" or the kinds that apply, not both.',
+      ],
+    ]);
+  });
+
+  it("checks project types even when other fields are invalid", () => {
+    const issues = issuesFor({ ...full, email: "ada@", projectTypes: [] });
+    expect(issues.map((issue) => issue.path[0])).toEqual([
+      "email",
+      "projectTypes",
+      "projectTypes",
+      "projectTypes",
+    ]);
   });
 });
 
@@ -253,15 +330,16 @@ describe("toE164 (D6)", () => {
 describe("toInquiryData (D7)", () => {
   const now = new Date("2026-10-20T09:00:00.000Z");
 
-  it("maps a minimal inquiry, with nulls for the absent fields and consent stamped now", () => {
+  it("maps a minimal inquiry, with null for the absent company and consent stamped now", () => {
     expect(toInquiryData(inquiryInputSchema.parse(minimal), now)).toEqual({
       clientName: "Ada Obi",
       companyName: null,
       email: "ada@example.com",
       phone: "+2348031234567",
       services: ["PHOTOGRAPHY"],
-      budgetRange: null,
-      timeline: null,
+      projectTypes: ["PHOTOGRAPHY.NOT_SURE"],
+      budgetRange: "NOT_SURE",
+      timeline: "FLEXIBLE",
       projectNotes: "Product shoot for our new skincare line.",
       consentAt: now,
     });
@@ -271,6 +349,7 @@ describe("toInquiryData (D7)", () => {
     const data = toInquiryData(inquiryInputSchema.parse({ ...full, status: "CLOSED" }), now);
     expect(data).toMatchObject({
       companyName: "Glow Labs Ltd",
+      projectTypes: full.projectTypes,
       budgetRange: "FROM_1_5M_TO_5M",
       timeline: "ONE_TO_THREE_MONTHS",
       consentAt: now,

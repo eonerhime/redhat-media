@@ -129,7 +129,7 @@ Phase 18 keys not listed here are unchanged. `{n}`, `{total}`, `{step}`, `{servi
 | `review.timeline` | Timeline |
 | `review.details` | Your details |
 | `review.change` | Change |
-| `review.changeLabel` | Change {step} |
+| `review.changeLabel` | Change {step} (`{step}` is the group's label, e.g. "Change Budget") |
 | `next` | Continue |
 | `back` | Back |
 | `noscript` | This form needs JavaScript. You can still reach us by email at {email} or call one of the numbers on this page. |
