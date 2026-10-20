@@ -42,7 +42,11 @@ describe("security headers", () => {
     const csp = directives(required("Content-Security-Policy"));
     expect(csp.get("default-src")).toEqual(["'self'"]);
     // 'unsafe-inline' stays: the SRI experiment blocked Next's inline scripts on every page (D7).
-    expect(csp.get("script-src")).toEqual(["'self'", "'unsafe-inline'"]);
+    expect(csp.get("script-src")).toEqual([
+      "'self'",
+      "'unsafe-inline'",
+      "https://challenges.cloudflare.com",
+    ]);
     expect(csp.get("style-src")).toEqual(["'self'", "'unsafe-inline'"]);
     expect(csp.get("img-src")).toEqual([
       "'self'",
@@ -53,16 +57,26 @@ describe("security headers", () => {
       "https://i.vimeocdn.com",
     ]);
     expect(csp.get("font-src")).toEqual(["'self'"]);
-    expect(csp.get("connect-src")).toEqual(["'self'"]);
+    expect(csp.get("connect-src")).toEqual(["'self'", "https://challenges.cloudflare.com"]);
     expect(csp.get("frame-src")).toEqual([
       "https://www.youtube-nocookie.com",
       "https://player.vimeo.com",
+      "https://challenges.cloudflare.com",
     ]);
     expect(csp.get("object-src")).toEqual(["'none'"]);
     expect(csp.get("base-uri")).toEqual(["'self'"]);
     expect(csp.get("form-action")).toEqual(["'self'"]);
     expect(csp.get("frame-ancestors")).toEqual(["'none'"]);
     expect(csp.get("upgrade-insecure-requests")).toEqual([]);
+  });
+
+  it("allows Turnstile's origin in script-src, frame-src and connect-src only (Phase 18 D5)", () => {
+    const csp = directives(required("Content-Security-Policy"));
+    const withTurnstile = [...csp]
+      .filter(([, values]) => values.includes("https://challenges.cloudflare.com"))
+      .map(([name]) => name)
+      .sort();
+    expect(withTurnstile).toEqual(["connect-src", "frame-src", "script-src"]);
   });
 
   it("sends no report-only policy", () => {
@@ -79,7 +93,12 @@ describe("security headers", () => {
   it("adds unsafe-eval to script-src for pnpm dev only, and nothing else", () => {
     const dev = directives(required("Content-Security-Policy", true));
     const prod = directives(required("Content-Security-Policy"));
-    expect(dev.get("script-src")).toEqual(["'self'", "'unsafe-inline'", "'unsafe-eval'"]);
+    expect(dev.get("script-src")).toEqual([
+      "'self'",
+      "'unsafe-inline'",
+      "https://challenges.cloudflare.com",
+      "'unsafe-eval'",
+    ]);
     dev.delete("script-src");
     prod.delete("script-src");
     expect(dev).toEqual(prod);

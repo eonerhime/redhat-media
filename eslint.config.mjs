@@ -103,7 +103,9 @@ const eslintConfig = defineConfig([
     rules: { "no-restricted-syntax": ["error", iframeRule, targetBlankRule] },
   },
   {
-    files: ["components/shared/external-link.tsx"],
+    // The inquiry form's consent label opens /privacy in a new tab, so the form keeps its
+    // input (Phase 18 spec, D11). Same-site, so not an <ExternalLink>.
+    files: ["components/shared/external-link.tsx", "components/contact/inquiry-form.tsx"],
     rules: { "no-restricted-syntax": ["error", iframeRule] },
   },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lib/generated/**"]),

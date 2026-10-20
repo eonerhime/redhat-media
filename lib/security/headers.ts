@@ -5,6 +5,9 @@ export type Header = { key: string; value: string };
 
 export type CspDirectives = Readonly<Record<string, readonly string[]>>;
 
+// Cloudflare Turnstile's script, challenge frame and calls (Phase 18 spec, D5).
+const TURNSTILE = "https://challenges.cloudflare.com";
+
 /**
  * The enforced policy (Phase 14). script-src keeps 'unsafe-inline': Next.js renders inline
  * bootstrap and RSC payload scripts on every page, which differ per page and per build, so a
@@ -12,7 +15,7 @@ export type CspDirectives = Readonly<Record<string, readonly string[]>>;
  */
 export const csp: CspDirectives = {
   "default-src": ["'self'"],
-  "script-src": ["'self'", "'unsafe-inline'"],
+  "script-src": ["'self'", "'unsafe-inline'", TURNSTILE],
   "style-src": ["'self'", "'unsafe-inline'"],
   "img-src": [
     "'self'",
@@ -23,8 +26,8 @@ export const csp: CspDirectives = {
     "https://i.vimeocdn.com",
   ],
   "font-src": ["'self'"],
-  "connect-src": ["'self'"],
-  "frame-src": ["https://www.youtube-nocookie.com", "https://player.vimeo.com"],
+  "connect-src": ["'self'", TURNSTILE],
+  "frame-src": ["https://www.youtube-nocookie.com", "https://player.vimeo.com", TURNSTILE],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],

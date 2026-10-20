@@ -8,6 +8,8 @@ export const BLOCK_KEY_PREFIXES = [
   "portfolio",
   "contact",
   "footer",
+  // The privacy notice (Phase 18 spec, D12).
+  "privacy",
 ] as const;
 
 export type BlockKeyPrefix = (typeof BLOCK_KEY_PREFIXES)[number];

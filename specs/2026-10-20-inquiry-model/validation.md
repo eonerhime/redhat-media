@@ -18,7 +18,7 @@
 ## Privileges
 
 - [x] **`rhm_app`:** SELECT/INSERT/UPDATE/DELETE on `Inquiry`, and no TRUNCATE/REFERENCES/TRIGGER (D4, D9) — `roles.db.test.ts` with `"Inquiry"` in `TABLES`, local copy of the CI `db` job, 2026-10-20
-- [ ] **`rhm_readonly`:** refused `SELECT` on `Inquiry`; the monitor's checks still pass (D4) — refusal: `roles.db.test.ts` › has no privilege on Inquiry, locally 2026-10-20; monitor: after the release to `main`
+- [x] **`rhm_readonly`:** refused `SELECT` on `Inquiry`; the monitor's checks still pass (D4) — refusal: `roles.db.test.ts` › has no privilege on Inquiry, locally 2026-10-20; monitor: run [39418154041](https://github.com/eonerhime/redhat-media/actions/runs/39418154041) on `main` at `c0ea7e1` (release PR #38, after `migrate-production`), 2026-10-20, every check ok (database reachable, saturation 1 of 897)
 - [x] **`rhm_migrator`** owns `Inquiry` (D9) — `roles.db.test.ts` › owns every app table, locally 2026-10-20
 
 ## Gates
