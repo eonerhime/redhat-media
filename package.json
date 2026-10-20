@@ -26,6 +26,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "1.6.2",
     "@neondatabase/serverless": "1.2.0",
     "@prisma/adapter-neon": "7.10.1",
     "@prisma/client": "7.10.1",

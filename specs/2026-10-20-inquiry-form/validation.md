@@ -8,7 +8,7 @@
 - [ ] **Invalid input shows field errors:** server field errors render under each field with a focused summary (D9, D13) —
 - [ ] **Bot rejected:** a refused Turnstile token → `rejected` (403), nothing saved (D5, D13) —
 - [ ] **Honeypot rejected:** a filled `website` field → `rejected`, nothing saved (D7, D13) —
-- [ ] **Too fast rejected:** under 3 seconds, or a missing `startedAt` → `rejected`, nothing saved (D7, D13) —
+- [ ] **Too fast rejected:** `elapsedMs` under 3 seconds, missing or over 24 hours → `rejected`, nothing saved (D7, D13) —
 - [ ] **Over-limit rejected with 429:** the sixth submission in 10 minutes and the 21st in a day → `rate_limited` (429), nothing saved; also on a real Postgres (D6, D13) —
 
 ## Form and pages
