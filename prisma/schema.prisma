@@ -114,8 +114,9 @@ model Inquiry {
   email        String
   phone        String // required; E.164 (D6)
   services     ServiceCategory[] // at least one, enforced by Zod
-  budgetRange  BudgetRange? // asked from Phase 19
-  timeline     InquiryTimeline? // asked from Phase 19
+  projectTypes String[]          @default([]) // CATEGORY.TYPE ids from content/project-types.ts (Phase 19)
+  budgetRange  BudgetRange? // required by Zod from Phase 19; null on Phase 18 rows
+  timeline     InquiryTimeline? // required by Zod from Phase 19; null on Phase 18 rows
   projectNotes String
   status       InquiryStatus     @default(NEW)
   consentAt    DateTime // privacy-notice consent (NDPA 2023)

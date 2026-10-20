@@ -1,14 +1,22 @@
-// The one definition of a valid inquiry (Phase 17 spec, D5–D8), shared by the
-// Phase 18 form and its server action. It never imports generated Prisma code,
-// so it stays light in the client bundle; inquiry.test.ts proves the tuples
-// below match the Prisma enums (D8). Relative imports only, like https-url.ts.
+// The one definition of a valid inquiry (Phase 17 spec, D5–D8; Phase 19 spec, D3), used by the
+// inquiry server action. The stepper's step checks use its Zod-free parts instead
+// (inquiry-messages.ts, phone.ts, scope.ts; Phase 19 spec, D9). It never imports generated
+// Prisma code; inquiry.test.ts proves the tuples below match the Prisma enums (D8). Relative
+// imports only, like https-url.ts.
 
 import { z } from "zod";
-import { serviceCategories } from "../../content/services.ts";
+import { defaults } from "../../content/defaults.ts";
+import { projectTypeIds } from "../../content/project-types.ts";
+import { serviceCategories, services, type ServiceCategory } from "../../content/services.ts";
+import { MESSAGES as M } from "./inquiry-messages.ts";
+import { toE164 } from "./phone.ts";
+import { projectTypeErrors } from "./scope.ts";
+
+export { toE164 };
 
 export const inquiryStatuses = ["NEW", "REVIEWING", "PROPOSAL_SENT", "CLOSED"] as const;
 
-// Naira bands; their labels (with a USD hint) are Phase 19 copy (D2).
+// Naira bands; their labels (with a USD hint) are Phase 19 copy (Phase 17 spec, D2).
 export const budgetRanges = [
   "UNDER_500K",
   "FROM_500K_TO_1_5M",
@@ -34,29 +42,6 @@ export type InquiryTimeline = (typeof inquiryTimelines)[number];
 const NOT_ONE_LINE = /[\p{Cc}\p{Zl}\p{Zp}]/u;
 const BAD_IN_NOTES = /[^\P{Cc}\t\n\r]/u;
 
-const PHONE_CHARS = /^\+?[\d\s().-]+$/;
-
-/**
- * Normalises a phone number to E.164 (D6), or returns null. Accepts a Nigerian
- * local number (`0803 123 4567`), `234…` without the plus, and any `+` number
- * of 8 to 15 digits. A `+234` number must have 10 digits after the country
- * code; the trunk `0` often written after it (`+234 (0)803…`) is dropped.
- */
-export function toE164(input: string): string | null {
-  if (!PHONE_CHARS.test(input)) return null;
-  let digits = input.replace(/\D/g, "");
-
-  if (!input.startsWith("+")) {
-    if (/^0\d{10}$/.test(digits)) return `+234${digits.slice(1)}`;
-    if (/^234\d{10}$/.test(digits)) return `+${digits}`;
-    return null;
-  }
-
-  if (digits.startsWith("2340")) digits = `234${digits.slice(4)}`;
-  if (digits.startsWith("234")) return /^234\d{10}$/.test(digits) ? `+${digits}` : null;
-  return /^[1-9]\d{7,14}$/.test(digits) ? `+${digits}` : null;
-}
-
 /** An untouched input or `<select>` submits "": treat it as absent. */
 const optional = <T extends z.ZodType>(schema: T) =>
   z
@@ -66,70 +51,93 @@ const optional = <T extends z.ZodType>(schema: T) =>
     )
     .optional();
 
-const PHONE_MISSING = "Enter a phone number we can reach you on.";
-const PHONE_FORMAT =
-  "Enter a phone number like 0803 123 4567, or with a country code like +44 20 7946 0000.";
-const EMAIL_INVALID = "Enter a valid email address, like name@example.com.";
-const NOTES_SHORT = "Tell us a little about your project (at least 10 characters).";
+/** A required choice: blank means missing, anything else off the list means unknown. */
+const choice = <const T extends readonly [string, ...string[]]>(
+  values: T,
+  missing: string,
+  unknown: string,
+) =>
+  z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.enum(values, { error: (issue) => (issue.input === undefined ? missing : unknown) }),
+  );
 
-export const inquiryInputSchema = z.object({
+// Service names as their default copy: a server message names the service (Appendix A).
+const serviceName = (category: ServiceCategory) =>
+  defaults[services.find((service) => service.category === category)!.nameKey];
+
+const inquiryFields = z.object({
   clientName: z
-    .string({ error: "Enter your name." })
+    .string({ error: M.nameMissing })
     .trim()
-    .min(2, "Enter your name.")
-    .max(100, "Your name must be at most 100 characters.")
-    .refine((value) => !NOT_ONE_LINE.test(value), "Your name must be on one line."),
+    .min(2, M.nameMissing)
+    .max(100, M.nameTooLong)
+    .refine((value) => !NOT_ONE_LINE.test(value), M.nameOneLine),
 
   companyName: optional(
     z
       .string()
       .trim()
-      .max(120, "Company name must be at most 120 characters.")
-      .refine((value) => !NOT_ONE_LINE.test(value), "Company name must be on one line."),
+      .max(120, M.companyTooLong)
+      .refine((value) => !NOT_ONE_LINE.test(value), M.companyOneLine),
   ),
 
   email: z
-    .string({ error: EMAIL_INVALID })
+    .string({ error: M.emailInvalid })
     .trim()
-    .max(254, "Email addresses must be at most 254 characters.")
-    .pipe(z.email(EMAIL_INVALID)),
+    .max(254, M.emailTooLong)
+    .pipe(z.email(M.emailInvalid)),
 
   phone: z
-    .string({ error: PHONE_MISSING })
+    .string({ error: M.phoneMissing })
     .trim()
-    .min(1, PHONE_MISSING)
-    .max(32, PHONE_FORMAT)
+    .min(1, M.phoneMissing)
+    .max(32, M.phoneFormat)
     .transform((value, ctx) => {
       const e164 = toE164(value);
       if (e164) return e164;
-      ctx.issues.push({ code: "custom", message: PHONE_FORMAT, input: value });
+      ctx.issues.push({ code: "custom", message: M.phoneFormat, input: value });
       return z.NEVER;
     }),
 
   services: z
-    .array(z.enum(serviceCategories, "Choose services from the list."), {
-      error: "Choose at least one service.",
+    .array(z.enum(serviceCategories, M.servicesUnknown), {
+      error: M.servicesMissing,
     })
-    .min(1, "Choose at least one service.")
-    .max(serviceCategories.length, "Choose each service only once.")
-    .refine((list) => new Set(list).size === list.length, "Choose each service only once."),
+    .min(1, M.servicesMissing)
+    .max(serviceCategories.length, M.servicesRepeat)
+    .refine((list) => new Set(list).size === list.length, M.servicesRepeat),
 
-  budgetRange: optional(z.enum(budgetRanges, "Choose a budget range from the list.")),
+  // Ids are checked against the chosen services below (Phase 19 spec, D3).
+  projectTypes: z
+    .array(z.string(M.typesUnknown), { error: M.typesUnknown })
+    .max(projectTypeIds.length, M.typesUnknown),
 
-  timeline: optional(z.enum(inquiryTimelines, "Choose a timeline from the list.")),
+  // Required from Phase 19; "not sure" is an answer, so nobody has to guess (D3).
+  budgetRange: choice(budgetRanges, M.budgetMissing, M.budgetUnknown),
+
+  timeline: choice(inquiryTimelines, M.timelineMissing, M.timelineUnknown),
 
   projectNotes: z
-    .string({ error: NOTES_SHORT })
+    .string({ error: M.notesShort })
     .trim()
-    .min(10, NOTES_SHORT)
-    .max(5000, "Project details must be at most 5,000 characters.")
-    .refine(
-      (value) => !BAD_IN_NOTES.test(value),
-      "Project details contain characters we can't accept.",
-    ),
+    .min(10, M.notesShort)
+    .max(5000, M.notesTooLong)
+    .refine((value) => !BAD_IN_NOTES.test(value), M.notesCharacters),
 
-  consent: z.literal(true, "Please agree to the privacy notice so we can keep your details."),
+  consent: z.literal(true, M.consentMissing),
 });
+
+const scopeFields = inquiryFields.pick({ services: true, projectTypes: true });
+
+export const inquiryInputSchema = inquiryFields.superRefine(
+  (values, ctx) => {
+    for (const { message } of projectTypeErrors(values.services, values.projectTypes, serviceName))
+      ctx.addIssue({ code: "custom", path: ["projectTypes"], message });
+  },
+  // Runs whenever services and project types parse, whatever else is wrong.
+  { when: (payload) => scopeFields.safeParse(payload.value).success },
+);
 
 /** What the form submits (Phase 18 builds it from FormData). */
 export type InquiryInput = z.input<typeof inquiryInputSchema>;
@@ -148,8 +156,9 @@ export function toInquiryData(values: InquiryValues, now: Date) {
     email: values.email,
     phone: values.phone,
     services: values.services,
-    budgetRange: values.budgetRange ?? null,
-    timeline: values.timeline ?? null,
+    projectTypes: values.projectTypes,
+    budgetRange: values.budgetRange,
+    timeline: values.timeline,
     projectNotes: values.projectNotes,
     consentAt: now,
   };

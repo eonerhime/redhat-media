@@ -9,6 +9,7 @@ import { submitInquiryCore, type SubmitDeps } from "./submit-core";
 // Roadmap Phase 18 "Done when": a submission appears in the database, and the
 // sixth from one IP in 10 minutes gets a 429 result and saves nothing (Phase 18
 // spec, D6, D13). The real limiter and save, as rhm_app; Turnstile is faked.
+// Phase 19 "Done when": a multi-service inquiry is saved with its full scope (D13).
 
 const db = testPrisma();
 const RUN = randomUUID().slice(0, 8);
@@ -50,6 +51,10 @@ function form(n: number): FormData {
   for (const [name, value] of Object.entries(fields)) data.append(name, value);
   data.append("services", "PHOTOGRAPHY");
   data.append("services", "WEB_APP");
+  for (const id of ["PHOTOGRAPHY.EVENT", "PHOTOGRAPHY.PRODUCT", "WEB_APP.NOT_SURE"])
+    data.append("projectTypes", id);
+  data.append("budgetRange", "FROM_500K_TO_1_5M");
+  data.append("timeline", "ONE_TO_THREE_MONTHS");
   return data;
 }
 
@@ -74,8 +79,9 @@ describe("submitInquiryCore (Postgres)", () => {
       phone: "+2348031234567",
       companyName: null,
       services: ["PHOTOGRAPHY", "WEB_APP"],
-      budgetRange: null,
-      timeline: null,
+      projectTypes: ["PHOTOGRAPHY.EVENT", "PHOTOGRAPHY.PRODUCT", "WEB_APP.NOT_SURE"],
+      budgetRange: "FROM_500K_TO_1_5M",
+      timeline: "ONE_TO_THREE_MONTHS",
       status: "NEW",
     });
   });

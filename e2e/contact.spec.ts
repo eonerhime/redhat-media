@@ -19,7 +19,23 @@ const siteValues = [
   "(opens in a new tab)",
   // The full stop after the consent label's privacy link (Phase 18 spec, Appendix A).
   ...(formOn ? ["."] : []),
+  // The stepper fills its keyed templates in: "Step 2 of 6", "2. What kind of project?" and
+  // "Step 2 of 6: What kind of project?" (Phase 19 spec, D8, Appendix A).
+  ...(formOn ? stepperText() : []),
 ];
+
+function stepperText() {
+  const names = ["services", "types", "budget", "timeline", "details", "review"].map(
+    (step) => defaults[`contact.form.steps.${step}` as keyof typeof defaults],
+  );
+  const fill = (template: string, n: number, step: string) =>
+    template.replace("{n}", String(n)).replace("{total}", "6").replace("{step}", step);
+  return names.flatMap((step, i) => [
+    fill(defaults["contact.form.progress"], i + 1, step),
+    fill(defaults["contact.form.stepHeading"], i + 1, step),
+    `${i + 1}. ${step}`,
+  ]);
+}
 
 /** WCAG 2.5.5 / Apple: at least 44 × 44 CSS px (D4). */
 async function expectTapTarget(link: Locator) {
@@ -45,6 +61,8 @@ test.describe("contact page", () => {
       defaults["contact.brief.heading"],
     ]);
     await expect(main.getByRole("heading", { level: 3 })).toHaveText([
+      // The stepper's current step; the others are hidden (Phase 19 spec, D5, D8).
+      ...(formOn ? [`Step 1 of 6: ${defaults["contact.form.steps.services"]}`] : []),
       defaults["contact.email.label"],
       defaults["contact.phone.label"],
       defaults["contact.whatsapp.label"],

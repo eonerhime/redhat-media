@@ -4,7 +4,7 @@ import { testPrisma } from "@/lib/db/test-client";
 import { inquiryInputSchema, toInquiryData } from "@/lib/validation/inquiry";
 
 // An inquiry parsed by the shared schema saves and reads back intact as
-// rhm_app (Phase 17 spec, D7, D9).
+// rhm_app (Phase 17 spec, D7, D9). From Phase 19 the scope is required (D3).
 
 const db = testPrisma();
 const RUN = randomUUID().slice(0, 8);
@@ -24,6 +24,7 @@ describe("Inquiry (Postgres)", () => {
       email,
       phone: "+44 20 7946 0000",
       services: ["WEB_APP", "VIDEOGRAPHY"],
+      projectTypes: ["WEB_APP.WEBSITE", "VIDEOGRAPHY.PROMO"],
       budgetRange: "FROM_1_5M_TO_5M",
       timeline: "ONE_TO_THREE_MONTHS",
       projectNotes: "A launch video and a website.\nWe go live in March.",
@@ -39,6 +40,7 @@ describe("Inquiry (Postgres)", () => {
       email,
       phone: "+442079460000",
       services: ["WEB_APP", "VIDEOGRAPHY"],
+      projectTypes: ["WEB_APP.WEBSITE", "VIDEOGRAPHY.PROMO"],
       budgetRange: "FROM_1_5M_TO_5M",
       timeline: "ONE_TO_THREE_MONTHS",
       projectNotes: "A launch video and a website.\nWe go live in March.",
@@ -51,12 +53,15 @@ describe("Inquiry (Postgres)", () => {
     expect(saved.createdAt).toBeInstanceOf(Date);
   });
 
-  it("saves a minimal inquiry with null scope", async () => {
+  it('saves a minimal inquiry with its "not sure" scope', async () => {
     const values = inquiryInputSchema.parse({
       clientName: "Tunde Bello",
       email,
       phone: "0803 123 4567",
       services: ["PHOTOGRAPHY"],
+      projectTypes: ["PHOTOGRAPHY.NOT_SURE"],
+      budgetRange: "NOT_SURE",
+      timeline: "FLEXIBLE",
       projectNotes: "Corporate headshots for 12 staff.",
       consent: true,
     });
@@ -66,8 +71,9 @@ describe("Inquiry (Postgres)", () => {
     expect(saved).toMatchObject({
       companyName: null,
       phone: "+2348031234567",
-      budgetRange: null,
-      timeline: null,
+      projectTypes: ["PHOTOGRAPHY.NOT_SURE"],
+      budgetRange: "NOT_SURE",
+      timeline: "FLEXIBLE",
       status: "NEW",
     });
   });

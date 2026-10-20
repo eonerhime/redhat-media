@@ -1,5 +1,5 @@
 // What the inquiry form posts and what the action answers (Phase 18 spec, D2–D4,
-// D7). Shared by the client form and lib/inquiry/submit-core.ts, so it imports
+// D7; Phase 19 spec, D4). Shared by the client form and lib/inquiry/submit-core.ts, so it imports
 // nothing.
 
 /** Hidden from people; any value means a bot filled it (D7). */
@@ -11,13 +11,16 @@ export const TURNSTILE_FIELD = "cf-turnstile-response";
 /** The `action` the widget is rendered with and the server expects back (D5). */
 export const TURNSTILE_ACTION = "inquiry";
 
-/** The fields a person fills in, in form order; echoed back on `invalid` (D4). */
+/** The fields a person fills in, in step order; echoed back on `invalid` (D4). */
 export const INQUIRY_FIELDS = [
+  "services",
+  "projectTypes",
+  "budgetRange",
+  "timeline",
   "clientName",
   "email",
   "phone",
   "companyName",
-  "services",
   "projectNotes",
   "consent",
 ] as const;
@@ -25,11 +28,14 @@ export const INQUIRY_FIELDS = [
 export type InquiryField = (typeof INQUIRY_FIELDS)[number];
 
 export type InquiryFormValues = {
+  services: string[];
+  projectTypes: string[];
+  budgetRange: string;
+  timeline: string;
   clientName: string;
   email: string;
   phone: string;
   companyName: string;
-  services: string[];
   projectNotes: string;
   consent: boolean;
 };
