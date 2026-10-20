@@ -33,13 +33,13 @@ Scope, decisions (D1–D13) and constraints (C1–C8) are in [`spec.md`](spec.md
 
 ## 4. Tests
 
-- [ ] 4.1 `e2e/inquiry.spec.ts` (D13), with the preview-only success test.
-- [ ] 4.2 `/privacy` in `shell`, `a11y` and `csp` route lists; `/contact` a11y and CSP with the widget loaded (D13).
+- [x] 4.1 `e2e/inquiry.spec.ts` (D13), with the preview-only success test.
+- [x] 4.2 `/privacy` in `shell`, `a11y` and `csp` route lists; `/contact` a11y and CSP with the widget loaded (D13).
 - [ ] 4.3 Screenshots at 360px and 1440px checked by eye (form layout, error states, success panel).
 
 ## 5. Close
 
-- [ ] 5.1 Docs: `docs/runbooks/secret-rotation.md` Turnstile entry (C6).
-- [ ] 5.2 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, `pnpm build`, `pnpm test:e2e --workers=1`.
+- [x] 5.1 Docs: `docs/runbooks/secret-rotation.md` Turnstile entry (C6).
+- [x] 5.2 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, `pnpm build`, `pnpm test:e2e --workers=1`.
 - [ ] 5.3 PR into `develop`: CI green; `preview-e2e` submits successfully on the Vercel preview.
 - [ ] 5.4 Owner check on the preview: submit an inquiry from a phone, see it in Prisma Studio on the `preview` branch; read the privacy notice. Then every `validation.md` box ticked.
