@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 2, Phase 18
 - **Branch:** `feature/phase-18-inquiry-form` (from `develop` at `0abd037`)
 - **Started:** 2026-10-20
-- **Status:** approved by the owner 2026-10-20 (Appendices A and B as written)
+- **Status:** approved by the owner 2026-10-20 (Appendices A and B as written); built and validated 2026-10-20 (PR #39)
 
 ## What and why
 
