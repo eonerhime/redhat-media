@@ -40,4 +40,4 @@
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
 - [x] `pnpm test:db` passes locally and in the CI `db` job
 - [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the multi-service submission
-- [ ] Owner check on the preview (plan 5.4)
+- [x] Owner check on the preview (plan 5.4)

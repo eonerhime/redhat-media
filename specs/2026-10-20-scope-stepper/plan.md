@@ -42,4 +42,4 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 - [x] 5.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, `pnpm build`, `pnpm test:e2e --workers=1`.
 - [x] 5.2 PR into `develop`: CI green (including Lighthouse); `migrate-preview` applies the migration; `preview-e2e` submits a multi-service inquiry.
 - [x] 5.3 NVDA pass on the preview: record what is announced at each step change, error summary and success (owner answer H).
-- [ ] 5.4 Owner check on the preview: complete the stepper on a phone (including the back gesture), and see the row with its project types, budget and timeline on Neon `preview`. Then every `validation.md` box ticked.
+- [x] 5.4 Owner check on the preview: complete the stepper on a phone (including the back gesture), and see the row with its project types, budget and timeline on Neon `preview`. Then every `validation.md` box ticked.

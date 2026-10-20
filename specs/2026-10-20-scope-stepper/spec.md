@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 2, Phase 19
 - **Branch:** `feature/phase-19-scope-stepper` (from `develop` at `dd4a340`)
 - **Started:** 2026-10-20
-- **Status:** approved by the owner 2026-10-20 (Appendices A and B, with review notes 1 and 2 applied)
+- **Status:** done 2026-10-20 (PRs #41, #42); owner-approved 2026-10-20 (Appendices A and B, with review notes 1 and 2 applied)
 
 ## What and why
 

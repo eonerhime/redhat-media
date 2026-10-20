@@ -81,8 +81,14 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - the review: "Change Budget, button";
   - after Send: "Thanks, we've received your inquiry, heading, level 3".
   - **Defect found and fixed:** untouched budget and timeline radios and the consent checkbox were announced "required, invalid entry", because native `required` makes an unchecked radio or checkbox `:invalid`, which Chromium exposes as invalid. They now use `aria-required` (the budget and timeline fieldsets are `role="radiogroup"`), and the D9 step checks enforce the answer as before. New test `inquiry.spec.ts` "no control is exposed as invalid before a step check fails" reads the accessibility tree on every step; before the fix it listed 6 budget radios, 5 timeline radios and the consent box. After the fix: inquiry, a11y, CSP, contact and smoke specs 92 passed, 1 skipped; unit tests pass; JS 197,848 B gzipped (+3.5 kB). NVDA's raw log was deleted (it also captured other windows).
+- **2026-10-20** — #42 on `29463f2` (the NVDA fix): every check is green (`ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e`, `lighthouse`, Vercel). Plan 5.4 closed by the owner ("go ahead"):
+  - The owner completed the stepper on a phone, and the row was confirmed on Neon `preview` (entry above).
+  - The back gesture, Change and unticking a service were not tried on the phone. They are covered by `inquiry.spec.ts` (in-form Back, browser Back and Forward, Change, untick and re-tick), which passes locally and in `preview-e2e`.
+  - Every `validation.md` box is ticked.
 
 ## Deviations from plan
+
+- **Owner phone check (plan 5.4) without the back gesture:** the owner accepted the automated browser-Back coverage instead of testing the gesture on a phone.
 
 - **The migration ships first, in its own PR** (as Phase 12 did with PR #16, `creditUrl`). `preview-e2e` on the feature PR saves an inquiry to Neon `preview`, which `migrate-preview` migrates only from a `develop` push, so the feature PR cannot pass until the column is there. The expand-first PR holds this spec folder, the constitution edits (plan 0.1–0.3), the schema, the migration and its DB test. It is safe on its own: Phase 18 code never writes the column, which defaults to an empty list.
 - **`projectTypeLabel(id)`** lives in `lib/content/project-types.ts`, beside the other block readers, not in `content/project-types.ts`, so the config imports nothing at runtime. Spec, Appendix B updated.
