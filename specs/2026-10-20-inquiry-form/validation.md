@@ -14,7 +14,7 @@
 ## Form and pages
 
 - [x] **Muted service refused** on the server (D8) — `submit-core.test.ts` › refuses a service muted since the form was built (D8), uncounted
-- [ ] **Generic messages** for every refusal, each offering the email address; none names the failed check (D9) —
+- [x] **Generic messages** for every refusal, each offering the email address; none names the failed check (D9) — the form maps `rejected`, `error` and `unavailable` to `errors.generic` and `rate_limited` to `errors.rateLimited`, both with the mailto link, neither naming a check; in CI (no database) `inquiry.spec.ts` › keyboard alone ends on the generic message with the mailto link (ci run [39432085749](https://github.com/eonerhime/redhat-media/actions/runs/39432085749), PR #39 at `d4efb80`)
 - [x] **Success panel** promises no email (C7) — Appendix A copy ("We reply within one working day…"), checked verbatim by script; seen on a local `next start`
 - [x] **Switch:** off → `/contact` renders as before and the action answers `unavailable` (503); on in Preview and CI (D10) — off: `next build` without the variable, `contact.spec.ts` (Phase 13 assertions unchanged) and `inquiry.spec.ts` › switched off pass (197 passed, 2026-10-20), and `submit-core.test.ts` › answers 503; on: `ci.yml` job env and Vercel Preview (all branches), see `implementation.md`
 - [x] **Turnstile keys:** test keys refused by `lib/env.ts` in production; action and hostname checked with a real secret (D5) — `env.test.ts` (both keys required when on; test keys refused when `VERCEL_ENV=production`); `turnstile-core.test.ts` › refuses another form's action / another site's hostname with a real secret
@@ -29,7 +29,7 @@
 
 ## Gates
 
-- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass — locally 2026-10-20 (run through `node`; 1232 unit tests; the only Prettier hit is the git-ignored `.claude/settings.local.json`); CI on the PR pending
-- [ ] `pnpm test:db` passes locally and in the CI `db` job —
-- [ ] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the successful submission —
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass — locally 2026-10-20 (run through `node`; 1232 unit tests; the only Prettier hit is the git-ignored `.claude/settings.local.json`); and in ci run [39432085749](https://github.com/eonerhime/redhat-media/actions/runs/39432085749) (PR #39 at `d4efb80`)
+- [x] `pnpm test:db` passes locally and in the CI `db` job — locally (Docker Postgres 17, 31 tests) and `db` in ci run [39432085749](https://github.com/eonerhime/redhat-media/actions/runs/39432085749)
+- [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the successful submission — locally (403 / 197 passed, switch on / off); ci run [39432085749](https://github.com/eonerhime/redhat-media/actions/runs/39432085749) (381 passed, 34 skipped); `preview-e2e` run [39432166739](https://github.com/eonerhime/redhat-media/actions/runs/39432166739) (105 passed, 3 skipped, `inquiry.spec.ts` included with `E2E_INQUIRY_SUBMIT=success`, so the keyboard submission was saved to `preview`)
 - [ ] Owner check on the preview (plan 5.4) —
