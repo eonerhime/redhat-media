@@ -41,3 +41,14 @@
 - [x] `pnpm test:db` passes locally and in the CI `db` job
 - [x] `pnpm test:e2e` passes locally and in CI; `preview-e2e` passes on the Vercel preview, including the multi-service submission
 - [x] Owner check on the preview (plan 5.4)
+
+## Amendment 2026-10-21: Back to review, and summary links keep the step
+
+- [x] After Change, the step's button reads Back to review and returns straight to step 6 (D5) — `inquiry.spec.ts` › the review lists every answer; Change returns to a step…
+- [x] A newly ticked service opens step 2 first, without an error; browser Back and Forward keep Back to review (D5, D7) — `inquiry.spec.ts` › after Change, a newly ticked service…
+- [x] An error summary link focuses its field and keeps the step, with no `#` in the URL; the skip link keeps the step (D7, D9) — `inquiry.spec.ts` › an error summary link focuses its field…
+- [x] `contact.form.toReview` has a default and is listed in `block.test.ts` (D12)
+- [x] Typecheck, lint, format, `pnpm test` (1500) and the CI-style build pass; `/contact` stays `○` (C2)
+- [x] `pnpm test:e2e` `inquiry`, `cursor` and `a11y` pass locally (msedge)
+- [ ] CI is green on the PR, including `preview-e2e`
+- [ ] Owner: on the preview, Change → Back to review returns to the review, and a summary link stays on its step

@@ -103,3 +103,10 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - The React Compiler lint (`react-hooks/purity`) flagged `performance.now()` and `Math.random()` in event handlers and effects. The cause was an inline `onClick={() => show(index)}` inside a render helper, which the compiler read as a render-time call. The Change buttons now use one handler that reads `data-step`.
 - Components declared inside `InquiryForm` would remount on every render and drop the uncontrolled answers, so the step section and summary are render helpers instead.
 - The server result is synced into state during render ("adjusting state when a prop changes"). The effect only focuses, pushes history and resets Turnstile (`react-hooks/set-state-in-effect`).
+
+## Amendment 2026-10-21: Back to review, and summary links keep the step
+
+- **Owner request (production test, 2026-10-21):** after Change, Continue walked through every later step. Now a `fromReview` state, also stored in the history entry, renames Continue to **Back to review**. That button checks its step, then skips every later step that still passes its D9 check. It lands on the review, or on the first incomplete step, which opens without its errors.
+- **Owner-found bug:** an error summary link (`href="#inquiry-…"`) is a fragment jump. It adds a history entry with no state, and `popstate` read that as step 1. Summary links now focus their field with `preventDefault`. `popstate` also ignores a state-less entry that has a hash, so the skip link (`#main`) no longer resets the stepper either. No link points into `/contact` with a hash (the JSON-LD `#business` is an id, not a link).
+- The in-form Back keeps calling `history.back()` (D7). After Change it returns to the review, as browser Back does.
+- Local e2e note: `$env:DATABASE_URL=''` deletes the variable in PowerShell, so `next start` reads `.env.local` and saves to the Neon `dev` branch (`ep-purple-mountain`). The keyboard test then sees success, not CI's generic message; it passes with `E2E_INQUIRY_SUBMIT=success`.
