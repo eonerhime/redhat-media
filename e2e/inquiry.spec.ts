@@ -25,6 +25,9 @@ import { test } from "./portfolio-expect";
 // submission shows: "success" on the preview (test keys, preview database), "generic" in CI, which
 // has no database. One valid submission per run (the keyboard test), within the rate limit (C5).
 const expectSuccess = process.env.E2E_INQUIRY_SUBMIT === "success";
+// Phase 20 spec, D13, D14: E2E_INQUIRY_ACK=1 where the acknowledgment is on (Vercel Preview), so
+// the success panel promises a confirmation email; elsewhere it must not.
+const expectAck = process.env.E2E_INQUIRY_ACK === "1";
 
 /** The server refuses a submit under 3 s after hydration, and needs a Turnstile token. */
 async function readyToSubmit(page: Page) {
@@ -321,7 +324,8 @@ test.describe("scope stepper", () => {
     await press("Tab");
     await page.keyboard.type("E2E Keyboard");
     await press("Tab");
-    await page.keyboard.type("e2e-keyboard@example.com");
+    // A fresh address per run: acknowledgments are limited to 3 a day per address (Phase 20, D6).
+    await page.keyboard.type(`e2e-keyboard+${Date.now()}@example.com`);
     await press("Tab");
     await page.keyboard.type("0803 123 4567");
     await press("Tab"); // company (optional)
@@ -348,6 +352,7 @@ test.describe("scope stepper", () => {
       await expect(
         page.getByRole("status").filter({ hasText: copy("success.heading") }),
       ).toContainText(copy("success.body"));
+      await expect(page.getByText(copy("success.ack"))).toHaveCount(expectAck ? 1 : 0);
       await expect(page.locator("main form")).toHaveCount(0);
       // After success, browser Back leaves the panel in place (D7).
       await page.goBack();

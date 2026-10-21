@@ -1,5 +1,6 @@
 // The hourly monitor (Phase 15 spec, D7): the site's templates answer, an unknown URL 404s, the
-// portfolio reads from the database, and Neon's connections and query volume are within limits.
+// portfolio reads from the database, Neon's connections and query volume are within limits, and,
+// from Phase 20 (spec, D10), no recent inquiry is missing its team notification.
 // Exits 1 on any failure; GitHub then emails the owner. Runs on Node 24, which strips TypeScript
 // types natively.
 //
@@ -23,6 +24,10 @@ import {
   sitePaths,
   statusCheck,
   testAlertCheck,
+  unsentGraceMinutes,
+  unsentNotificationsCheck,
+  unsentNotificationsSql,
+  unsentWindowHours,
   volumeCheck,
 } from "../lib/monitor/monitor-core.ts";
 
@@ -64,6 +69,20 @@ async function siteChecks(): Promise<Check[]> {
   return checks;
 }
 
+/** Its own check, so a missing grant reports here rather than as an unreachable database. */
+async function unsentCheck(client: pg.Client): Promise<Check> {
+  try {
+    const { rows } = await client.query<{ unsent: number }>(unsentNotificationsSql, [
+      unsentGraceMinutes,
+      unsentWindowHours,
+    ]);
+    return unsentNotificationsCheck(rows[0]!.unsent);
+  } catch (error) {
+    const code = (error as { code?: string }).code ?? "";
+    return { name: "inquiry notifications", ok: false, detail: `${(error as Error).name} ${code}` };
+  }
+}
+
 async function databaseChecks(): Promise<Check[]> {
   const client = new pg.Client({ connectionString: databaseUrl, connectionTimeoutMillis: 30_000 });
   try {
@@ -98,6 +117,7 @@ async function databaseChecks(): Promise<Check[]> {
       { name: "database reachable", ok: true, detail: "SELECT ok" },
       saturationCheck(Number(first.active), Number(first.max_connections), Number(first.reserved)),
       volumeCheck(transactions, sampleSeconds, uptime),
+      await unsentCheck(client),
     ];
   } catch (error) {
     // The message of a connection error can name the host; print only its class and code.

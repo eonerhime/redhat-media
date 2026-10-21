@@ -78,6 +78,36 @@ export function volumeCheck(transactions: number, seconds: number, uptimeSeconds
   };
 }
 
+/**
+ * Phase 20 spec, D10: an inquiry is reported when its team notification is still unsent this many
+ * minutes after it was saved, which leaves the send after the response time to finish or fail.
+ */
+export const unsentGraceMinutes = 15;
+
+/** …and for this many hours, so an unhandled failure alerts for a day rather than forever. */
+export const unsentWindowHours = 24;
+
+/**
+ * Counts unsent team notifications. rhm_readonly may read only "createdAt" and "emailSentAt"
+ * (Phase 20 spec, D10). "createdAt" is a UTC timestamp without a zone, so now() is taken in UTC.
+ */
+export const unsentNotificationsSql = `
+  SELECT count(*)::int AS unsent FROM "Inquiry"
+  WHERE "emailSentAt" IS NULL
+    AND "createdAt" < (now() AT TIME ZONE 'UTC') - make_interval(mins => $1)
+    AND "createdAt" >= (now() AT TIME ZONE 'UTC') - make_interval(hours => $2)`;
+
+export function unsentNotificationsCheck(unsent: number): Check {
+  return {
+    name: "inquiry notifications",
+    ok: unsent === 0,
+    detail:
+      unsent === 0
+        ? `none unsent (${unsentGraceMinutes} min to ${unsentWindowHours} h old)`
+        : `${unsent} unsent ${unsentGraceMinutes} min to ${unsentWindowHours} h after saving (see docs/runbooks/monitoring.md)`,
+  };
+}
+
 /** The deliberate failure behind a test alert. */
 export const testAlertCheck: Check = {
   name: "test alert",

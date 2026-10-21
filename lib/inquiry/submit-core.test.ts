@@ -4,6 +4,7 @@ import type { RateLimiter } from "@/lib/security/rate-limit-core";
 import { inquiryInputSchema, toInquiryData } from "@/lib/validation/inquiry";
 import { ELAPSED_FIELD, HONEYPOT_FIELD, TURNSTILE_FIELD } from "./fields";
 import {
+  ACK_LIMIT,
   formValues,
   MAX_FILL_MS,
   MIN_FILL_MS,
@@ -57,7 +58,9 @@ function deps(overrides: Partial<SubmitDeps> = {}) {
       "VIDEOGRAPHY",
       "WEB_APP",
     ],
-    save: vi.fn(async () => {}),
+    save: vi.fn(async () => "cm1"),
+    ackEnabled: false,
+    notify: vi.fn(),
     logError: vi.fn(),
     ...overrides,
   } satisfies SubmitDeps;
@@ -66,9 +69,19 @@ function deps(overrides: Partial<SubmitDeps> = {}) {
 describe("submitInquiryCore (Phase 18 spec, D3)", () => {
   it("saves exactly toInquiryData(values, now) and answers 201", async () => {
     const d = deps();
-    expect(await submitInquiryCore(form(), IP, d)).toEqual({ status: "success", code: 201 });
+    expect(await submitInquiryCore(form(), IP, d)).toEqual({
+      status: "success",
+      code: 201,
+      acknowledgment: false,
+    });
     const expected = toInquiryData(inquiryInputSchema.parse(formValues(form())), NOW);
     expect(d.save).toHaveBeenCalledExactlyOnceWith(expected);
+    // Phase 20 spec, D3: the saved row goes to the emails, scheduled after the save.
+    expect(d.notify).toHaveBeenCalledExactlyOnceWith({
+      id: "cm1",
+      data: expected,
+      acknowledge: false,
+    });
     expect(expected.phone).toBe("+2348031234567");
   });
 
@@ -276,11 +289,12 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
     expect(d.verifyTurnstile).toHaveBeenCalledWith("", IP, "inquiry");
   });
 
-  it("answers 500 and logs when the save fails", async () => {
+  it("answers 500 and logs when the save fails, and emails nothing", async () => {
     const failure = new Error("connection refused");
     const d = deps({ save: vi.fn(async () => Promise.reject(failure)) });
     expect(await submitInquiryCore(form(), IP, d)).toEqual({ status: "error", code: 500 });
     expect(d.logError).toHaveBeenCalledWith("[inquiry] submit failed", failure);
+    expect(d.notify).not.toHaveBeenCalled();
   });
 
   it("answers 500 when the rate limiter's database fails (fail closed)", async () => {
@@ -290,6 +304,63 @@ describe("submitInquiryCore (Phase 18 spec, D3)", () => {
     expect(await submitInquiryCore(form(), IP, d)).toEqual({ status: "error", code: 500 });
     expect(d.verifyTurnstile).not.toHaveBeenCalled();
     expect(d.save).not.toHaveBeenCalled();
+  });
+});
+
+describe("submitInquiryCore: acknowledgment (Phase 20 spec, D6)", () => {
+  it("counts the address against its daily limit and acknowledges under it", async () => {
+    const d = deps({ ackEnabled: true });
+    const result = await submitInquiryCore(form({ email: "Ada@Example.com" }), IP, d);
+    expect(result).toEqual({ status: "success", code: 201, acknowledgment: true });
+    expect(d.rateLimit).toHaveBeenLastCalledWith(ACK_LIMIT.bucket, "ada@example.com", {
+      max: 3,
+      windowSec: 86_400,
+    });
+    expect(d.notify).toHaveBeenCalledWith(expect.objectContaining({ acknowledge: true }));
+  });
+
+  it("skips the acknowledgment over the limit, but saves and notifies the team", async () => {
+    const d = deps({
+      ackEnabled: true,
+      rateLimit: vi.fn<RateLimiter>(async (bucket) => ({
+        allowed: bucket !== ACK_LIMIT.bucket,
+        remaining: 0,
+        resetAt: NOW,
+      })),
+    });
+    expect(await submitInquiryCore(form(), IP, d)).toEqual({
+      status: "success",
+      code: 201,
+      acknowledgment: false,
+    });
+    expect(d.save).toHaveBeenCalledOnce();
+    expect(d.notify).toHaveBeenCalledWith(expect.objectContaining({ acknowledge: false }));
+  });
+
+  it("still answers success when the limit check fails after the save", async () => {
+    const down = new Error("down");
+    const d = deps({
+      ackEnabled: true,
+      rateLimit: vi.fn<RateLimiter>(async (bucket) =>
+        bucket === ACK_LIMIT.bucket ? Promise.reject(down) : allow(bucket, IP, ACK_LIMIT),
+      ),
+    });
+    expect(await submitInquiryCore(form(), IP, d)).toMatchObject({
+      status: "success",
+      acknowledgment: false,
+    });
+    expect(d.logError).toHaveBeenCalledWith("[inquiry] acknowledgment limit check failed", down);
+    expect(d.notify).toHaveBeenCalledOnce();
+  });
+
+  it("never counts an acknowledgment while the switch is off", async () => {
+    const d = deps();
+    await submitInquiryCore(form(), IP, d);
+    expect(d.rateLimit).not.toHaveBeenCalledWith(
+      ACK_LIMIT.bucket,
+      expect.anything(),
+      expect.anything(),
+    );
   });
 });
 

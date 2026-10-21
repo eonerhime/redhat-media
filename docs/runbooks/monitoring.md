@@ -19,9 +19,32 @@ GitHub runs `schedule` and `workflow_dispatch` **only from `main`**, so the hour
 | `database reachable` | `rhm_readonly` cannot connect | Neon status page and console. A wrong or rotated `MONITOR_DATABASE_URL` also fails here. |
 | `connection saturation` | ≥ 80% of the usable connections in use (`max_connections` minus the reserved ones; 97 usable on 0.25 CU) | A connection leak or a flood. Look at the Vercel Firewall traffic view; consider Attack Challenge Mode ([firewall.md](firewall.md)). |
 | `query volume` | more than 60 transactions a minute over the run's 60-second sample | Cached pages barely reach the database (6 a minute measured under e2e load), so a high rate means something is hitting uncached paths. Same steps as above. A compute that started less than 5 minutes ago is not sampled. |
+| `inquiry notifications` (Phase 20) | an inquiry saved between 15 minutes and 24 hours ago still has no team notification (`emailSentAt` NULL). It repeats hourly until the row is handled or 24 hours pass | A lead nobody was told about: *Unsent inquiry notification* below. A detail of `error 42501` means `rhm_readonly` lacks its column grant (migration `20261020180000_readonly_inquiry_monitor`). |
 | `test alert` | always, when asked for | Not an incident. |
 
 The log prints check names, states and numbers only. The repository is public, so anyone can read its Actions logs.
+
+## Unsent inquiry notification
+
+The send runs after the visitor's success message (Phase 20 spec, D3), so a failure loses no inquiry, but nobody has been told about it.
+
+1. **Find the inquiry.** console.neon.tech → project `redhat-media` → SQL Editor → branch `production`:
+
+   ```sql
+   SELECT id, "createdAt", "clientName", email, phone
+   FROM "Inquiry"
+   WHERE "emailSentAt" IS NULL AND "createdAt" > now() - interval '25 hours'
+   ORDER BY "createdAt";
+   ```
+2. **Contact the client** by email or phone. This comes first: the lead is waiting.
+3. **Find the cause.** Resend → Emails and Logs (a revoked or wrong key, the daily or monthly quota, or the account's email no longer being the team inbox while sending from `onboarding@resend.dev`). Vercel → Logs shows `[email] team notification failed` with the inquiry id and an error name, but Hobby keeps logs for 1 hour only.
+4. **Clear the alert** once the client is handled, by recording that the team has it:
+
+   ```sql
+   UPDATE "Inquiry" SET "emailSentAt" = now() WHERE id = '<id>' AND "emailSentAt" IS NULL;
+   ```
+
+   Left alone, the check stops reporting a row 24 hours after it was saved.
 
 ## Where alerts go
 
