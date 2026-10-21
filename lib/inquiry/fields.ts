@@ -49,7 +49,11 @@ export type InquiryFieldErrors = Partial<Record<InquiryField, string>>;
  */
 export type InquiryResult =
   | { status: "idle" }
-  | { status: "success"; code: 201 }
+  | {
+      status: "success";
+      code: 201;
+      /** A confirmation email will be attempted (Phase 20 spec, D6). */ acknowledgment: boolean;
+    }
   | { status: "invalid"; code: 400; fieldErrors: InquiryFieldErrors; values: InquiryFormValues }
   | { status: "rejected"; code: 403 }
   | { status: "rate_limited"; code: 429 }

@@ -1,4 +1,4 @@
-// The inquiry form's submit logic (Phase 18 spec, D3–D8; Phase 19 spec, D4). The server action in
+// The inquiry form's submit logic (Phase 18 spec, D3–D8; Phase 19 spec, D4; Phase 20 spec, D3, D6). The server action in
 // app/(public)/contact/actions.ts reads the client IP and passes the real
 // dependencies; tests pass fakes, so every path runs without a network or database.
 
@@ -31,7 +31,18 @@ export const RATE_LIMITS = [
 
 export const MUTED_SERVICE_ERROR = "Choose services from the list.";
 
+// Phase 20 spec, D6: at most 3 acknowledgments a day to one address, whatever the IP.
+export const ACK_LIMIT = { bucket: "inquiry.ack", max: 3, windowSec: 86_400 } as const;
+
 export type InquiryData = ReturnType<typeof toInquiryData>;
+
+/** A saved inquiry, handed to the emails (Phase 20 spec, D3). */
+export type SavedInquiry = {
+  id: string;
+  data: InquiryData;
+  /** Send the client acknowledgment: the switch is on and the address is under its limit. */
+  acknowledge: boolean;
+};
 
 export type SubmitDeps = {
   /** `INQUIRY_FORM_ENABLED=1`, read at submit time (D10). */
@@ -41,7 +52,12 @@ export type SubmitDeps = {
   verifyTurnstile: TurnstileVerifier;
   /** Categories visible at submit time, so a service muted since the build is refused (D8). */
   visibleCategories: () => Promise<readonly ServiceCategory[]>;
-  save: (data: InquiryData) => Promise<void>;
+  /** Saves the inquiry and resolves its id. */
+  save: (data: InquiryData) => Promise<string>;
+  /** `INQUIRY_ACK_ENABLED=1` with Resend configured (Phase 20 spec, D1, D6). */
+  ackEnabled: boolean;
+  /** Schedules the emails; must not wait for them (Phase 20 spec, D3). */
+  notify: (inquiry: SavedInquiry) => void;
   logError?: (message: string, error: unknown) => void;
 };
 
@@ -89,6 +105,26 @@ const invalid = (fieldErrors: InquiryFieldErrors, values: InquiryFormValues): In
 });
 
 /**
+ * Phase 20 spec, D6: whether to send the acknowledgment. Runs after the save, so a failure here
+ * never turns a saved inquiry into an error; it only skips the acknowledgment.
+ */
+async function ackAllowed(
+  email: string,
+  deps: SubmitDeps,
+  logError: NonNullable<SubmitDeps["logError"]>,
+): Promise<boolean> {
+  if (!deps.ackEnabled) return false;
+  try {
+    const { bucket, max, windowSec } = ACK_LIMIT;
+    // Addresses differ only in case for the same inbox; the limiter hashes the key.
+    return (await deps.rateLimit(bucket, email.toLowerCase(), { max, windowSec })).allowed;
+  } catch (error) {
+    logError("[inquiry] acknowledgment limit check failed", error);
+    return false;
+  }
+}
+
+/**
  * Runs the D3 checks in order and saves a valid, human, in-limit inquiry.
  *
  * @example const result = await submitInquiryCore(formData, clientIp(await headers()), deps);
@@ -133,8 +169,11 @@ export async function submitInquiryCore(
       return { status: "rejected", code: 403 };
     }
 
-    await deps.save(toInquiryData(parsed.data, deps.now()));
-    return { status: "success", code: 201 };
+    const data = toInquiryData(parsed.data, deps.now());
+    const id = await deps.save(data);
+    const acknowledge = await ackAllowed(data.email, deps, logError);
+    deps.notify({ id, data, acknowledge });
+    return { status: "success", code: 201, acknowledgment: acknowledge };
   } catch (error) {
     // The database (limiter or save) is down: fail closed; the form offers email (D9).
     logError("[inquiry] submit failed", error);

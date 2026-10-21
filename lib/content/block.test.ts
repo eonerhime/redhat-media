@@ -266,6 +266,7 @@ describe("verbatim port of the legacy page", () => {
       ].map((key) => `contact.form.${key}`),
       ...Object.values(projectTypes).flatMap((list) => list.map((type) => type.labelKey)),
     ];
+    const phase20Keys = ["contact.form.success.ack"];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -281,6 +282,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase13Keys,
         ...phase18Keys,
         ...phase19Keys,
+        ...phase20Keys,
       ].sort(),
     );
   });

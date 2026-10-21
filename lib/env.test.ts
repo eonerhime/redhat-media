@@ -7,6 +7,13 @@ const APP_URL =
 const SALT = "s".repeat(32);
 const db = { DATABASE_URL: APP_URL, RATE_LIMIT_SALT: SALT };
 const cloud = { NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "test-cloud" };
+// Shaped like a real Resend key; not real.
+const RESEND_KEY = "re_example_0000000000000000";
+const mail = {
+  RESEND_API_KEY: RESEND_KEY,
+  EMAIL_FROM: "RedHat Media <onboarding@resend.dev>",
+  INQUIRY_NOTIFICATION_EMAIL: "team@example.com",
+};
 
 describe("parseEnv", () => {
   it("uses NEXT_PUBLIC_SITE_URL when set, without a trailing slash", () => {
@@ -160,7 +167,7 @@ describe("parseEnv: inquiry form and Turnstile (Phase 18 spec, D5, D10)", () => 
   );
 
   it("accepts the test keys on previews", () => {
-    expect(parseEnv({ VERCEL_ENV: "preview", ...site, ...on }).inquiryForm).toBeDefined();
+    expect(parseEnv({ VERCEL_ENV: "preview", ...site, ...on, ...mail }).inquiryForm).toBeDefined();
   });
 
   it.each([
@@ -174,6 +181,7 @@ describe("parseEnv: inquiry form and Turnstile (Phase 18 spec, D5, D10)", () => 
       VERCEL_ENV: "production",
       ...site,
       ...on,
+      ...mail,
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: REAL_SITE,
       TURNSTILE_SECRET_KEY: REAL_SECRET,
       [key]: value,
@@ -195,6 +203,7 @@ describe("parseEnv: inquiry form and Turnstile (Phase 18 spec, D5, D10)", () => 
       INQUIRY_FORM_ENABLED: "1",
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: REAL_SITE,
       TURNSTILE_SECRET_KEY: REAL_SECRET,
+      ...mail,
     };
     expect(parseEnv(source).inquiryForm?.turnstileSiteKey).toBe(REAL_SITE);
   });
@@ -214,6 +223,118 @@ describe("parseEnv: inquiry form and Turnstile (Phase 18 spec, D5, D10)", () => 
     try {
       parseEnv({ VERCEL_ENV: "production", ...site, TURNSTILE_SECRET_KEY: secret });
     } catch (error) {
+      expect((error as Error).message).not.toContain(secret);
+      return;
+    }
+    throw new Error("expected parseEnv to throw");
+  });
+});
+
+describe("parseEnv: email (Phase 20 spec, D8, D9)", () => {
+  const site = { NEXT_PUBLIC_SITE_URL: "https://example.com", ...db, ...cloud };
+  const form = {
+    INQUIRY_FORM_ENABLED: "1",
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAAexampleSiteKey",
+    TURNSTILE_SECRET_KEY: "0x4AAAAAAAexampleSecretKey000000000",
+  };
+
+  it("leaves email unset without a key, so sends are skipped (CI, local)", () => {
+    expect(parseEnv({}).email).toBeUndefined();
+    expect(parseEnv({ ...form }).email).toBeUndefined();
+  });
+
+  it("returns the settings, with the acknowledgment off by default", () => {
+    expect(
+      parseEnv({ ...mail, INQUIRY_NOTIFICATION_EMAIL: " a@example.com, b@example.com " }).email,
+    ).toEqual({
+      resendApiKey: RESEND_KEY,
+      from: "RedHat Media <onboarding@resend.dev>",
+      notificationTo: ["a@example.com", "b@example.com"],
+      ackEnabled: false,
+      redirectTo: undefined,
+    });
+  });
+
+  it("turns the acknowledgment on and redirects on previews", () => {
+    const source = {
+      VERCEL_ENV: "preview",
+      ...site,
+      ...form,
+      ...mail,
+      INQUIRY_ACK_ENABLED: "1",
+      EMAIL_REDIRECT_TO: "delivered@resend.dev",
+    };
+    expect(parseEnv(source).email).toMatchObject({
+      ackEnabled: true,
+      redirectTo: "delivered@resend.dev",
+    });
+  });
+
+  it.each(["preview", "production"])(
+    "requires the key, sender and inbox on Vercel %s when the form is on",
+    (VERCEL_ENV) => {
+      for (const key of ["RESEND_API_KEY", "EMAIL_FROM", "INQUIRY_NOTIFICATION_EMAIL"]) {
+        expect(() => parseEnv({ VERCEL_ENV, ...site, ...form, ...mail, [key]: undefined })).toThrow(
+          new RegExp(`Required when INQUIRY_FORM_ENABLED=1 and VERCEL_ENV[\\s\\S]*${key}`),
+        );
+      }
+    },
+  );
+
+  it("does not require them in production while the form is off", () => {
+    expect(parseEnv({ VERCEL_ENV: "production", ...site }).email).toBeUndefined();
+  });
+
+  it("refuses EMAIL_REDIRECT_TO in production", () => {
+    const source = {
+      VERCEL_ENV: "production",
+      ...site,
+      ...mail,
+      EMAIL_REDIRECT_TO: "x@example.com",
+    };
+    expect(() => parseEnv(source)).toThrow(/Must not be set in production[\s\S]*EMAIL_REDIRECT_TO/);
+  });
+
+  it("refuses the acknowledgment in production while sending from resend.dev", () => {
+    const source = { VERCEL_ENV: "production", ...site, ...mail, INQUIRY_ACK_ENABLED: "1" };
+    expect(() => parseEnv(source)).toThrow(/verified domain[\s\S]*INQUIRY_ACK_ENABLED/);
+  });
+
+  it("allows the acknowledgment in production from a verified domain", () => {
+    const source = {
+      VERCEL_ENV: "production",
+      ...site,
+      ...mail,
+      EMAIL_FROM: "RedHat Media <hello@example.com>",
+      INQUIRY_ACK_ENABLED: "1",
+    };
+    expect(parseEnv(source).email?.ackEnabled).toBe(true);
+  });
+
+  it.each([
+    "onboarding@resend.dev",
+    "<onboarding@resend.dev>",
+    "RedHat Media <not-an-address>",
+    "Bad\nName <a@example.com>",
+  ])("rejects EMAIL_FROM=%j", (value) => {
+    expect(() => parseEnv({ EMAIL_FROM: value })).toThrow(/Must be Name <address>/);
+  });
+
+  it.each(["not-an-email", "a@example.com,", "a@x.com,b@x.com,c@x.com,d@x.com,e@x.com,f@x.com"])(
+    "rejects INQUIRY_NOTIFICATION_EMAIL=%j",
+    (value) => {
+      expect(() => parseEnv({ INQUIRY_NOTIFICATION_EMAIL: value })).toThrow(
+        /INQUIRY_NOTIFICATION_EMAIL/,
+      );
+    },
+  );
+
+  it("rejects a key that is not a Resend key, without echoing it", () => {
+    const secret = "sk_live_not_resend_0000";
+    try {
+      parseEnv({ RESEND_API_KEY: secret });
+    } catch (error) {
+      expect((error as Error).message).toMatch(/Must be a Resend API key/);
       expect((error as Error).message).not.toContain(secret);
       return;
     }

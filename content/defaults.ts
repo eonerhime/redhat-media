@@ -265,6 +265,8 @@ export const defaults = {
   "contact.form.success.heading": "Thanks, we've received your inquiry",
   "contact.form.success.body":
     "We reply within one working day. If it's urgent, call or WhatsApp us on the numbers on this page.",
+  // Phase 20 spec, D13, Appendix C: shown only when the confirmation email will be attempted.
+  "contact.form.success.ack": "We've also sent a confirmation to your email address.",
 
   // Phase 19 scope stepper (owner-approved, Phase 19 spec, Appendix A). {n}, {total}, {step} and
   // {email} are filled in at render time. The USD hints use ₦1,465.49/$ (CBN NFEM rate of
@@ -356,7 +358,7 @@ export const defaults = {
     "Your consent, which you give by ticking the box on the form. You can withdraw it at any time.",
   "privacy.processors.heading": "Who processes it",
   "privacy.processors.body":
-    "RedHat Media staff who handle inquiries, and the services that run this website: Neon (our database, hosted in London), Vercel (website hosting) and Cloudflare Turnstile (checks that a form is sent by a person, not a bot).",
+    "RedHat Media staff who handle inquiries, and the services that run this website: Neon (our database, hosted in London), Vercel (website hosting), Cloudflare Turnstile (checks that a form is sent by a person, not a bot) and Resend (sends our emails about your inquiry, hosted in the United States).",
   "privacy.retention.heading": "How long we keep it",
   "privacy.retention.body":
     "We keep an inquiry while we're discussing your project. Once it's closed, we anonymise it after 24 months. The hashed IP records used to stop abuse are deleted after 30 days.",

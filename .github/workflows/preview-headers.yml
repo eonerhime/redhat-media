@@ -128,6 +128,8 @@ jobs:
           # keyboard-only submission per run shows the success panel (Phase 18 spec, D13, C8).
           INQUIRY_FORM_ENABLED: "1"
           E2E_INQUIRY_SUBMIT: success
+          # Vercel Preview sends the acknowledgment (to delivered@resend.dev; Phase 20 spec, D8).
+          E2E_INQUIRY_ACK: "1"
         run: |
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
