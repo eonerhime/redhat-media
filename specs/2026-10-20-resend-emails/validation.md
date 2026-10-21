@@ -10,7 +10,7 @@ As amended by this phase (spec D1, owner answer A):
 
 > The team notification arrives in the team inbox and passes DMARC, and the client acknowledgment is accepted for Resend's test inbox. With Resend unreachable, the inquiry is still saved and the failure is logged. The acknowledgment reaching clients and DMARC on RHM's own domain move to the domain amendment (open question 2).
 
-- [ ] **The team notification arrives and passes DMARC:** the production test inquiry reaches `redhatmediang@gmail.com`. Gmail's *Show original* shows SPF, DKIM and DMARC all `PASS` (D11).
+- [x] **The team notification arrives and passes DMARC:** the production test inquiry reaches `redhatmediang@gmail.com`. Gmail's *Show original* shows SPF, DKIM and DMARC all `PASS` (D11).
 - [x] **The acknowledgment is accepted for Resend's test inbox:** a preview submission's row on Neon `preview` has `ackSentAt` set. The agent checks this with a read on the preview branch (D8).
 - [x] **Resend unreachable → the inquiry is saved and the failure is logged:** unit and DB tests with a failing sender. The row is saved, `success` is returned, `emailSentAt` stays NULL, and `[email] team notification failed` is logged with the id only (D3, D14).
 - [ ] *Moved to the domain amendment:* the acknowledgment reaching a real client address, and DMARC on RHM's own domain.
@@ -48,12 +48,12 @@ As amended by this phase (spec D1, owner answer A):
 
 ## Production (at the release, D11)
 
-- [ ] The owner has added to Vercel Production:
+- [x] The owner has added to Vercel Production:
   - the Turnstile production keys;
   - `RESEND_API_KEY`, `EMAIL_FROM`, `INQUIRY_NOTIFICATION_EMAIL`;
   - `INQUIRY_FORM_ENABLED=1`.
   `INQUIRY_ACK_ENABLED` is unset.
-- [ ] Production `/contact` shows the form, and the build passed `lib/env.ts`.
-- [ ] A test inquiry on production: the success panel has **no** confirmation sentence, the email arrives, and `emailSentAt` is set.
-- [ ] **Owner check:** the team email reads well in Gmail on the web and on a phone, including its layout, the "Service: Type" lines and the reply link (owner answer I).
-- [ ] The test inquiry row is deleted from production, and the next monitor run is green.
+- [x] Production `/contact` shows the form, and the build passed `lib/env.ts`.
+- [x] A test inquiry on production: the success panel has **no** confirmation sentence, the email arrives, and `emailSentAt` is set.
+- [x] **Owner check:** the team email reads well in Gmail on the web and on a phone, including its layout, the "Service: Type" lines and the reply link (owner answer I).
+- [x] The test inquiry row is deleted from production, and the next monitor run is green.
