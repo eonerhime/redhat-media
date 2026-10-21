@@ -35,6 +35,9 @@ export const continueButton = (page: Page) =>
   page.getByRole("button", { name: copy("next"), exact: true });
 export const backButton = (page: Page) =>
   page.getByRole("button", { name: copy("back"), exact: true });
+/** Continue's name on a step opened by a review Change (D5, amended 2026-10-21). */
+export const toReview = (page: Page) =>
+  page.getByRole("button", { name: copy("toReview"), exact: true });
 
 export async function next(page: Page, toStep: number) {
   await continueButton(page).click();

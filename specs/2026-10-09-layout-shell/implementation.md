@@ -104,3 +104,10 @@
 - Constitution: Phase 1 spec scope item and D3. No other spec, `tech-stack.md` or `roadmap.md` text gives the order.
 - PR #20: CI green (run 38870942493: `ci`, `db`, `gitleaks`), `preview-headers` and `preview-e2e` passed, and the Vercel preview is Ready.
 - Owner check (2026-10-16): the preview `redhat-media-git-feature-phase-01-nav-order-e1rhyme.vercel.app` shows About first. The validation is fully ticked.
+
+## Amendment 2026-10-21: pointer cursor on buttons and choices
+
+- The owner noticed that buttons and the inquiry form's choices showed the arrow. Tailwind v4's preflight sets `cursor: default` on buttons, and v3 used to give them the pointer. Links were fine, because the browser gives `a[href]` the pointer.
+- One `@layer base` rule in `app/globals.css` covers enabled buttons, checkboxes, radios and the labels that wrap them. Cursor utilities are in a later layer, so `cursor-zoom-in` (lightbox) and `disabled:cursor-wait` (Send) still apply.
+- `e2e/cursor.spec.ts` reads the computed cursor of every visible clickable element.
+- PR #46, run 39580508877 (`ci`, `db`, `gitleaks`), run 39580581356 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready. Owner check on the preview `redhat-media-git-feature-phase-19-stepper-polish-e1rhyme.vercel.app` (2026-10-21): passed.
