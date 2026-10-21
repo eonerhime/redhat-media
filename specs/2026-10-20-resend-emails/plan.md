@@ -57,4 +57,4 @@ Scope, decisions (D1–D14) and constraints (C1–C6) are in [`spec.md`](spec.md
 ## 9. Close-out
 
 - [x] 9.1 Every box in [`validation.md`](validation.md) through *CI and merge*, then the PR into `develop`.
-- [ ] 9.2 Release (`develop` → `main`): the D11 production variables (owner), the test inquiry and the Gmail check, then the *Production* boxes in `validation.md`.
+- [x] 9.2 Release (`develop` → `main`): the D11 production variables (owner), the test inquiry and the Gmail check, then the *Production* boxes in `validation.md`.
