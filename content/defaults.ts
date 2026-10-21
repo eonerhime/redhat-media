@@ -305,6 +305,7 @@ export const defaults = {
   "contact.form.review.changeLabel": "Change {step}",
   "contact.form.next": "Continue",
   "contact.form.back": "Back",
+  "contact.form.toReview": "Back to review",
   "contact.form.noscript":
     "This form needs JavaScript. You can still reach us by email at {email} or call one of the numbers on this page.",
 

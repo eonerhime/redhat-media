@@ -136,6 +136,8 @@ type Review = {
 export function InquiryForm({ action, copy, choices, services, turnstileSiteKey }: Props) {
   const [result, dispatch, pending] = useActionState(action, IDLE);
   const [step, setStep] = useState(0);
+  // D5 (amended 2026-10-21): the step was opened by a review Change, so Continue returns there.
+  const [fromReview, setFromReview] = useState(false);
   const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set());
   const [errors, setErrors] = useState<Errors>({});
   const [review, setReview] = useState<Review | null>(null);
@@ -239,10 +241,11 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
   });
 
   /** Shows a step and adds a history entry for it, so browser Back returns here (D7). */
-  function show(index: number, target: "heading" | "summary" = "heading") {
+  function show(index: number, target: "heading" | "summary" = "heading", returning = false) {
     if (index === LAST && form.current) setReview(readReview(form.current));
     setStep(index);
-    window.history.pushState({ inquiryStep: index }, "");
+    setFromReview(returning);
+    window.history.pushState({ inquiryStep: index, fromReview: returning }, "");
     focusOn(target === "summary" ? summaryId(index) : headingId(index));
   }
 
@@ -254,7 +257,15 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
       focusOn(summaryId(step));
       return;
     }
-    show(step + 1);
+    if (!fromReview) {
+      show(step + 1);
+      return;
+    }
+    // D5 (amended): back to the review, unless the change left a later step incomplete. That step
+    // opens without its errors, as on a first visit.
+    let target = step + 1;
+    while (target < LAST && Object.keys(check(target, form.current)).length === 0) target++;
+    show(target, "heading", target < LAST);
   }
 
   // D7: the in-form Back and the browser's behave the same.
@@ -301,9 +312,20 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
     }
   }
 
+  /**
+   * An error summary link focuses its field without a URL change (D9, amended 2026-10-21): a
+   * fragment jump adds a history entry with no step, which popstate would read as step 1.
+   */
+  function onSummaryLink(event: React.MouseEvent<HTMLAnchorElement>) {
+    const field = document.getElementById(event.currentTarget.hash.slice(1));
+    if (!field) return;
+    event.preventDefault();
+    field.focus();
+  }
+
   /** A review group's Change button returns to its step (D5). */
   function onChangeStep(event: React.MouseEvent<HTMLButtonElement>) {
-    show(Number(event.currentTarget.dataset.step));
+    show(Number(event.currentTarget.dataset.step), "heading", true);
   }
 
   function onServiceChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -330,10 +352,14 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
   // so they change nothing.
   useEffect(() => {
     const onPopState = (event: PopStateEvent) => {
-      const index = (event.state as { inquiryStep?: unknown } | null)?.inquiryStep;
+      const state = event.state as { inquiryStep?: unknown; fromReview?: unknown } | null;
+      // A fragment jump (the skip link) has no state and a hash: the step stays (D7, amended).
+      if (state === null && window.location.hash) return;
+      const index = state?.inquiryStep;
       const target = typeof index === "number" && index >= 0 && index <= LAST ? index : 0;
       if (target === LAST && form.current) setReview(readReview(form.current));
       setStep(target);
+      setFromReview(target < LAST && state?.fromReview === true);
       focusOn(headingId(target));
     };
     window.addEventListener("popstate", onPopState);
@@ -354,6 +380,7 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
     if (result.status === "invalid") {
       setErrors(result.fieldErrors);
       setStep(firstStepWithError(result.fieldErrors));
+      setFromReview(false);
     }
   }
 
@@ -426,7 +453,7 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
             <ul className="mt-3 list-disc space-y-2 pl-5">
               {keys.map((key) => (
                 <li key={key}>
-                  <a href={`#${fieldId(key)}`} className={textLink}>
+                  <a href={`#${fieldId(key)}`} onClick={onSummaryLink} className={textLink}>
                     {errors[key]}
                   </a>
                 </li>
@@ -465,7 +492,7 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
           </button>
         )}
         <button type="button" onClick={next} className={buttonClassName}>
-          {copy.next}
+          {fromReview ? copy.toReview : copy.next}
         </button>
       </div>
     );

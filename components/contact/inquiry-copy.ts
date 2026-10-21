@@ -41,6 +41,7 @@ export const INQUIRY_COPY_KEYS = [
   "consent.link",
   "next",
   "back",
+  "toReview",
   "noscript",
   "submit",
   "submitting",

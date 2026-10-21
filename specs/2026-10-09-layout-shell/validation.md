@@ -74,3 +74,10 @@ Run each as an uncommitted change, then revert.
 - [x] The owner's source files in `public/` are not in the diff
 - [x] CI is green on the PR — PR #20, run 38870942493 (`ci`, `db`, `gitleaks`), `preview-headers` and `preview-e2e` (run 38871037767), Vercel Ready
 - [x] Owner: the Vercel preview shows About first in the header and the mobile menu (owner, 2026-10-16: confirmed)
+
+## Amendment 2026-10-21: pointer cursor on buttons and choices
+
+- [x] Every visible, enabled link, button, checkbox, radio and wrapping label shows the pointer on every route at 360 and 1440px, in the open mobile nav and on every inquiry step. The lightbox keeps `zoom-in` — `e2e/cursor.spec.ts`
+- [x] Control: a planted button with the default cursor is reported — `cursor.spec.ts` › control
+- [x] CI is green on the PR — PR #46, run 39580508877 (`ci`, `db`, `gitleaks`), run 39580581356 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready
+- [x] Owner: on the preview, buttons and form choices show the hand cursor (owner, 2026-10-21: confirmed)

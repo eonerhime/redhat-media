@@ -55,6 +55,14 @@
     outline-offset: 3px;
   }
 
+  /* Buttons and choices show the pointer, like links: Tailwind v4's preflight gives buttons the
+     default arrow (Phase 1 spec, amended 2026-10-21). Cursor utilities still win. */
+  button:not(:disabled),
+  input:is([type="checkbox"], [type="radio"]):not(:disabled),
+  label:has(> input:is([type="checkbox"], [type="radio"]):not(:disabled)) {
+    cursor: pointer;
+  }
+
   /* Covers motion added by any later phase (Phase 1 spec, D11). */
   @media (prefers-reduced-motion: reduce) {
     *,

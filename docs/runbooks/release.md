@@ -30,7 +30,7 @@ Do this once, with the Phase 20 release (Phase 20 spec, D11). Merging Phase 20 i
    Leave `INQUIRY_ACK_ENABLED` and `EMAIL_REDIRECT_TO` unset: `lib/env.ts` refuses both in production until the domain amendment.
 2. Release as above. The production build fails in `lib/env.ts` if a variable is missing or a Turnstile test key is used; fix the variable and run the deploy hook again.
 3. Check `/contact` on production shows the form.
-4. **Test inquiry:** complete the form on production with a real address you can read. The success panel has no confirmation sentence (the acknowledgment is off). Within a minute the notification reaches `redhatmediang@gmail.com`.
+4. **Test inquiry:** complete the form on production with a real address you can read. The success panel has no confirmation sentence (the acknowledgment is off). Within a minute the notification reaches `redhatmediang@gmail.com`. If the submit is refused, check `TURNSTILE_SECRET_KEY` first: the build can't tell a wrong secret from the right one, and the refusal isn't logged. Re-enter it and redeploy (Phase 20 release).
 5. In Gmail, open it → ⋮ → **Show original**: SPF, DKIM and DMARC must all read `PASS`. Look at it on the web and on a phone: the layout, the "Service: Type" lines and the reply link.
 6. In the Neon SQL Editor (`production`), check that the row has `emailSentAt` set, then delete it: `DELETE FROM "Inquiry" WHERE id = '<id>';`
 7. Dispatch the monitor (Actions → monitor → Run workflow): `inquiry notifications` reads `none unsent`.
@@ -39,11 +39,12 @@ To turn the form off again, remove `INQUIRY_FORM_ENABLED` from Production and re
 
 ## Snapshot before a production migration
 
-Neon Free keeps **one** manual snapshot, and it stands in for a protected branch (*Security baseline*).
+A copy of `production` taken just before the migration stands in for a protected branch (*Security baseline*).
 
-1. console.neon.tech → project `redhat-media` → **Backup & Restore** → branch `production` → **Create snapshot**.
-2. Name it `before-<release PR number>`. Creating it replaces the previous one.
+1. console.neon.tech → project `redhat-media` → **Backup & Restore** → branch `production` → **Create snapshot**. Name it `before-<release PR number>`. Neon Free keeps one manual snapshot, so creating it replaces the previous one.
+2. **If *Create snapshot* is greyed out** (as at the Phase 20 release), make a branch instead: **Branches** → **New branch**, parent `production`, current data, named `before-<release PR number>`, **without a compute**. It uses no compute hours.
 3. Then approve `migrate-production` (step 4 above).
+4. Once the release has settled (the next monitor runs are green and nothing is rolled back), delete the `before-<n>` branch. A snapshot is replaced by the next one.
 
 The first release (Phase 16) skipped this: the branch was empty.
 

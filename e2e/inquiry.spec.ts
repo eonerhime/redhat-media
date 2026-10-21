@@ -14,6 +14,7 @@ import {
   second,
   stepHeading,
   timelineLabels,
+  toReview,
   typeBox,
   visibleNames,
 } from "./inquiry-steps";
@@ -207,29 +208,93 @@ test.describe("scope stepper", () => {
     await expect(reviewGroup(page, copy("review.timeline"))).toHaveText(timelineLabels[1]);
     await expect(reviewGroup(page, copy("review.details"))).toContainText(DETAILS.email);
 
+    // D5 (amended 2026-10-21): after Change, Back to review returns straight to the review.
     await page.getByRole("button", { name: `Change ${copy("review.budget")}` }).click();
     await expect(stepHeading(page, 3)).toBeFocused();
+    await expect(continueButton(page)).toHaveCount(0);
     await page.getByRole("radio", { name: budgetLabels[0], exact: true }).check();
-    await next(page, 4);
-    await next(page, 5);
-    await next(page, 6);
+    await toReview(page).click();
+    await expect(stepHeading(page, 6)).toBeFocused();
     await expect(reviewGroup(page, copy("review.budget"))).toHaveText(budgetLabels[0]);
 
     await page.getByRole("button", { name: `Change ${copy("review.services")}` }).click();
     await expect(stepHeading(page, 1)).toBeFocused();
     await page.getByRole("checkbox", { name: second.name, exact: true }).uncheck();
-    await next(page, 2);
-    await expect(page.getByRole("group", { name: second.name, exact: true })).toBeHidden();
-    for (const n of [3, 4, 5, 6]) await next(page, n);
+    await toReview(page).click();
+    await expect(stepHeading(page, 6)).toBeFocused();
     await expect(reviewGroup(page, copy("review.services"))).toHaveText(first.name);
     await expect(reviewGroup(page, copy("review.types")).getByRole("listitem")).toHaveText([
       `${first.name}: ${first.types[0]}, ${first.types[1]}`,
     ]);
-    // Ticking it again restores its types (D6).
+    // Ticking it again restores its types (D6), so the review is complete again.
     await page.getByRole("button", { name: `Change ${copy("review.services")}` }).click();
     await page.getByRole("checkbox", { name: second.name, exact: true }).check();
+    await toReview(page).click();
+    await expect(stepHeading(page, 6)).toBeFocused();
+    await expect(reviewGroup(page, copy("review.types")).getByRole("listitem")).toHaveText([
+      `${first.name}: ${first.types[0]}, ${first.types[1]}`,
+      `${second.name}: ${second.types.at(-1)}`,
+    ]);
+  });
+
+  test("after Change, a newly ticked service opens its project types before the review, and browser Back keeps Back to review", async ({
+    page,
+  }) => {
+    test.skip(visibleNames.length < 3, "needs a third visible service");
+    const third = visibleNames[2];
+    await fillToReview(page);
+    await page.getByRole("button", { name: `Change ${copy("review.services")}` }).click();
+    await page.getByRole("checkbox", { name: third, exact: true }).check();
+    await toReview(page).click();
+    // The new service has no type yet, so step 2 opens first, without an error (D5 amended).
+    await expect(stepHeading(page, 2)).toBeFocused();
+    await expect(page.locator(`#inquiry-step-1-summary`)).toBeEmpty();
+    await expect(toReview(page)).toBeVisible();
+    await page
+      .getByRole("group", { name: third, exact: true })
+      .getByRole("checkbox")
+      .last()
+      .check();
+
+    // Browser Back and Forward keep the step's Back to review (D7 amended).
+    await page.goBack();
+    await expect(stepHeading(page, 1)).toBeFocused();
+    await expect(toReview(page)).toBeVisible();
+    await page.goForward();
+    await expect(stepHeading(page, 2)).toBeFocused();
+    await toReview(page).click();
+    await expect(stepHeading(page, 6)).toBeFocused();
+    await expect(reviewGroup(page, copy("review.services"))).toContainText(third);
+  });
+
+  test("an error summary link focuses its field and keeps the step; so does the skip link", async ({
+    page,
+  }) => {
+    await page.getByRole("checkbox", { name: first.name, exact: true }).check();
     await next(page, 2);
-    await expect(typeBox(page, second.name, second.types.at(-1)!)).toBeChecked();
+    await typeBox(page, first.name, first.types[0]).check();
+    await next(page, 3);
+    await page.getByRole("radio", { name: budgetLabels[0], exact: true }).check();
+    await next(page, 4);
+    await page.getByRole("radio", { name: timelineLabels[0], exact: true }).check();
+    await next(page, 5);
+    await page.getByLabel(copy("notes.label"), { exact: true }).fill("Too short");
+    await continueButton(page).click();
+
+    // D9 (amended 2026-10-21): the owner's bug sent this link back to step 1.
+    await page
+      .getByRole("link", { name: "Tell us a little about your project (at least 10 characters)." })
+      .click();
+    await expect(page.getByLabel(copy("notes.label"), { exact: true })).toBeFocused();
+    await expect(stepHeading(page, 5)).toBeVisible();
+    expect(new URL(page.url()).hash).toBe("");
+
+    // The skip link adds a history entry with no step; the stepper stays put (D7 amended).
+    await page.getByRole("link", { name: "Skip to content" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#main$/);
+    await expect(stepHeading(page, 5)).toBeVisible();
+    await expect(page.getByLabel(copy("notes.label"), { exact: true })).toHaveValue("Too short");
   });
 
   test("a server-invalid submit opens the first step with an error and keeps every answer", async ({
