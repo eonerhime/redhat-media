@@ -11,7 +11,7 @@ As amended by this phase (spec D1, owner answer A):
 > The team notification arrives in the team inbox and passes DMARC, and the client acknowledgment is accepted for Resend's test inbox. With Resend unreachable, the inquiry is still saved and the failure is logged. The acknowledgment reaching clients and DMARC on RHM's own domain move to the domain amendment (open question 2).
 
 - [ ] **The team notification arrives and passes DMARC:** the production test inquiry reaches `redhatmediang@gmail.com`. Gmail's *Show original* shows SPF, DKIM and DMARC all `PASS` (D11).
-- [ ] **The acknowledgment is accepted for Resend's test inbox:** a preview submission's row on Neon `preview` has `ackSentAt` set. The agent checks this with a read on the preview branch (D8).
+- [x] **The acknowledgment is accepted for Resend's test inbox:** a preview submission's row on Neon `preview` has `ackSentAt` set. The agent checks this with a read on the preview branch (D8).
 - [x] **Resend unreachable → the inquiry is saved and the failure is logged:** unit and DB tests with a failing sender. The row is saved, `success` is returned, `emailSentAt` stays NULL, and `[email] team notification failed` is logged with the id only (D3, D14).
 - [ ] *Moved to the domain amendment:* the acknowledgment reaching a real client address, and DMARC on RHM's own domain.
 
@@ -42,7 +42,7 @@ As amended by this phase (spec D1, owner answer A):
 ## CI and merge
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db` and `pnpm build` all pass locally.
-- [ ] PR checks are green: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e`, `lighthouse` and Vercel.
+- [x] PR checks are green: `ci`, `db`, `gitleaks`, `preview-headers`, `preview-e2e`, `lighthouse` and Vercel.
 - [x] The constitution changes (spec → *Constitution changes*) are in the PR.
 - [x] The rotation and release runbooks are updated.
 

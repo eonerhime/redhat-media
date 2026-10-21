@@ -52,9 +52,9 @@ Scope, decisions (D1–D14) and constraints (C1–C6) are in [`spec.md`](spec.md
 ## 8. Preview
 
 - [x] 8.1 Vercel Preview: the owner adds `RESEND_API_KEY`. The agent sets `EMAIL_FROM`, `INQUIRY_NOTIFICATION_EMAIL`, `INQUIRY_ACK_ENABLED=1` and `EMAIL_REDIRECT_TO=delivered@resend.dev`.
-- [ ] 8.2 E2E: the saved preview submission shows the confirmation sentence (D14).
+- [x] 8.2 E2E: the saved preview submission shows the confirmation sentence (D14).
 
 ## 9. Close-out
 
-- [ ] 9.1 Every box in [`validation.md`](validation.md) through *CI and merge*, then the PR into `develop`.
+- [x] 9.1 Every box in [`validation.md`](validation.md) through *CI and merge*, then the PR into `develop`.
 - [ ] 9.2 Release (`develop` → `main`): the D11 production variables (owner), the test inquiry and the Gmail check, then the *Production* boxes in `validation.md`.
