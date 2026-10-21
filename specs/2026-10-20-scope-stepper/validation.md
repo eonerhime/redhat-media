@@ -50,5 +50,5 @@
 - [x] `contact.form.toReview` has a default and is listed in `block.test.ts` (D12)
 - [x] Typecheck, lint, format, `pnpm test` (1500) and the CI-style build pass; `/contact` stays `○` (C2)
 - [x] `pnpm test:e2e` `inquiry`, `cursor` and `a11y` pass locally (msedge)
-- [ ] CI is green on the PR, including `preview-e2e`
-- [ ] Owner: on the preview, Change → Back to review returns to the review, and a summary link stays on its step
+- [x] CI is green on the PR, including `preview-e2e` — PR #46, run 39580508877 (`ci`, `db`, `gitleaks`), run 39580581356 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready
+- [x] Owner: on the preview, Change → Back to review returns to the review, and a summary link stays on its step (owner, 2026-10-21: both do what is intended)

@@ -79,5 +79,5 @@ Run each as an uncommitted change, then revert.
 
 - [x] Every visible, enabled link, button, checkbox, radio and wrapping label shows the pointer on every route at 360 and 1440px, in the open mobile nav and on every inquiry step. The lightbox keeps `zoom-in` — `e2e/cursor.spec.ts`
 - [x] Control: a planted button with the default cursor is reported — `cursor.spec.ts` › control
-- [ ] CI is green on the PR
-- [ ] Owner: on the preview, buttons and form choices show the hand cursor
+- [x] CI is green on the PR — PR #46, run 39580508877 (`ci`, `db`, `gitleaks`), run 39580581356 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready
+- [x] Owner: on the preview, buttons and form choices show the hand cursor (owner, 2026-10-21: confirmed)
