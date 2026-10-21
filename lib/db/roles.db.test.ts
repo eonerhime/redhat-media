@@ -98,15 +98,33 @@ describe("rhm_readonly", () => {
   });
 
   // Inquiry holds personal data; its migration revokes the default grant (Phase 17 spec, D4).
-  it("has no privilege on Inquiry", async () => {
-    await expect(readonly.query('SELECT count(*) FROM "Inquiry"')).rejects.toMatchObject({
-      code: DENIED,
-    });
+  // The monitor may read only "createdAt" and "emailSentAt" (Phase 20 spec, D10).
+  it("has no table privilege on Inquiry", async () => {
     for (const privilege of ["SELECT", "INSERT", "UPDATE", "DELETE"])
       expect(
         await scalar(readonly, `SELECT has_table_privilege('"Inquiry"', '${privilege}')`),
         privilege,
       ).toBe(false);
+  });
+
+  it("counts unsent notifications by the two granted columns", async () => {
+    const { rows } = await readonly.query(
+      `SELECT count(*)::int AS unsent FROM "Inquiry"
+        WHERE "emailSentAt" IS NULL AND "createdAt" < now() - interval '15 minutes'`,
+    );
+    expect(typeof rows[0].unsent).toBe("number");
+  });
+
+  it("cannot read any other Inquiry column", async () => {
+    for (const column of ["id", "clientName", "email", "phone", "projectNotes", "ackSentAt"]) {
+      await expect(
+        readonly.query(`SELECT "${column}" FROM "Inquiry" LIMIT 1`),
+        column,
+      ).rejects.toMatchObject({ code: DENIED });
+    }
+    await expect(readonly.query('SELECT * FROM "Inquiry" LIMIT 1')).rejects.toMatchObject({
+      code: DENIED,
+    });
   });
 });
 

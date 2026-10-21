@@ -4,7 +4,7 @@ import { testPg, testPrisma } from "@/lib/db/test-client";
 
 // The Phase 19 migration is additive (Phase 19 spec, D2, C3): a row saved without project types,
 // as every Phase 18 row was, reads back with an empty list, and the list is never NULL.
-// rhm_readonly still cannot read "Inquiry" (Phase 17 spec, D4).
+// rhm_readonly still cannot read "projectTypes" (Phase 17 spec, D4; Phase 20 spec, D10).
 
 const db = testPrisma();
 const RUN = randomUUID().slice(0, 8);

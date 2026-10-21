@@ -49,6 +49,7 @@ export const INQUIRY_COPY_KEYS = [
   "errors.rateLimited",
   "success.heading",
   "success.body",
+  "success.ack",
 ] as const;
 
 export type InquiryCopyKey = (typeof INQUIRY_COPY_KEYS)[number];
@@ -58,7 +59,7 @@ export type InquiryChoice = { value: string; label: string };
 export type InquiryChoices = { budgetRange: InquiryChoice[]; timeline: InquiryChoice[] };
 
 // In Prisma enum order, which is the order shown (Phase 19 spec, D5).
-const BUDGET_KEYS = {
+export const BUDGET_KEYS = {
   UNDER_500K: "contact.form.budget.under500k",
   FROM_500K_TO_1_5M: "contact.form.budget.from500kTo1500k",
   FROM_1_5M_TO_5M: "contact.form.budget.from1500kTo5m",
@@ -67,7 +68,7 @@ const BUDGET_KEYS = {
   NOT_SURE: "contact.form.budget.notSure",
 } as const satisfies Record<BudgetRange, BlockKey>;
 
-const TIMELINE_KEYS = {
+export const TIMELINE_KEYS = {
   ASAP: "contact.form.timeline.asap",
   WITHIN_1_MONTH: "contact.form.timeline.within1Month",
   ONE_TO_THREE_MONTHS: "contact.form.timeline.oneToThreeMonths",

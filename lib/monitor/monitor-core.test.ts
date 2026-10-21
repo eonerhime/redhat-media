@@ -9,6 +9,7 @@ import {
   statusCheck,
   testAlertCheck,
   transactionsPerMinuteLimit,
+  unsentNotificationsCheck,
   volumeCheck,
 } from "./monitor-core";
 
@@ -73,5 +74,25 @@ describe("monitor checks", () => {
       "ok   GET /: 200 (want 200)",
       "FAIL test alert: TEST ALERT — not an incident",
     ]);
+  });
+});
+
+// Phase 20 spec, D10. The query's 15-minute to 24-hour window is tested on Postgres
+// (lib/monitor/unsent.db.test.ts).
+describe("unsentNotificationsCheck", () => {
+  it("passes with none unsent", () => {
+    expect(unsentNotificationsCheck(0)).toEqual({
+      name: "inquiry notifications",
+      ok: true,
+      detail: "none unsent (15 min to 24 h old)",
+    });
+  });
+
+  it("fails with any unsent, giving the count only and the runbook", () => {
+    const check = unsentNotificationsCheck(2);
+    expect(check.ok).toBe(false);
+    expect(check.detail).toBe(
+      "2 unsent 15 min to 24 h after saving (see docs/runbooks/monitoring.md)",
+    );
   });
 });

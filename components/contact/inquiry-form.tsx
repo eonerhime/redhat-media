@@ -390,6 +390,8 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
           {copy["success.heading"]}
         </h3>
         <p className="mt-4 text-lg">{copy["success.body"]}</p>
+        {/* Phase 20 spec, D13: promised only when the acknowledgment will be attempted. */}
+        {result.acknowledgment && <p className="mt-2 text-lg">{copy["success.ack"]}</p>}
       </div>
     );
   }
