@@ -46,7 +46,7 @@ Scope, decisions (D1–D12) and constraints (C1–C6) are in [`spec.md`](spec.md
 ## 7. Close-out
 
 - [x] 7.1 Gates: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm build`; the route table per C2.
-- [ ] 7.2 Open the PR into `develop`; CI is green, including preview-e2e.
-- [ ] 7.3 NVDA spot check on the preview (D12).
-- [ ] 7.4 Owner preview check (D12).
-- [ ] 7.5 Tick `validation.md` and log the work in `implementation.md`, then merge.
+- [x] 7.2 Open the PR into `develop`; CI is green, including preview-e2e.
+- [x] 7.3 NVDA spot check on the preview (D12).
+- [x] 7.4 Owner preview check (D12).
+- [x] 7.5 Tick `validation.md` and log the work in `implementation.md`, then merge.

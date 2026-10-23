@@ -17,6 +17,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - `portfolio-modal`: 20 passed.
   - `portfolio`, `portfolio-detail`, `smoke`, `shell`, `contextual-cta`, `service-pages`, `a11y`, `not-found` and `error`: 310 passed and 13 skipped. The skips are unavailable-state cases, because the local build has data.
 
+- **2026-10-23** — CI green on PR #53 at `13a4d05`: run 40019560008 (`ci` 431 passed, `db`, `gitleaks`) and run 40019629367 (`preview-e2e` 142 passed, 3 skipped; `lighthouse`). The NVDA spot check passed in the owner's Chrome on the preview (details in `validation.md`). The owner confirmed the preview check. Every plan and validation box is ticked; merged into `develop`.
+
 ## Deviations from plan
 
 - **D8 amended (owner answer H).** Plan 6.5 found that `notFound()` in the slot replaced the whole page with the site's 404 view. The owner chose to show it inside the dialog, so a `not-found.tsx` and its e2e case were added.

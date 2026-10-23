@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 2, Phase 22
 - **Branch:** `feature/phase-22-portfolio-modal` (from `develop` at `066a2ca`)
 - **Started:** 2026-10-23
-- **Status:** owner answers A–G given 2026-10-23; approved 2026-10-23 (Appendix A included); answer H given during the build
+- **Status:** owner answers A–G given 2026-10-23; approved 2026-10-23 (Appendix A included); answer H given during the build; built and merged into `develop` via PR #53
 
 ## What and why
 
