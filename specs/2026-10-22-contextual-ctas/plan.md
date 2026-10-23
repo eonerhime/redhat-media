@@ -23,4 +23,4 @@ Scope, decisions (D1–D9) and constraints (C1–C4) are in [`spec.md`](spec.md)
 ## 4. Close-out
 
 - [x] 4.1 Run the gates and the build. Confirm `/contact` is still `○` (C2).
-- [ ] 4.2 Tick `validation.md` and log the work in `implementation.md`. Then open the PR into `develop`.
+- [x] 4.2 Tick `validation.md` and log the work in `implementation.md`. Then open the PR into `develop`.

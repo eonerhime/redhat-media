@@ -24,4 +24,4 @@
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass
 - [x] `pnpm test:e2e` passes locally (`PW_CHANNEL=msedge`), including the updated CTA and smoke checks. Run on the specs this phase touches, with the form on (see `implementation.md`); CI runs the whole suite
-- [ ] CI is green on the PR into `develop`, including preview-e2e
+- [x] CI is green on the PR into `develop`, including preview-e2e — PR #51, run 39951391943 (`ci` 431 passed, `db`, `gitleaks`), run 39951417551 (`preview-headers`, `preview-e2e` 122 passed: the 9 new cases on top of the 113 before, `lighthouse`), Vercel Ready

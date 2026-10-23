@@ -19,6 +19,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - `pnpm build` with the form on: `/contact` is `○`, and `/services/[slug]` and `/portfolio/[slug]` render as before (C2);
     - Playwright with the form on and Edge, over the contextual-cta, contact, smoke, service-pages, portfolio-detail, inquiry, home, services, portfolio and about specs: 159 passed, 3 skipped (unavailable-state cases; the local build has data), 1 environment mismatch (below).
 
+- **2026-10-23** — PR #51 (`348ec99`). All checks passed: run 39951391943 (`ci`: 431 passed, 35 skipped, the portfolio pre-fill case among them because CI has no database; `db`; `gitleaks`) and run 39951417551 (`preview-headers`, `lighthouse`, and `preview-e2e`: 122 passed, 3 skipped, against 113 and 3 on PR #50, so all 9 new cases ran on the seeded preview), Vercel Ready. `preview-e2e` took 13 minutes, nearly all of it in "Install Playwright Chromium"; the tests took 1.2 minutes. Every plan and validation box is ticked.
+
 ## Deviations from plan
 
 | Item | Planned | Actual | Reason |

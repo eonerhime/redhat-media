@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 2, Phase 21
 - **Branch:** `feature/phase-21-contextual-ctas` (from `develop` at `ae76dae`, fast-forwarded to `a07595c` after PR #50)
 - **Started:** 2026-10-22
-- **Status:** owner answers A–G given 2026-10-22; approved 2026-10-23; built, PR into `develop`
+- **Status:** owner answers A–G given 2026-10-22; approved 2026-10-23; built and merged into `develop` via PR #51
 
 ## What and why
 
