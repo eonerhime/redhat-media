@@ -74,10 +74,12 @@ for (const service of visible) {
       await expect(page).toHaveURL(/\/services$/);
     });
 
-    test("sends the CTA to /contact", async ({ page }) => {
+    test("sends the CTA to /contact, pre-filled with this service (Phase 21 spec, D3)", async ({
+      page,
+    }) => {
       const cta = page.locator("main").getByRole("link", { name: defaults["home.cta.button"] });
       await expect(cta).toHaveCount(1);
-      await expect(cta).toHaveAttribute("href", "/contact");
+      await expect(cta).toHaveAttribute("href", `/contact?service=${service.slug}`);
     });
 
     test("has its own title and description", async ({ page }) => {

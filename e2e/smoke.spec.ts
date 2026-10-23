@@ -84,7 +84,8 @@ for (const mode of ["desktop", "mobile", "keyboard"] as const) {
         mode,
         main.getByRole("link", { name: defaults["home.cta.button"], exact: true }),
       );
-      await expectStep(page, /\/contact$/);
+      // A service or portfolio item's CTA pre-fills the stepper (Phase 21 spec, D3).
+      await expectStep(page, /\/contact(\?service=[a-z0-9-]+)?$/);
       for (const href of [`mailto:${contact.email}`, contact.phoneHref, contact.whatsappHref])
         await expect(main.locator(`a[href^="${href}"]`).first()).toBeVisible();
 
