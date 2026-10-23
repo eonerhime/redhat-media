@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { contrastRatio, requiredTextRatio } from "../lib/design/contrast";
 import { contact, navItems } from "../lib/site";
+import { contrastFailures } from "./contrast";
 import { routes } from "./routes";
 
 // Phase 1 "Done when": 360px, 768px and 1440px. The inline nav starts at md (768px).
@@ -12,48 +12,6 @@ async function headerTopAfterScroll(page: Page) {
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   return page.getByRole("banner").evaluate((el) => el.getBoundingClientRect().top);
-}
-
-type TextSample = {
-  text: string;
-  color: string;
-  background: string;
-  fontSize: number;
-  fontWeight: number;
-};
-
-/** Every visible element with its own text, with its colour and the first opaque background behind it. */
-function sampleText(page: Page): Promise<TextSample[]> {
-  return page.evaluate(() => {
-    const opaqueBackground = (start: Element): string => {
-      for (let el: Element | null = start; el; el = el.parentElement) {
-        const bg = getComputedStyle(el).backgroundColor;
-        if (bg !== "transparent" && !/,\s*0\)$|\/\s*0\)$/.test(bg)) return bg;
-      }
-      return "none";
-    };
-    const samples: TextSample[] = [];
-    for (const el of document.body.querySelectorAll("*")) {
-      const ownText = [...el.childNodes]
-        .filter((node) => node.nodeType === Node.TEXT_NODE)
-        .map((node) => node.textContent ?? "")
-        .join("")
-        .trim();
-      if (!ownText) continue;
-      if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
-      const rect = el.getBoundingClientRect();
-      if (rect.width <= 1 || rect.height <= 1) continue; // sr-only
-      const style = getComputedStyle(el);
-      samples.push({
-        text: ownText.slice(0, 40),
-        color: style.color,
-        background: opaqueBackground(el),
-        fontSize: parseFloat(style.fontSize),
-        fontWeight: Number(style.fontWeight),
-      });
-    }
-    return samples;
-  });
 }
 
 for (const route of routes)
@@ -118,15 +76,8 @@ for (const route of routes)
       });
 
       test("every visible text element meets its contrast ratio", async ({ page }) => {
-        const samples = await sampleText(page);
-        expect(samples.length).toBeGreaterThan(5);
-        const failures = samples
-          .map((s) => ({
-            ...s,
-            ratio: s.background === "none" ? 0 : contrastRatio(s.color, s.background),
-            required: requiredTextRatio(s.fontSize, s.fontWeight),
-          }))
-          .filter((s) => s.ratio < s.required);
+        const { count, failures } = await contrastFailures(page);
+        expect(count).toBeGreaterThan(5);
         expect(failures).toEqual([]);
       });
     });

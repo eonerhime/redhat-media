@@ -3,10 +3,21 @@ import { errorCopy } from "@/lib/site";
 // The error boundaries' view (Phase 10 spec, D6; Phase 15 spec, D2). `home` adds a plain link to
 // `/` for the root boundaries, which render without the header. It is a plain <a>, so it reloads
 // the page instead of going through a client router that may be what failed.
-export function ErrorView({ onRetry, home = false }: { onRetry: () => void; home?: boolean }) {
+// `headingId` lets the portfolio modal's dialog be named by the heading (Phase 22 spec, D8).
+export function ErrorView({
+  onRetry,
+  home = false,
+  headingId,
+}: {
+  onRetry: () => void;
+  home?: boolean;
+  headingId?: string;
+}) {
   return (
     <section className="container-page py-16 md:py-24" data-testid="error-view">
-      <h1 className="font-display text-display-2 font-extrabold">{errorCopy.heading}</h1>
+      <h1 id={headingId} className="font-display text-display-2 font-extrabold">
+        {errorCopy.heading}
+      </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted">{errorCopy.body}</p>
       <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
         {/* The ButtonLink look: fg on brand-deep is 5.03:1 (Phase 3 spec, D9). */}
