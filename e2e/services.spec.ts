@@ -41,6 +41,37 @@ test.describe("services index", () => {
     }
   });
 
+  test("makes the whole card a link that lifts on hover only when motion is allowed (D1, amended)", async ({
+    page,
+  }) => {
+    const [first] = visible;
+    const card = page
+      .locator("main li")
+      .filter({ has: page.locator(`a[href="/services/${first.slug}"]`) });
+    // Tailwind 4 moves with the `translate` property, not `transform`.
+    const lift = () => card.evaluate((el) => getComputedStyle(el).translate);
+
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await card.hover();
+    await expect.poll(lift).toMatch(/^0px -\d/);
+
+    await page.mouse.move(0, 0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await card.hover();
+    await expect.poll(lift).toBe("none");
+
+    // A click on the summary, away from the name, lands on the stretched link and opens the page.
+    const box = await card.getByText(defaults[first.summaryKey]).boundingBox();
+    if (!box) throw new Error("summary not rendered");
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(page).toHaveURL(`/services/${first.slug}`);
+  });
+
+  test("shows no card arrow to a fine pointer (D1, amended)", async ({ page }) => {
+    await expect(page.locator("main ul > li > span[aria-hidden]")).toHaveCount(visible.length);
+    await expect(page.locator("main ul > li > span[aria-hidden]").first()).toBeHidden();
+  });
+
   test("shows no muted service", async ({ page }) => {
     const main = page.locator("main");
     for (const s of muted) {
@@ -71,5 +102,18 @@ test.describe("services index", () => {
 
   test("renders only text from content/defaults.ts in <main>", async ({ page }) => {
     await expectOnlyKeyedText(page);
+  });
+});
+
+// Touch screens get no hover cue, so each card shows an arrow there (D1, amended 2026-10-22).
+test.describe("services index on a touch screen", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 360, height: 800 } });
+
+  test("shows an arrow on every service card", async ({ page }) => {
+    await page.goto("/services");
+    expect(await page.evaluate(() => matchMedia("(pointer: coarse)").matches)).toBe(true);
+    const arrows = page.locator("main ul > li > span[aria-hidden]");
+    await expect(arrows).toHaveCount(visible.length);
+    for (const arrow of await arrows.all()) await expect(arrow).toBeVisible();
   });
 });
