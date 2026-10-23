@@ -42,3 +42,14 @@
 ## Carried forward
 
 - The `/services/[slug]` links 404 until Phase 5, as the homepage links already do.
+
+## Amendment 2026-10-22: the whole service card is a link
+
+- The owner noticed that visitors could not tell the `/services` cards were links: only the service name reacted to the mouse. D1 is amended so the whole card is the link and behaves like a portfolio card (Phase 10 D4). The homepage pillar cards are unchanged, because each one lists several service links.
+- `components/services/pillar-section.tsx`:
+  - the name's `<Link>` is stretched over the card (`after:absolute after:inset-0`), so the accessible name is still just the service name;
+  - the card lifts 4px over 200ms on hover and on `focus-within`, behind `motion-safe:`;
+  - a keyboard focus ring outlines the whole card (`has-[a:focus-visible]`);
+  - on a coarse pointer, a decorative `→` (`aria-hidden`) shows at the card's foot, because touch screens get no hover cue.
+- `e2e/services.spec.ts`: 3 new tests (whole-card click and lift with reduced motion, no arrow for a fine pointer, arrows on a touch screen). The suite passes 10/10 locally with Edge, and the full `pnpm test:e2e` run passes (432 passed, 25 preview-only skipped). `pnpm build` keeps `/services` at `○`.
+- Branch `feature/phase-04-service-card-links` from `develop` at `ae76dae`.
