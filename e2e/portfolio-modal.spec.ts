@@ -29,6 +29,8 @@ async function openModal(page: Page, from = "/portfolio") {
   await cardLink(page).click();
   await expect(page).toHaveURL(itemUrl);
   await expect(modal(page)).toBeVisible();
+  // The dialog opens on the loading skeleton; on the preview the item streams in after it (D8).
+  await expect(modal(page).getByTestId("portfolio-detail")).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {

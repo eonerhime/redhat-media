@@ -28,3 +28,7 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **React passes dialog events up the component tree.** React listens for `cancel` and `close` on every `<dialog>` and passes them to ancestors' handlers. Escape in the nested lightbox therefore reached the modal's `onCancel` and went Back. Both handlers now act only when `event.target === event.currentTarget`.
 - **StrictMode double effects in dev.** The `close` event that the first cleanup queues arrives after the second mount has reopened the dialog. `onClose` ignores it while the dialog is open.
 - **The 360px box was measured mid-rise.** The test now waits for `y` to reach 0 before measuring (D6).
+- **Two timing races on the preview (PR #53, run 40016533389).** On Vercel, the item streams in after the dialog opens and after the load event. These two runs passed locally.
+  - The first attempt failed `contextual-cta.spec.ts` › portfolio item. Its non-waiting `isVisible()` read `false`. It now waits for the detail or the unavailable state first.
+  - The rerun failed the modal contrast case, which sampled the loading skeleton (1 text element). `openModal` now waits for the detail inside the dialog.
+  - Both are test fixes; the pages behaved correctly.
