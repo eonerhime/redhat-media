@@ -53,3 +53,4 @@
   - on a coarse pointer, a decorative `→` (`aria-hidden`) shows at the card's foot, because touch screens get no hover cue.
 - `e2e/services.spec.ts`: 3 new tests (whole-card click and lift with reduced motion, no arrow for a fine pointer, arrows on a touch screen). The suite passes 10/10 locally with Edge, and the full `pnpm test:e2e` run passes (432 passed, 25 preview-only skipped). `pnpm build` keeps `/services` at `○`.
 - Branch `feature/phase-04-service-card-links` from `develop` at `ae76dae`.
+- PR #50, run 39925193890 (`ci`, `db`, `gitleaks`), run 39925232616 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready. Owner check on the preview `redhat-media-git-feature-phase-04-service-card-links-e1rhyme.vercel.app` (2026-10-23): passed.
