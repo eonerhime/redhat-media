@@ -200,6 +200,7 @@ export const defaults = {
   "portfolio.detail.lightbox.previous": "Previous image",
   "portfolio.detail.lightbox.next": "Next image",
   "portfolio.detail.lightbox.position": "Image {n} of {total}",
+  "portfolio.modal.close": "Close",
 
   // Phase 13 contact page (owner-approved, Phase 13 spec, Appendix A). The contact details
   // themselves are site data in lib/site.ts (Phase 2 spec, D9).

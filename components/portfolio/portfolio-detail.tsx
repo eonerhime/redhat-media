@@ -7,6 +7,7 @@ import { block } from "@/lib/content/block";
 import { serviceByCategory } from "@/lib/content/services";
 import type { PortfolioDetail as Detail, PortfolioImage } from "@/lib/portfolio/read-core";
 import { Lightbox, LightboxTrigger, type LightboxImage } from "./lightbox";
+import { MODAL_LABEL_ID } from "./modal-label";
 
 // The hero spans the container (72rem less 2rem padding each side); gallery tiles are half that.
 const HERO_SIZES = "(min-width: 72rem) 68rem, 100vw";
@@ -54,10 +55,13 @@ function AsideSection({
 
 /**
  * One portfolio item's page body (Phase 12 spec, D4–D6): heading, hero, story and highlights, the
- * facts aside, the gallery and the CTA. /portfolio/[slug] and the /dev fixture page share it.
- * Images open the lightbox; videos play in place.
+ * facts aside, the gallery and the CTA. /portfolio/[slug], the modal over the grid and the /dev
+ * fixture page share it. Images open the lightbox; videos play in place.
+ *
+ * In the modal (Phase 22 spec, D3) the modal's Close button replaces "All work", and the title
+ * names the dialog.
  */
-export async function PortfolioDetail({ item }: { item: Detail }) {
+export async function PortfolioDetail({ item, modal = false }: { item: Detail; modal?: boolean }) {
   const [
     eyebrow,
     highlightsHeading,
@@ -117,13 +121,18 @@ export async function PortfolioDetail({ item }: { item: Detail }) {
       }}
     >
       <article data-testid="portfolio-detail">
-        <header className="container-page pt-16 pb-12 md:pt-24">
-          <BackLink />
+        <header className={`container-page pb-12 ${modal ? "pt-8 md:pt-12" : "pt-16 md:pt-24"}`}>
+          {modal ? null : <BackLink />}
           {/* muted stays at ≥ 16px on ink (tech-stack.md → Design tokens). */}
-          <p className="mt-8 text-base font-semibold tracking-widest text-muted uppercase">
+          <p
+            className={`text-base font-semibold tracking-widest text-muted uppercase ${modal ? "" : "mt-8"}`}
+          >
             {eyebrow}
           </p>
-          <h1 className="mt-4 max-w-4xl font-display text-display-1 font-black tracking-tight">
+          <h1
+            id={modal ? MODAL_LABEL_ID : undefined}
+            className="mt-4 max-w-4xl font-display text-display-1 font-black tracking-tight"
+          >
             {item.title}
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-muted">{item.summary}</p>
@@ -261,13 +270,23 @@ export async function PortfolioDetail({ item }: { item: Detail }) {
   );
 }
 
-/** The detail route when the portfolio read failed (D3): the Phase 10 message and a way back. */
-export async function PortfolioDetailUnavailable() {
+/**
+ * The detail route when the portfolio read failed (D3): the Phase 10 message and a way back. In
+ * the modal, Close is the way back and the message names the dialog (Phase 22 spec, D8).
+ */
+export async function PortfolioDetailUnavailable({ modal = false }: { modal?: boolean }) {
   const message = await block("portfolio.unavailable");
   return (
-    <section className="container-page py-16 md:py-24" data-testid="portfolio-detail-unavailable">
-      <BackLink />
-      <p role="status" className="mt-8 max-w-2xl text-lg text-muted">
+    <section
+      className={`container-page ${modal ? "py-12" : "py-16 md:py-24"}`}
+      data-testid="portfolio-detail-unavailable"
+    >
+      {modal ? null : <BackLink />}
+      <p
+        role="status"
+        id={modal ? MODAL_LABEL_ID : undefined}
+        className={`max-w-2xl text-lg text-muted ${modal ? "" : "mt-8"}`}
+      >
         {message}
       </p>
     </section>

@@ -76,7 +76,8 @@
   }
 }
 
-/* The page behind an open modal dialog (the portfolio lightbox) does not scroll (Phase 12 spec, D6). */
+/* The page behind an open modal dialog (the portfolio lightbox and modal) does not scroll (Phase 12
+   spec, D6; Phase 22 spec, D4). */
 html:has(dialog:modal) {
   overflow: hidden;
 }

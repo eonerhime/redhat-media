@@ -57,7 +57,10 @@ test.describe("contextual CTAs", () => {
   }) => {
     const item = portfolioSeed[0];
     await page.goto(`/portfolio/${item.slug}`);
-    const ready = await page.getByTestId("portfolio-detail").isVisible();
+    // Wait for either state: the detail can stream in after the load event on the preview.
+    const detail = page.getByTestId("portfolio-detail");
+    await expect(detail.or(page.getByTestId("portfolio-detail-unavailable"))).toBeVisible();
+    const ready = await detail.isVisible();
     if (pinnedState === "ready") expect(ready).toBe(true);
     test.skip(!ready, "the item needs the portfolio database (preview-e2e, or locally)");
     const service = visible.find((s) => s.category === item.category);

@@ -74,15 +74,20 @@ for (const mode of ["desktop", "mobile", "keyboard"] as const) {
       const state = await listing.getAttribute("data-state");
       if (pinnedState === "ready") expect(state).toBe("ready");
 
+      // On /portfolio an item opens as a modal over the grid, and its CTA is the next step (Phase
+      // 22 spec, D1–D3).
+      let scope = main;
       if (state === "ready") {
         await follow(page, mode, main.locator('a[href^="/portfolio/"]').first());
-        await expectStep(page, /\/portfolio\/[a-z0-9-]+$/);
-        await expect(page.getByTestId("portfolio-detail")).toBeVisible();
+        await expect(page).toHaveURL(/\/portfolio\/[a-z0-9-]+$/);
+        scope = page.getByTestId("portfolio-modal");
+        await expect(scope.getByTestId("portfolio-detail")).toBeVisible();
+        await expect(scope.getByRole("heading", { level: 1 })).not.toBeEmpty();
       }
       await follow(
         page,
         mode,
-        main.getByRole("link", { name: defaults["home.cta.button"], exact: true }),
+        scope.getByRole("link", { name: defaults["home.cta.button"], exact: true }),
       );
       // A service or portfolio item's CTA pre-fills the stepper (Phase 21 spec, D3).
       await expectStep(page, /\/contact(\?service=[a-z0-9-]+)?$/);
