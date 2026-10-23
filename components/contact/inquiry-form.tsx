@@ -19,6 +19,7 @@ import {
   TURNSTILE_ACTION,
   type InquiryResult,
 } from "@/lib/inquiry/fields";
+import { prefillCategory } from "@/lib/inquiry/prefill";
 import { contact, mailtoHref } from "@/lib/site";
 import { MESSAGES } from "@/lib/validation/inquiry-messages";
 import { toE164 } from "@/lib/validation/phone";
@@ -27,6 +28,7 @@ import type { InquiryChoice, InquiryChoices, InquiryFormCopy } from "./inquiry-c
 
 export type InquiryServiceOption = {
   category: ServiceCategory;
+  slug: string;
   name: string;
   types: readonly { id: string; label: string }[];
 };
@@ -340,12 +342,23 @@ export function InquiryForm({ action, copy, choices, services, turnstileSiteKey 
 
   // Phase 18 spec, D7: the open time, on the device's monotonic clock. A browser that restored
   // ticked services (reload, back-forward cache) gets their project types shown (D6).
+  // Phase 21 spec, D5 and D7: a `?service=` link ticks that service once, here, after hydration,
+  // so /contact stays static. It unticks nothing and moves no focus, URL or history.
   useEffect(() => {
     openedAt.current = performance.now();
+    const prefill = prefillCategory(window.location.search, services);
+    if (prefill) {
+      const input = form.current?.querySelector<HTMLInputElement>(
+        `input[name="services"][value="${prefill}"]`,
+      );
+      if (input) input.checked = true;
+    }
     const ticked = form.current?.querySelectorAll<HTMLInputElement>(
       'input[name="services"]:checked',
     );
     if (ticked?.length) setChosen(new Set(Array.from(ticked, (input) => input.value)));
+    // Run once on load only (D7), with the build-time list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // D7: browser Back and Forward move between steps. After success the panel replaces the form,

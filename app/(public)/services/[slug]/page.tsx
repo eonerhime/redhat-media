@@ -102,7 +102,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
       </section>
       <RelatedWork category={service.category} />
       <div className="border-t border-line">
-        <Cta />
+        <Cta service={service} />
       </div>
     </>
   );
