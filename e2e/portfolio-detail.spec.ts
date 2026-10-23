@@ -131,14 +131,18 @@ test.describe("/portfolio/[slug] with published items", () => {
     });
   }
 
-  test("a card on /portfolio opens its page", async ({ page }) => {
+  // On /portfolio the card opens the item as a modal over the grid; portfolio-modal.spec.ts covers
+  // the modal (Phase 22 spec, D1, D11).
+  test("a card on /portfolio opens its item", async ({ page }) => {
     test.skip((await portfolioState(page)) !== "ready", "needs published items");
     const [first] = portfolioSeed;
     const card = page.getByTestId("portfolio-listing").getByRole("article").first();
     await expect(card.getByRole("link")).toHaveCount(1);
     await card.getByRole("link", { name: first!.title, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/portfolio/${first!.slug}$`));
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(first!.title);
+    await expect(page.getByTestId("portfolio-modal").getByRole("heading", { level: 1 })).toHaveText(
+      first!.title,
+    );
   });
 
   test("the hero opens the lightbox, Escape closes it and focus returns", async ({ page }) => {

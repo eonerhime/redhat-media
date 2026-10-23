@@ -22,3 +22,29 @@ export async function PortfolioSkeleton({ filterBar = false }: { filterBar?: boo
     </div>
   );
 }
+
+/**
+ * Shown while an item streams (Phase 12 spec, D3): outlines of the heading and hero with no
+ * animation, and one labelled status. In the modal (Phase 22 spec, D8) the label names the dialog
+ * and there is no back link to outline.
+ */
+export async function PortfolioDetailSkeleton({ labelId }: { labelId?: string }) {
+  const label = await block("portfolio.detail.loading");
+  const modal = labelId !== undefined;
+  return (
+    <div
+      role="status"
+      className={`container-page pb-12 ${modal ? "pt-8 md:pt-12" : "pt-16 md:pt-24"}`}
+    >
+      <span id={labelId} className="sr-only">
+        {label}
+      </span>
+      <div aria-hidden="true">
+        {modal ? null : <div className="mb-12 h-6 w-28 rounded border border-line" />}
+        <div className="h-16 max-w-xl rounded border border-line" />
+        <div className="mt-6 h-6 max-w-md rounded border border-line" />
+        <div className="mt-10 aspect-[16/10] rounded-xl border border-line" />
+      </div>
+    </div>
+  );
+}
