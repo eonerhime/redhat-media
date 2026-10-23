@@ -36,3 +36,12 @@ Run each as an uncommitted change, then revert it with a reverse edit (not `git 
 
 - [x] The README amendment is in the same PR
 - [x] Every `plan.md` box is ticked, and `implementation.md` records any deviations
+
+## Amendment 2026-10-22: the whole service card is a link
+
+- [x] A click on the card body, away from the name, opens the service page, and the card lifts on hover only when motion is allowed — `services.spec.ts` › whole card
+- [x] A fine pointer sees no card arrow, and a touch screen (coarse pointer, 360px) sees one on every card — `services.spec.ts` › no card arrow / touch screen
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check` and `pnpm build` pass, and `/services` is still `○` (C2)
+- [x] `pnpm test:e2e` passes locally (`PW_CHANNEL=msedge`): 432 passed, 25 skipped (the preview-only cases)
+- [x] CI is green on the PR — PR #50, run 39925193890 (`ci`, `db`, `gitleaks`), run 39925232616 (`preview-headers`, `preview-e2e`, `lighthouse`), Vercel Ready
+- [x] Owner: on the preview, the `/services` cards lift and open on a click anywhere, the keyboard focus ring outlines the card, and a phone shows the arrows (owner, 2026-10-23: confirmed)

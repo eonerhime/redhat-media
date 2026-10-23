@@ -57,6 +57,18 @@ export function allServiceSlugs(): readonly string[] {
   return services.map((s) => s.slug);
 }
 
+// A "Start a project" link that pre-fills the inquiry stepper with a visible service, or the plain
+// /contact for a muted service or none (Phase 21 spec, D1, D8).
+export function contactPath(service: Service | undefined, visible: readonly Service[]): string {
+  return service && visible.some((s) => s.category === service.category)
+    ? `/contact?service=${service.slug}`
+    : "/contact";
+}
+
+export async function contactHref(service?: Service): Promise<string> {
+  return contactPath(service, await visibleServices());
+}
+
 // The service page's lookup. `undefined` for a muted or unknown slug, which the page turns into a 404.
 export async function visibleServiceBySlug(slug: string): Promise<Service | undefined> {
   return (await visibleServices()).find((s) => s.slug === slug);

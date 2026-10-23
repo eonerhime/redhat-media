@@ -103,5 +103,5 @@ export async function inquiryServiceOption(service: Service) {
       })),
     ),
   ]);
-  return { category: service.category, name, types };
+  return { category: service.category, slug: service.slug, name, types };
 }

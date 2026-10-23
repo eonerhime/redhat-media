@@ -255,7 +255,7 @@ export async function PortfolioDetail({ item }: { item: Detail }) {
         ) : null}
       </article>
       <div className="border-t border-line">
-        <Cta />
+        <Cta service={serviceByCategory(item.category)} />
       </div>
     </Lightbox>
   );

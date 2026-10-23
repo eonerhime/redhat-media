@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { defaults } from "../content/defaults";
+import { serviceByCategory } from "../lib/content/services";
 import { siteName } from "../lib/site";
 import { portfolioSeed } from "../prisma/seed-data/portfolio";
 import { expectOnlyKeyedText } from "./keyed-text";
@@ -83,9 +84,11 @@ test.describe("/portfolio/[slug] with published items", () => {
       if (item.client) await expect(client).toHaveText(new RegExp(`${item.client}$`));
       else await expect(client).toHaveCount(0);
 
+      // Pre-filled with the item's category's service (Phase 21 spec, D3); every seeded category
+      // is visible.
       await expect(main.getByRole("link", { name: defaults["home.cta.button"] })).toHaveAttribute(
         "href",
-        "/contact",
+        `/contact?service=${serviceByCategory(item.category).slug}`,
       );
       await expect(
         main.getByRole("link", { name: defaults["portfolio.detail.back"] }),

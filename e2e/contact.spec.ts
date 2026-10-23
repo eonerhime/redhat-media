@@ -188,14 +188,26 @@ test.describe("contact page on a phone", () => {
   });
 });
 
-// Every CTA on the site leads to /contact (roadmap Phase 13 "Done when").
-// /privacy is a notice, not a sales page, so it carries no CTA (Phase 18 spec, D11).
+// Every CTA on the site leads to /contact (roadmap Phase 13 "Done when"). A service page's
+// pre-fills its own service, and a portfolio item's its category's service; with no database the
+// item shows its unavailable state and the plain link (Phase 21 spec, D3). Every other page keeps
+// the plain /contact. /privacy is a notice, not a sales page, so it carries no CTA (Phase 18 spec,
+// D11).
+const CONTACT_HREF = /^\/contact(\?service=[a-z0-9-]+)?$/;
+
+function ctaHref(route: string): string | RegExp {
+  const service = /^\/services\/([a-z0-9-]+)$/.exec(route);
+  if (service) return `/contact?service=${service[1]}`;
+  if (/^\/portfolio\/[a-z0-9-]+$/.test(route)) return CONTACT_HREF;
+  return "/contact";
+}
+
 for (const route of routes.filter((r) => r !== "/contact" && r !== "/privacy"))
   test(`every CTA on ${route} leads to /contact`, async ({ page }) => {
     await page.goto(route);
     const ctas = page.locator("main").getByRole("link", { name: defaults["home.cta.button"] });
     await expect(ctas.first()).toBeVisible();
-    for (const cta of await ctas.all()) await expect(cta).toHaveAttribute("href", "/contact");
+    for (const cta of await ctas.all()) await expect(cta).toHaveAttribute("href", ctaHref(route));
     await expect(
       page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Contact" }),
     ).toHaveAttribute("href", "/contact");
@@ -203,5 +215,5 @@ for (const route of routes.filter((r) => r !== "/contact" && r !== "/privacy"))
     const hrefs = await page
       .locator("a[href]")
       .evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""));
-    expect(hrefs.filter((href) => /contact/i.test(href) && href !== "/contact")).toEqual([]);
+    expect(hrefs.filter((href) => /contact/i.test(href) && !CONTACT_HREF.test(href))).toEqual([]);
   });
