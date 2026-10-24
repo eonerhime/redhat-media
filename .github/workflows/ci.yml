@@ -84,12 +84,13 @@ jobs:
         run: |
           node scripts/db-bootstrap.mts --branch ci --out "$RUNNER_TEMP/roles.env"
           set -a; . "$RUNNER_TEMP/roles.env"; set +a
-          node -e 'for (const k of ["DATABASE_URL", "MIGRATOR_DATABASE_URL", "READONLY_DATABASE_URL"]) console.log("::add-mask::" + decodeURIComponent(new URL(process.env[k]).password))'
+          node -e 'for (const k of ["DATABASE_URL", "MIGRATOR_DATABASE_URL", "READONLY_DATABASE_URL", "RETENTION_DATABASE_URL"]) console.log("::add-mask::" + decodeURIComponent(new URL(process.env[k]).password))'
           {
             echo "MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
             echo "TEST_APP_DATABASE_URL=$DATABASE_URL"
             echo "TEST_MIGRATOR_DATABASE_URL=$MIGRATOR_DATABASE_URL"
             echo "TEST_READONLY_DATABASE_URL=$READONLY_DATABASE_URL"
+            echo "TEST_RETENTION_DATABASE_URL=$RETENTION_DATABASE_URL"
           } >> "$GITHUB_ENV"
       - name: Apply migrations as rhm_migrator
         run: pnpm db:deploy
