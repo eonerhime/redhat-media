@@ -1,6 +1,6 @@
 import { test as base, expect, type Page } from "@playwright/test";
 import type { ServiceCategory } from "../content/services";
-import { relatedTo, type PortfolioCard } from "../lib/portfolio/read-core";
+import { featuredCards, relatedTo, type PortfolioCard } from "../lib/portfolio/read-core";
 import { portfolioSeed } from "../prisma/seed-data/portfolio";
 
 // What the portfolio pages should show, from the seed content (Phase 10 spec, D10, D11).
@@ -37,6 +37,11 @@ export const cardTexts: readonly string[] = [
 /** The related-work titles a service page should show in this state (D8). */
 export function expectedRelated(category: ServiceCategory, state: PortfolioState): string[] {
   return state === "ready" ? relatedTo(seedCards, category).map((card) => card.title) : [];
+}
+
+/** The homepage's featured titles in this state (Phase 23 spec, D1, D2). */
+export function expectedFeatured(state: PortfolioState): PortfolioCard[] {
+  return state === "ready" ? featuredCards(seedCards) : [];
 }
 
 /** Reads the listing state off /portfolio, and checks it against the pinned one. */

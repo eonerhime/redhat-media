@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   detailParams,
+  featuredCards,
   NO_SLUG,
   relatedTo,
   toCards,
@@ -94,6 +95,36 @@ describe("relatedTo", () => {
   it("returns nothing for a category with no items", () => {
     expect(relatedTo(cards, "VIDEOGRAPHY")).toEqual([]);
     expect(relatedTo(cards, "PHOTOGRAPHY").map((card) => card.id)).toEqual(["photo"]);
+  });
+});
+
+describe("featuredCards", () => {
+  const cards: PortfolioCard[] = toCards(
+    [
+      row("one"),
+      row("two", { featured: true }),
+      row("photo", { category: "PHOTOGRAPHY", featured: true }),
+      row("three"),
+      row("four", { featured: true }),
+      row("five", { featured: true }),
+    ],
+    [],
+  );
+
+  // Phase 23 spec, D1: featured only, in portfolio order, any category, at most three.
+  it("keeps featured cards in their order, at most three", () => {
+    expect(featuredCards(cards).map((card) => card.id)).toEqual(["two", "photo", "four"]);
+    expect(featuredCards(cards, 10).map((card) => card.id)).toEqual([
+      "two",
+      "photo",
+      "four",
+      "five",
+    ]);
+  });
+
+  it("returns nothing when no card is featured, or there are no cards", () => {
+    expect(featuredCards(cards.map((card) => ({ ...card, featured: false })))).toEqual([]);
+    expect(featuredCards([])).toEqual([]);
   });
 });
 
