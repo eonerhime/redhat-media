@@ -32,8 +32,8 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 
 ## 4. Security checklist (D12)
 
-- [ ] 4.1 Run `/security-review` over `218d02c..HEAD`. Resolve each finding, or record the owner's written acceptance.
-- [ ] 4.2 Record every checklist item in `validation.md`, with evidence, N/A, or a deferral to a named phase.
+- [x] 4.1 Run `/security-review` over `218d02c..HEAD`. Resolve each finding, or record the owner's written acceptance.
+- [x] 4.2 Record every checklist item in `validation.md`, with evidence, N/A, or a deferral to a named phase.
 
 ## 5. Merge into `develop`
 
