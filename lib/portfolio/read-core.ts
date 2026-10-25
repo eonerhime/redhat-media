@@ -104,6 +104,15 @@ export function relatedTo(
     .slice(0, limit);
 }
 
+/**
+ * The homepage's featured work (Phase 23 spec, D1): featured items only, in portfolio order (the
+ * order `cards` already has), at most `limit`. Empty when nothing is featured, and the section
+ * then falls back to its text and link (D2).
+ */
+export function featuredCards(cards: readonly PortfolioCard[], limit = 3): PortfolioCard[] {
+  return cards.filter((card) => card.featured).slice(0, limit);
+}
+
 // Detail reads (Phase 12 spec, D1, D2).
 
 export type PortfolioImage = {

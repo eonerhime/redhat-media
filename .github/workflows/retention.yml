@@ -1,0 +1,46 @@
+name: retention
+
+# The daily retention job (Phase 23 spec, D8-D10): anonymise inquiries closed more than 24 months
+# ago and delete rate-limit rows older than 30 days, on production. A failed run makes GitHub email
+# the account that last changed the cron line below, as with the monitor. GitHub runs `schedule`
+# and `workflow_dispatch` only from the default branch, `main`. A test alert is a dispatch with
+# `test_alert` ticked: the run does the real work, then fails on purpose with "TEST ALERT — not an
+# incident". The `retention` environment is limited to `main`, so no PR branch can read its
+# credential, and the run prints counts only.
+on:
+  schedule:
+    # 03:41 UTC, clear of the monitor's minute 17.
+    - cron: "41 3 * * *"
+  workflow_dispatch:
+    inputs:
+      test_alert:
+        description: Fail on purpose after the run, to test the alert email
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retention
+  cancel-in-progress: false
+
+jobs:
+  retention:
+    name: retention
+    runs-on: ubuntu-latest
+    # Holds RETENTION_DATABASE_URL: the production rhm_retention, direct connection (D7).
+    environment: retention
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Anonymise closed inquiries and purge rate-limit rows
+        env:
+          RETENTION_DATABASE_URL: ${{ secrets.RETENTION_DATABASE_URL }}
+          RETENTION_TEST_ALERT: ${{ inputs.test_alert && '1' || '' }}
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/retention.mts

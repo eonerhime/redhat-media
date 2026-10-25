@@ -270,6 +270,7 @@ describe("verbatim port of the legacy page", () => {
     // Phase 19 spec, D5 amended 2026-10-21.
     const stepperAmendmentKeys = ["contact.form.toReview"];
     const phase22Keys = ["portfolio.modal.close"];
+    const phase23Keys = ["home.work.bodyLive"];
     const ported = new Set(legacy.map(([key]) => key));
     const unported = entries.map(([key]) => key).filter((key) => !ported.has(key));
     expect(unported.sort()).toEqual(
@@ -288,6 +289,7 @@ describe("verbatim port of the legacy page", () => {
         ...phase20Keys,
         ...stepperAmendmentKeys,
         ...phase22Keys,
+        ...phase23Keys,
       ].sort(),
     );
   });

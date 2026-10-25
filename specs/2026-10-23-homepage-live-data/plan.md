@@ -10,30 +10,30 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 - [x] 1.4 `schema.prisma`: `Inquiry.closedAt DateTime?` and `Inquiry.anonymisedAt DateTime?`. Migration `…_inquiry_retention`: the two columns, then the column-level grants of D7 (hand-written).
 - [x] 1.5 Database test `retention-grants.db.test.ts`: `rhm_retention` can update the personal columns and delete rate-limit rows, but cannot `SELECT` `email` (or any personal column), cannot `DELETE` from `Inquiry`, cannot read `PortfolioItem`, and cannot run DDL (C4).
 - [x] 1.6 `docs/runbooks/secret-rotation.md`: the `rhm_retention` section.
-- [ ] 1.7 **(owner)** Create the role on `dev` and `preview`: `node scripts/db-bootstrap.mts --branch <dev|preview> --role rhm_retention` with the owner credential. Verify with `neon roles list --branch preview`.
-- [ ] 1.8 `pnpm db:migrate` on `dev`. PR into `develop`, noting that preview-e2e may fail until it's migrated (C3). **(owner)** Merge; `migrate-preview` green.
+- [x] 1.7 **(owner)** Create the role on `dev` and `preview`: `node scripts/db-bootstrap.mts --branch <dev|preview> --role rhm_retention` with the owner credential. Verify with `neon roles list --branch preview`.
+- [x] 1.8 `pnpm db:migrate` on `dev`. PR into `develop`, noting that preview-e2e may fail until it's migrated (C3). **(owner)** Merge; `migrate-preview` green.
 
 ## 2. Homepage featured work (feature PR, after `develop` is merged in)
 
-- [ ] 2.1 `featuredCards(cards, limit = 3)` in `lib/portfolio/read-core.ts`, with unit tests: featured only, portfolio order, the cap, an empty result (D1).
-- [ ] 2.2 `components/home/featured-work.tsx`: read `getPublishedPortfolio()`, render up to 3 `PortfolioCard`s above the link, and fall back to the text and link (D2, D3). The card grid's loading and error behaviour follows rule 8 through the fallback.
-- [ ] 2.3 Phase 3 spec D5: the dated note. Update the component's header comment.
-- [ ] 2.4 Build and check the route table: `/` still `○`, every other route unchanged (C2).
-- [ ] 2.5 `e2e/home.spec.ts`: the no-DB build shows the text-and-link fallback. A preview-e2e case: three cards in portfolio order, each linking to `/portfolio/{slug}` and opening the full page, not a dialog (D4).
+- [x] 2.1 `featuredCards(cards, limit = 3)` in `lib/portfolio/read-core.ts`, with unit tests: featured only, portfolio order, the cap, an empty result (D1).
+- [x] 2.2 `components/home/featured-work.tsx`: read `getPublishedPortfolio()`, render up to 3 `PortfolioCard`s above the link, and fall back to the text and link (D2, D3). The card grid's loading and error behaviour follows rule 8 through the fallback.
+- [x] 2.3 Phase 3 spec D5: the dated note. Update the component's header comment.
+- [x] 2.4 Build and check the route table: `/` still `○`, every other route unchanged (C2).
+- [x] 2.5 `e2e/home.spec.ts`: the no-DB build shows the text-and-link fallback. A preview-e2e case: three cards in portfolio order, each linking to `/portfolio/{slug}` and opening the full page, not a dialog (D4).
 
 ## 3. Retention job
 
-- [ ] 3.1 `lib/retention/core.ts`: `anonymiseClosedInquiries(client, now)` and `purgeRateLimitHits(client, now)` as tagged SQL, each returning a count (D5, D6, D9). The cut-offs are exactly 24 months and 30 days before `now`.
-- [ ] 3.2 `retention.db.test.ts` (as `rhm_retention`): a closed row past 24 months is anonymised with scope and dates kept; a closed row inside 24 months, an open old row, and a row already anonymised are left alone; a second run changes nothing; rate-limit rows older than 30 days go, newer ones stay.
-- [ ] 3.3 `scripts/retention.mts`: connect with `RETENTION_DATABASE_URL`, run both, print counts only, exit non-zero on any error, and fail on purpose with "TEST ALERT — not an incident" when `RETENTION_TEST_ALERT=1` (D8, D10).
-- [ ] 3.4 `.github/workflows/retention.yml`: daily `41 3 * * *` plus `workflow_dispatch` with `test_alert`, environment `retention`, pinned actions as in `monitor.yml` (D8).
-- [ ] 3.5 `tech-stack.md`: the Personal data and Monitoring rows (D5, D6, D8, D10). `docs/runbooks/monitoring.md`: the *Retention job* section (D10).
-- [ ] 3.6 `roadmap.md` open question 9: the dated answer (D11), staged as its own hunk (C6).
+- [x] 3.1 `lib/retention/core.ts`: `anonymiseClosedInquiries(client, now)` and `purgeRateLimitHits(client, now)` as tagged SQL, each returning a count (D5, D6, D9). The cut-offs are exactly 24 months and 30 days before `now`.
+- [x] 3.2 `retention.db.test.ts` (as `rhm_retention`): a closed row past 24 months is anonymised with scope and dates kept; a closed row inside 24 months, an open old row, and a row already anonymised are left alone; a second run changes nothing; rate-limit rows older than 30 days go, newer ones stay.
+- [x] 3.3 `scripts/retention.mts`: connect with `RETENTION_DATABASE_URL`, run both, print counts only, exit non-zero on any error, and fail on purpose with "TEST ALERT — not an incident" when `RETENTION_TEST_ALERT=1` (D8, D10).
+- [x] 3.4 `.github/workflows/retention.yml`: daily `41 3 * * *` plus `workflow_dispatch` with `test_alert`, environment `retention`, pinned actions as in `monitor.yml` (D8).
+- [x] 3.5 `tech-stack.md`: the Personal data and Monitoring rows (D5, D6, D8, D10). `docs/runbooks/monitoring.md`: the *Retention job* section (D10).
+- [x] 3.6 `roadmap.md` open question 9: the dated answer (D11), staged as its own hunk (C6).
 
 ## 4. Security checklist (D12)
 
-- [ ] 4.1 Run `/security-review` over `218d02c..HEAD`. Resolve each finding, or record the owner's written acceptance.
-- [ ] 4.2 Record every checklist item in `validation.md`, with evidence, N/A, or a deferral to a named phase.
+- [x] 4.1 Run `/security-review` over `218d02c..HEAD`. Resolve each finding, or record the owner's written acceptance.
+- [x] 4.2 Record every checklist item in `validation.md`, with evidence, N/A, or a deferral to a named phase.
 
 ## 5. Merge into `develop`
 
