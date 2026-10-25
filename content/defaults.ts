@@ -17,6 +17,8 @@ export const defaults = {
   "home.work.heading": "Featured work",
   "home.work.body":
     "Selected projects from across photography, video, marketing and software will appear here.",
+  // Shown instead of home.work.body when featured cards are on the page (Phase 23 spec, D1, owner 2026-10-24).
+  "home.work.bodyLive": "Selected projects from across photography, video, marketing and software.",
   "home.work.link": "See the portfolio",
   "home.process.heading": "How we work",
   "home.cta.heading": "Have a project in mind?",

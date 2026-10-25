@@ -6,6 +6,7 @@
 //   TEST_APP_DATABASE_URL       rhm_app
 //   TEST_MIGRATOR_DATABASE_URL  rhm_migrator
 //   TEST_READONLY_DATABASE_URL  rhm_readonly
+//   TEST_RETENTION_DATABASE_URL rhm_retention (Phase 23)
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
@@ -15,6 +16,7 @@ const ROLE_VARS = {
   app: "TEST_APP_DATABASE_URL",
   migrator: "TEST_MIGRATOR_DATABASE_URL",
   readonly: "TEST_READONLY_DATABASE_URL",
+  retention: "TEST_RETENTION_DATABASE_URL",
 } as const;
 
 export type TestRole = keyof typeof ROLE_VARS;

@@ -98,7 +98,7 @@ describe("parseEnv: database (Phase 7 spec, D7)", () => {
     expect(() => parseEnv({ RATE_LIMIT_SALT: "short" })).toThrow(/RATE_LIMIT_SALT/);
   });
 
-  it.each(["MIGRATOR_DATABASE_URL", "BOOTSTRAP_DATABASE_URL"])(
+  it.each(["MIGRATOR_DATABASE_URL", "BOOTSTRAP_DATABASE_URL", "RETENTION_DATABASE_URL"])(
     "fails the Vercel build when %s is set",
     (key) => {
       expect(() => parseEnv({ VERCEL: "1", ...db, [key]: "postgresql://x" })).toThrow(

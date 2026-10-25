@@ -37,7 +37,12 @@ const emailList = z
   .pipe(z.array(z.email("Must be email addresses, comma-separated")).min(1).max(5));
 
 // Credentials that must never reach a Vercel deployment (Phase 7 spec, D7).
-const FORBIDDEN_ON_VERCEL = ["MIGRATOR_DATABASE_URL", "BOOTSTRAP_DATABASE_URL"] as const;
+// RETENTION_DATABASE_URL lives only in the GitHub Environment `retention` (Phase 23 spec, D8).
+const FORBIDDEN_ON_VERCEL = [
+  "MIGRATOR_DATABASE_URL",
+  "BOOTSTRAP_DATABASE_URL",
+  "RETENTION_DATABASE_URL",
+] as const;
 
 const envSchema = z
   .object({
@@ -49,6 +54,7 @@ const envSchema = z
     RATE_LIMIT_SALT: optional(z.string().min(32, "Must be at least 32 characters")),
     MIGRATOR_DATABASE_URL: optional(z.string()),
     BOOTSTRAP_DATABASE_URL: optional(z.string()),
+    RETENTION_DATABASE_URL: optional(z.string()),
     // Public: it appears in every image URL (Phase 8 spec, D4).
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optional(
       z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/, "Must be a Cloudinary cloud name"),
@@ -160,7 +166,7 @@ const envSchema = z
           ctx.addIssue({
             code: "custom",
             path: [key],
-            message: "Must not be set on Vercel (migrations run from CI only)",
+            message: "Must not be set on Vercel (a CI-only database credential)",
           });
         }
       }
