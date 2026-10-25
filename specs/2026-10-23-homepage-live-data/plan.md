@@ -10,8 +10,8 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 - [x] 1.4 `schema.prisma`: `Inquiry.closedAt DateTime?` and `Inquiry.anonymisedAt DateTime?`. Migration `…_inquiry_retention`: the two columns, then the column-level grants of D7 (hand-written).
 - [x] 1.5 Database test `retention-grants.db.test.ts`: `rhm_retention` can update the personal columns and delete rate-limit rows, but cannot `SELECT` `email` (or any personal column), cannot `DELETE` from `Inquiry`, cannot read `PortfolioItem`, and cannot run DDL (C4).
 - [x] 1.6 `docs/runbooks/secret-rotation.md`: the `rhm_retention` section.
-- [ ] 1.7 **(owner)** Create the role on `dev` and `preview`: `node scripts/db-bootstrap.mts --branch <dev|preview> --role rhm_retention` with the owner credential. Verify with `neon roles list --branch preview`.
-- [ ] 1.8 `pnpm db:migrate` on `dev`. PR into `develop`, noting that preview-e2e may fail until it's migrated (C3). **(owner)** Merge; `migrate-preview` green.
+- [x] 1.7 **(owner)** Create the role on `dev` and `preview`: `node scripts/db-bootstrap.mts --branch <dev|preview> --role rhm_retention` with the owner credential. Verify with `neon roles list --branch preview`.
+- [x] 1.8 `pnpm db:migrate` on `dev`. PR into `develop`, noting that preview-e2e may fail until it's migrated (C3). **(owner)** Merge; `migrate-preview` green.
 
 ## 2. Homepage featured work (feature PR, after `develop` is merged in)
 
