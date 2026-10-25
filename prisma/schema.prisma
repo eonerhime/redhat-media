@@ -122,6 +122,8 @@ model Inquiry {
   consentAt    DateTime // privacy-notice consent (NDPA 2023)
   emailSentAt  DateTime? // team notification (Phase 20)
   ackSentAt    DateTime? // client acknowledgment (Phase 20)
+  closedAt     DateTime? // the retention clock; set on close, cleared on reopen (Phase 23 spec, D5)
+  anonymisedAt DateTime? // set by the retention job (Phase 23 spec, D6)
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 }

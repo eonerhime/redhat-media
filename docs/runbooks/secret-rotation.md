@@ -25,6 +25,7 @@ Built in Phase 15 (spec D9, `specs/2026-10-16-launch-readiness/spec.md`).
 | `rhm_app` password (per branch) | Vercel `DATABASE_URL` (Preview; Production from Phase 16); dev: `.env.local` `DATABASE_URL` | *Database roles* below | Pages that read the portfolio show the unavailable state until Vercel redeploys | `preview-e2e` green; the monitor's `portfolio listing` is `ready` |
 | `rhm_migrator` password (per branch) | GitHub Environment `neon-preview` → `MIGRATOR_DATABASE_URL`; production: GitHub Environment `neon-production` → `MIGRATOR_DATABASE_URL` (Phase 16); dev: `.env.local` `MIGRATOR_DATABASE_URL` | *Database roles* below | Only CI migrations, until the secret is updated | The next `migrate-preview` (or `migrate-production`) run is green |
 | `rhm_readonly` password (per branch) | Production: GitHub Environment `monitor` → `MONITOR_DATABASE_URL` (Phase 16). Preview and dev: nowhere | *Database roles* below | The monitor's `database reachable` check fails | Actions → monitor → Run workflow is green |
+| `rhm_retention` password (per branch; Phase 23) | Production: GitHub Environment `retention` → `RETENTION_DATABASE_URL`. Preview and dev: nowhere (the role exists there only so the grant migration applies) | *The retention role* below | The daily retention job fails and emails the owner | Actions → retention → Run workflow is green |
 | `neondb_owner` password (per branch) | Nowhere. It is used only in a terminal while `db-bootstrap.mts` runs: for production it is written by `neon connection-string production --role-name neondb_owner` to a git-ignored file, loaded from there, and the file is deleted (Phase 16 spec, D2) | Neon console → project → Branches → *branch* → Roles → `neondb_owner` → Reset password | Nothing | — |
 | `RATE_LIMIT_SALT` | Vercel (Preview; Production from Phase 16); `.env.local` | *Vercel variable* below | Rate-limit windows start again from zero (old hashes no longer match) | `preview-e2e` green |
 | `VERCEL_DEPLOY_HOOK_URL` (Phase 16) | Vercel → Settings → Git → Deploy Hooks (hook for `main`); GitHub Environment `neon-production` | Create a new hook for `main`, `gh secret set VERCEL_DEPLOY_HOOK_URL --env neon-production`, then delete the old hook | `migrate-production` cannot start the production build | The next `migrate-production` run logs `Deploy hook: PENDING` and a production deployment starts |
@@ -37,7 +38,7 @@ Built in Phase 15 (spec D9, `specs/2026-10-16-launch-readiness/spec.md`).
 
 ## Database roles
 
-**A whole branch** (all three roles, e.g. after a broad leak):
+**A whole branch** (all four roles, e.g. after a broad leak):
 
 1. Neon console → project → Branches → *branch* → Roles → `neondb_owner` → Reset password. Copy the new **direct** connection string (pooling off).
 2. In PowerShell:
@@ -49,11 +50,12 @@ Built in Phase 15 (spec D9, `specs/2026-10-16-launch-readiness/spec.md`).
    Set-Clipboard -Value ' '
    ```
 
-   This re-keys `rhm_app`, `rhm_migrator` and `rhm_readonly`. It writes their URLs and a new `RATE_LIMIT_SALT` to the git-ignored `.env.neon-<branch>.local`, and prints no secret.
+   This re-keys `rhm_app`, `rhm_migrator`, `rhm_readonly` and `rhm_retention`. It writes their URLs and a new `RATE_LIMIT_SALT` to the git-ignored `.env.neon-<branch>.local`, and prints no secret.
 3. Update every copy from that file, in this order, so the site is down for the shortest time:
    1. Vercel `DATABASE_URL` and `RATE_LIMIT_SALT` for that environment, then redeploy;
    2. the GitHub `MIGRATOR_DATABASE_URL` for that environment;
-   3. `MONITOR_DATABASE_URL` in the `monitor` environment.
+   3. `MONITOR_DATABASE_URL` in the `monitor` environment;
+   4. on production, `RETENTION_DATABASE_URL` in the `retention` environment.
 4. Verify each one with the table above. Then delete `.env.neon-<branch>.local`, or keep it only if this machine needs it.
 
 **One role** (e.g. only the monitor's credential leaked): Neon console → SQL Editor → choose the branch, then run, pasting a fresh random value from the clipboard:
@@ -63,6 +65,22 @@ ALTER ROLE rhm_readonly WITH PASSWORD '<paste>';
 ```
 
 Then build the URL in the same shape as before (only the password changes), and update that role's copies.
+
+**The retention role** (Phase 23 spec, D7). It must exist on a branch before the `…_inquiry_retention` migration reaches it, and re-running the command rotates only this role:
+
+```powershell
+$env:BOOTSTRAP_DATABASE_URL = Get-Clipboard   # the branch's neondb_owner URL, pooling off
+node scripts/db-bootstrap.mts --branch <branch> --role rhm_retention
+Remove-Item Env:BOOTSTRAP_DATABASE_URL
+Set-Clipboard -Value ' '
+```
+
+It writes only `RETENTION_DATABASE_URL` to `.env.neon-<branch>.local`. On `dev` and `preview` the value is not needed anywhere: delete the file. On `production`, set it in the `retention` environment from that file without showing it, then delete the file:
+
+```powershell
+(Get-Content .env.neon-production.local | Select-String '^RETENTION_DATABASE_URL=').Line.Split('=', 2)[1] | gh secret set RETENTION_DATABASE_URL --env retention
+Remove-Item .env.neon-production.local
+```
 
 ## Vercel variable (e.g. `RATE_LIMIT_SALT`)
 
