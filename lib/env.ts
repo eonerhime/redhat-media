@@ -50,6 +50,7 @@ const envSchema = z
     VERCEL: optional(z.string()),
     VERCEL_ENV: optional(z.enum(["production", "preview", "development"])),
     VERCEL_BRANCH_URL: optional(z.string()),
+    VERCEL_URL: optional(z.string()),
     DATABASE_URL: optional(databaseUrl),
     RATE_LIMIT_SALT: optional(z.string().min(32, "Must be at least 32 characters")),
     MIGRATOR_DATABASE_URL: optional(z.string()),
@@ -79,6 +80,9 @@ const envSchema = z
     INQUIRY_NOTIFICATION_EMAIL: optional(emailList),
     INQUIRY_ACK_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
     EMAIL_REDIRECT_TO: optional(z.email("Must be one email address")),
+    // Staff sign-in and /admin (Phase 24 spec, D11): off in production until Phase 34.
+    CMS_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
+    BETTER_AUTH_SECRET: optional(z.string().min(32, "Must be at least 32 characters")),
   })
   .superRefine((env, ctx) => {
     if (env.INQUIRY_FORM_ENABLED === "1") {
@@ -136,6 +140,22 @@ const envSchema = z
         code: "custom",
         path: ["INQUIRY_ACK_ENABLED"],
         message: "Needs EMAIL_FROM on a verified domain in production, not @resend.dev",
+      });
+    }
+    if (env.CMS_ENABLED === "1" && !env.BETTER_AUTH_SECRET) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["BETTER_AUTH_SECRET"],
+        message: "Required when CMS_ENABLED=1",
+      });
+    }
+    // Phase 24 spec, D11: no login page in production before staff can use the CMS.
+    // The Milestone 3 release (Phase 34) removes this check.
+    if (env.VERCEL_ENV === "production" && env.CMS_ENABLED === "1") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["CMS_ENABLED"],
+        message: "Must stay off in production until the Milestone 3 release (Phase 34)",
       });
     }
     if (env.VERCEL_ENV === "production" && !env.NEXT_PUBLIC_SITE_URL) {
@@ -202,6 +222,15 @@ export type Env = {
     /** Replaces every recipient (Vercel Preview: delivered@resend.dev). */
     redirectTo?: string;
   };
+  /**
+   * Set only while staff sign-in is switched on (`CMS_ENABLED=1`; Phase 24 spec, D9, D11).
+   * The secret is read only by lib/auth/server.ts.
+   */
+  cms?: {
+    authSecret: string;
+    /** Exact origins Better Auth accepts: the site URL, and on previews the deployment's own. */
+    trustedOrigins: string[];
+  };
 };
 
 export function parseEnv(source: Record<string, string | undefined>): Env {
@@ -214,6 +243,7 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     NEXT_PUBLIC_SITE_URL,
     VERCEL_ENV,
     VERCEL_BRANCH_URL,
+    VERCEL_URL,
     DATABASE_URL,
     RATE_LIMIT_SALT,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -225,12 +255,23 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     INQUIRY_NOTIFICATION_EMAIL,
     INQUIRY_ACK_ENABLED,
     EMAIL_REDIRECT_TO,
+    CMS_ENABLED,
+    BETTER_AUTH_SECRET,
   } = result.data;
-  const siteUrl =
+  const siteUrl = (
     NEXT_PUBLIC_SITE_URL ??
-    (VERCEL_BRANCH_URL ? `https://${VERCEL_BRANCH_URL}` : "http://localhost:3000");
+    (VERCEL_BRANCH_URL ? `https://${VERCEL_BRANCH_URL}` : "http://localhost:3000")
+  ).replace(/\/+$/, "");
+  // Exact origins only (D9): a *.vercel.app pattern would trust every Vercel customer.
+  const trustedOrigins = [siteUrl];
+  if (VERCEL_ENV === "preview") {
+    for (const host of [VERCEL_URL, VERCEL_BRANCH_URL]) {
+      const origin = host ? `https://${host}` : undefined;
+      if (origin && !trustedOrigins.includes(origin)) trustedOrigins.push(origin);
+    }
+  }
   return {
-    siteUrl: siteUrl.replace(/\/+$/, ""),
+    siteUrl,
     databaseUrl: DATABASE_URL,
     rateLimitSalt: RATE_LIMIT_SALT,
     cloudinaryCloudName: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -251,6 +292,10 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
             ackEnabled: INQUIRY_ACK_ENABLED === "1",
             redirectTo: EMAIL_REDIRECT_TO,
           }
+        : undefined,
+    cms:
+      CMS_ENABLED === "1" && BETTER_AUTH_SECRET
+        ? { authSecret: BETTER_AUTH_SECRET, trustedOrigins }
         : undefined,
   };
 }

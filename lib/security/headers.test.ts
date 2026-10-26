@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { securityHeaders, serializeCsp } from "./headers";
+import { securityHeaders, serializeCsp, STAFF_AREA_SOURCE, staffAreaHeaders } from "./headers";
 
 function header(key: string, dev = false): string | undefined {
   return securityHeaders({ dev }).find((h) => h.key.toLowerCase() === key.toLowerCase())?.value;
@@ -110,5 +110,16 @@ describe("serializeCsp", () => {
     expect(serializeCsp({ "default-src": ["'self'"], "upgrade-insecure-requests": [] })).toBe(
       "default-src 'self'; upgrade-insecure-requests",
     );
+  });
+});
+
+describe("staff area headers (Phase 24 spec, D13)", () => {
+  it("marks every /admin response noindex, nofollow", () => {
+    expect(STAFF_AREA_SOURCE).toBe("/admin/:path*");
+    expect(staffAreaHeaders()).toEqual([{ key: "X-Robots-Tag", value: "noindex, nofollow" }]);
+  });
+
+  it("leaves the public routes indexable", () => {
+    expect(securityHeaders().some((h) => h.key.toLowerCase() === "x-robots-tag")).toBe(false);
   });
 });

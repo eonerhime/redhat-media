@@ -2,13 +2,13 @@
 // email and password, the plugins, and the extra `user` columns. lib/auth/server.ts
 // adds the database, secret, origins, rate limits and hooks. This module has no
 // env or database access, so the Better Auth CLI can read it to generate the
-// Prisma models (plan 1.2).
+// Prisma models (plan 1.2). Relative imports only: scripts run it under plain Node.
 
 import type { BetterAuthOptions } from "better-auth";
 import { admin, haveIBeenPwned, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements } from "better-auth/plugins/admin/access";
-import { DEFAULT_ROLE } from "./roles";
+import { DEFAULT_ROLE } from "./roles.ts";
 
 export const PASSWORD_MIN_LENGTH = 12;
 export const PASSWORD_MAX_LENGTH = 128;
@@ -67,7 +67,14 @@ export const authOptions = {
     cookieCache: { enabled: false }, // a revoked session ends on its next request
   },
   plugins: [
-    admin({ ac, roles: accessRoles, defaultRole: DEFAULT_ROLE, adminRoles: ["admin"] }),
+    admin({
+      ac,
+      roles: accessRoles,
+      defaultRole: DEFAULT_ROLE,
+      adminRoles: ["admin"],
+      // A banned account is refused like a wrong password (D14).
+      bannedUserMessage: "Invalid email or password",
+    }),
     twoFactor({
       issuer: "RedHat Media",
       backupCodeOptions: { amount: 10 },

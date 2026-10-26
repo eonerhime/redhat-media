@@ -14,9 +14,25 @@ export const lighthousePaths = [
   "/contact",
 ] as const;
 
+/** The staff login, measured only where the CMS is on (LIGHTHOUSE_CMS=on; Phase 24 spec, D18). */
+export const staffLighthousePaths = ["/admin"] as const;
+
 export const categories = ["performance", "accessibility", "best-practices", "seo"] as const;
 export type Category = (typeof categories)[number];
 export type Scores = Record<Category, number>;
+
+/** The pages to measure: the public templates, then the staff login when the CMS is on. */
+export function pathsToMeasure(cmsOn: boolean): readonly string[] {
+  return cmsOn ? [...lighthousePaths, ...staffLighthousePaths] : lighthousePaths;
+}
+
+/** The categories held to the budget. A staff page is noindex, so only accessibility and best
+ * practices count there (D18); its other scores are still printed. */
+export function budgetCategories(path: string): readonly Category[] {
+  return (staffLighthousePaths as readonly string[]).includes(path)
+    ? ["accessibility", "best-practices"]
+    : categories;
+}
 
 export const budget = 0.9;
 export const runsPerPage = 3;
@@ -38,7 +54,9 @@ export function medianScores(runs: readonly Scores[]): Scores {
 /** "path category score" for every median below the budget. */
 export function budgetFailures(results: Readonly<Record<string, Scores>>): string[] {
   return Object.entries(results).flatMap(([path, scores]) =>
-    categories.filter((c) => scores[c] < budget).map((c) => `${path} ${c} ${scores[c]}`),
+    budgetCategories(path)
+      .filter((c) => scores[c] < budget)
+      .map((c) => `${path} ${c} ${scores[c]}`),
   );
 }
 

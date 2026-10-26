@@ -371,3 +371,67 @@ describe("parseEnv: Cloudinary (Phase 8 spec, D4)", () => {
     },
   );
 });
+
+describe("parseEnv: staff sign-in (Phase 24 spec, D9, D11)", () => {
+  // Test-only value, 32+ characters.
+  const SECRET = "x".repeat(40);
+  const on = { CMS_ENABLED: "1", BETTER_AUTH_SECRET: SECRET };
+
+  it("leaves the CMS off by default", () => {
+    expect(parseEnv({}).cms).toBeUndefined();
+    expect(parseEnv({ BETTER_AUTH_SECRET: SECRET }).cms).toBeUndefined();
+    expect(parseEnv({ CMS_ENABLED: "0" }).cms).toBeUndefined();
+  });
+
+  it("returns the secret and the site origin locally", () => {
+    expect(parseEnv(on).cms).toEqual({
+      authSecret: SECRET,
+      trustedOrigins: ["http://localhost:3000"],
+    });
+  });
+
+  it("requires a secret of 32+ characters when on", () => {
+    expect(() => parseEnv({ CMS_ENABLED: "1" })).toThrow(/Required when CMS_ENABLED=1/);
+    expect(() => parseEnv({ ...on, BETTER_AUTH_SECRET: "short" })).toThrow(
+      /at least 32 characters/,
+    );
+  });
+
+  it("trusts the deployment's own URLs on previews, and nothing wider", () => {
+    const cms = parseEnv({
+      VERCEL_ENV: "preview",
+      VERCEL_URL: "rhm-abc123.vercel.app",
+      VERCEL_BRANCH_URL: "rhm-git-x.vercel.app",
+      ...db,
+      ...cloud,
+      ...on,
+    }).cms;
+    expect(cms?.trustedOrigins).toEqual([
+      "https://rhm-git-x.vercel.app",
+      "https://rhm-abc123.vercel.app",
+    ]);
+    expect(cms?.trustedOrigins.join()).not.toContain("*");
+  });
+
+  it("ignores VERCEL_URL outside previews", () => {
+    expect(parseEnv({ VERCEL_URL: "rhm-abc123.vercel.app", ...on }).cms?.trustedOrigins).toEqual([
+      "http://localhost:3000",
+    ]);
+  });
+
+  it("refuses CMS_ENABLED=1 in production until Phase 34", () => {
+    expect(() =>
+      parseEnv({
+        VERCEL_ENV: "production",
+        NEXT_PUBLIC_SITE_URL: "https://example.com",
+        ...db,
+        ...cloud,
+        ...on,
+      }),
+    ).toThrow(/Milestone 3 release[\s\S]*CMS_ENABLED/);
+  });
+
+  it("rejects values other than 0 and 1", () => {
+    expect(() => parseEnv({ CMS_ENABLED: "yes" })).toThrow(/Must be 1 \(on\) or 0 \(off\)/);
+  });
+});
