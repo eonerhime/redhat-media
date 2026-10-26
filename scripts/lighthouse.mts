@@ -4,6 +4,7 @@
 // Usage: node scripts/lighthouse.mts <origin>
 // Env:   VERCEL_AUTOMATION_BYPASS_SECRET (for a protected preview)
 //        PW_CHANNEL (optional browser channel, e.g. chrome or msedge)
+//        LIGHTHOUSE_CMS=on (also measure /admin, where the CMS is on)
 //
 // A protected preview is reached with Vercel's bypass cookie, set in the browser for the preview's
 // own host only. Lighthouse's extraHeaders would send the secret to every origin the page loads
@@ -20,8 +21,8 @@ import {
   budgetFailures,
   bypassCookie,
   categories,
-  lighthousePaths,
   medianScores,
+  pathsToMeasure,
   runsPerPage,
   type Scores,
 } from "../lib/perf/lighthouse-core.ts";
@@ -69,7 +70,7 @@ try {
   const cdp = await context.newCDPSession(page);
 
   const results: Record<string, Scores> = {};
-  for (const path of lighthousePaths) {
+  for (const path of pathsToMeasure(process.env.LIGHTHOUSE_CMS === "on")) {
     const runs: Scores[] = [];
     for (let run = 0; run < runsPerPage; run++) {
       // Storage reset is off so the cookie survives; clear the HTTP cache so every run is cold.

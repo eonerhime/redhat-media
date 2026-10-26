@@ -42,7 +42,7 @@
 │   │   ├── portfolio/     # Combined showcase (Engineering products from emo-onerhime + Media/Production case studies)
 │   │   ├── contact/       # Project booking & inquiry form with rate limiting and Turnstile
 │   │   └── privacy/       # Privacy notice the inquiry form's consent checkbox links to (NDPA 2023)
-│   ├── cms/               # Staff area: unlinked from public navigation, noindex
+│   ├── admin/             # Staff sign-in and admin panel: no link for visitors, noindex
 │   │   ├── login/         # Staff authentication (Better Auth), the only entry point signed-out
 │   │   └── (protected)/   # Dashboard, lead inbox, staff management, and audit logs (role-checked)
 │   └── api/               # Auth handler, session validation, webhooks
@@ -83,10 +83,10 @@
 
 ### D. In-Place CMS ("Editing: On/Off") & Staff Back Office
 
-- **Hidden Staff Entry:** Public pages contain no login button. Staff sign in exclusively via `/cms`. Unauthenticated visitors hitting `/cms` are routed to `/cms/login`. All CMS routes are marked `noindex`.
+- **Staff Entry:** Public pages show visitors no login button. Staff sign in at `/admin` and land back on the website, where editing happens in place. Signed-in staff see an admin icon in the header that opens the admin panel (`/admin/panel`). Every `/admin` route is marked `noindex`.
 - **Edit Mode Toggle:** Authenticated `editor` and `admin` users see a floating toggle bar on the public site to modify text content inline, swap out Cloudinary images, reorder gallery items, inject new video URLs, or mute and unmute a service on the fly. A muted service disappears from every public listing, its page, the sitemap and the inquiry flow until it is unmuted.
 - **Secure Mutations:** Every inline change triggers a server action verifying user role permissions (`requireRole`), validating inputs via Zod, refreshing cached Vercel ISR views, and writing an immutable audit log entry.
-- **Back Office Dashboard (`/cms`):** Manage inbound client leads, view project booking statuses (`NEW`, `REVIEWING`, `PROPOSAL_SENT`, `CLOSED`), manage staff access roles, and inspect security audit trails.
+- **Admin Panel (`/admin/*`):** Manage inbound client leads, view project booking statuses (`NEW`, `REVIEWING`, `PROPOSAL_SENT`, `CLOSED`), manage staff access roles, and inspect security audit trails.
 
 ---
 
@@ -226,7 +226,7 @@ model AuditEvent {
 ## 6. Security, Rate Limiting & Brute-Force Architecture
 
 1. **Database-Backed Rate Limiting:** All public form submissions (contact/inquiries) and mutations pass through a centralized rate-limiting middleware that queries the `RateLimitHit` table. In-memory rate limiting is strictly prohibited to maintain consistency across distributed Vercel serverless functions.
-2. **Brute-Force Login Hardening:** The Better Auth login endpoint on `/cms/login` enforces sliding-window IP tracking and account lockouts after consecutive failed authentication attempts.
+2. **Brute-Force Login Hardening:** The Better Auth login behind `/admin` enforces sliding-window IP tracking and account lockouts after consecutive failed authentication attempts.
 3. **Authorization Enforcement:** Every server action handling database writes must explicitly invoke `requireRole(minRole)`, for example `requireRole("editor")` or `requireRole("sales")`, against the hierarchy `sales` < `editor` < `admin`. Client-side UI visibility checks never replace server-side validation.
 4. **Data Sanitization:** Strict Zod validation schemas are enforced on all inbound parameters. Use of `dangerouslySetInnerHTML` or unescaped raw SQL queries (`$queryRawUnsafe`) is banned across the codebase.
 

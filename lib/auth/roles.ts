@@ -12,3 +12,9 @@ export const DEFAULT_ROLE: StaffRole = "sales";
 export function isStaffRole(value: unknown): value is StaffRole {
   return typeof value === "string" && (STAFF_ROLES as readonly string[]).includes(value);
 }
+
+/** "Admin panel", "Editor panel" or "Sales panel": the header icon's label and the
+ * panel's heading, named after the user's own role as in MRU (Phase 24 spec, D13). */
+export function staffPanelLabel(role: StaffRole): string {
+  return `${role.charAt(0).toUpperCase()}${role.slice(1)} panel`;
+}

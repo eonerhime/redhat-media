@@ -59,6 +59,21 @@ const targetBlankRule = {
   message: "Link off-site with <ExternalLink> from @/components/shared/external-link.",
 };
 
+const rawUnsafeRules = [
+  { property: "$queryRawUnsafe", message: rawUnsafe },
+  { property: "$executeRawUnsafe", message: rawUnsafe },
+];
+
+// Staff sign in only through the client API to /api/auth, because server-side
+// calls skip Better Auth's rate limiting (tech-stack.md; Phase 24 spec, D5).
+const serverSignIn =
+  "Sign in through the client API (authClient) only: auth.api calls skip rate limiting.";
+const serverSignInRule = {
+  selector:
+    "MemberExpression[object.property.name='api'][property.name=/^(signInEmail|verifyTOTP|verifyBackupCode)$/]",
+  message: serverSignIn,
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -66,12 +81,14 @@ const eslintConfig = defineConfig([
     rules: {
       // React escapes output; raw HTML injection is banned (specs/tech-stack.md).
       "react/no-danger": "error",
-      "no-restricted-properties": [
-        "error",
-        { property: "$queryRawUnsafe", message: rawUnsafe },
-        { property: "$executeRawUnsafe", message: rawUnsafe },
-      ],
+      "no-restricted-properties": ["error", ...rawUnsafeRules],
+      "no-restricted-syntax": ["error", serverSignInRule],
     },
+  },
+  {
+    // Owner scripts and tests may drive Better Auth directly.
+    files: ["scripts/**", "**/*.test.ts", "e2e/**"],
+    rules: { "no-restricted-syntax": "off" },
   },
   {
     rules: {
@@ -100,13 +117,13 @@ const eslintConfig = defineConfig([
   {
     files: ["**/*.tsx", "**/*.jsx"],
     ignores: ["components/media/video-facade.tsx"],
-    rules: { "no-restricted-syntax": ["error", iframeRule, targetBlankRule] },
+    rules: { "no-restricted-syntax": ["error", iframeRule, targetBlankRule, serverSignInRule] },
   },
   {
     // The inquiry form's consent label opens /privacy in a new tab, so the form keeps its
     // input (Phase 18 spec, D11). Same-site, so not an <ExternalLink>.
     files: ["components/shared/external-link.tsx", "components/contact/inquiry-form.tsx"],
-    rules: { "no-restricted-syntax": ["error", iframeRule] },
+    rules: { "no-restricted-syntax": ["error", iframeRule, serverSignInRule] },
   },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "lib/generated/**"]),
 ]);
