@@ -39,7 +39,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 3.12 `X-Robots-Tag` on `/admin/:path*`; sitemap, Lighthouse path (`/admin`), seed-script message, `e2e/cms.spec.ts` → `e2e/admin.spec.ts` (and the preview-e2e list), runbook, `.env.example`, `tech-stack.md` rule 6 and *In-place CMS* 1–2, `mission.md`, README and the `roadmap.md` rows 24, 26 and 32 (staged without the owner's `---` edit, C4).
 - [x] 3.13 D22: every staff form `method="post"`, submit disabled until hydrated; e2e checks the two signed-out forms post.
 - [x] 3.14 Checked against a CMS-on production build on Neon `dev` with a throwaway admin, deleted afterwards: `admin.spec.ts` 31 passed, including the full flow (sign-in, set-up, backup-code download, landing on `/`, the icon, the panel, sign-out, sign-in with a code); `a11y`, `shell` and `smoke` 214 passed. Route table: no public route changed mode; `/admin`, `/admin/panel` and `/admin/2fa/setup` are partial prerenders, `/admin/2fa` static.
-- [ ] 3.15 **(owner)** On the new preview: sign in at `/admin`, land on the website, open the admin panel from the header icon, sign out.
+- [x] 3.15 **(owner)** On the new preview: sign in at `/admin`, land on the website, open the admin panel from the header icon, sign out. Confirmed by the owner on 2026-10-26, on the deployment URL (`redhat-media-ahoryme72-e1rhyme.vercel.app`). The branch alias's TLS handshake was reset on the owner's network, though not for other `vercel.app` hosts.
 
 ## 4. Owner scripts
 
@@ -65,4 +65,4 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 6.3 Run `/security-review` over the branch's diff. Resolve each finding, or record the owner's written acceptance (D18).
 - [x] 6.4 Lighthouse on the preview's `/cms/login` (D18): added to the `lighthouse` job (`LIGHTHOUSE_CMS=on`), accessibility and best practices ≥ 0.90.
 - [x] 6.5 Security checklist: record the lockout and rate-limit items in `validation.md` (D18).
-- [ ] 6.6 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green. **(owner)** Merge.
+- [x] 6.6 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green (#61 at `2ea8374`, lighthouse too). **(owner)** Merge, next after this commit's CI.
