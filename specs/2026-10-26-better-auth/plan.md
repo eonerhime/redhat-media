@@ -30,6 +30,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 3.6 `/cms/2fa/setup`: password confirm → QR (`qrcode` matrix as one SVG path) and text key → confirm a code → backup codes shown once (D7). `qrcode` 1.5.4 and `@types/qrcode` 1.5.6 (dev).
 - [x] 3.7 `/cms` placeholder: "Signed in as {name} ({role})", Sign out → `/cms/login` (D13).
 - [x] 3.8 Build and check the route table: `/cms` and `/cms/2fa/setup` are partial prerenders, `/cms/login` and `/cms/2fa` static, `/api/auth/[...all]` dynamic; no public route changed mode (C2). Built both with the CMS on and off.
+- [x] 3.9 Backup codes: a "Download as a text file" button on the set-up page (D7, amended by the owner on 2026-10-26). `components/cms/backup-codes-file.ts` builds the file in the browser and uses an object URL that is revoked straight after the click, so the codes never leave the page. Unit-tested, and the e2e full flow checks the file holds all ten codes.
 
 ## 4. Owner scripts
 
@@ -37,7 +38,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 4.2 `scripts/auth-reset-password.mts` (D10): new random password to the same file, revoke sessions, clear both lockouts, `--reset-2fa`. `pnpm auth:reset-password`.
 - [x] 4.3 `CLAUDE.md` *Commands* table: the two scripts.
 - [x] 4.4 **(owner)** Vercel Preview: `CMS_ENABLED=1` and a `BETTER_AUTH_SECRET` (Sensitive). **Before the feature PR is pushed**, because preview-e2e runs `cms.spec.ts` in on-mode. Production: neither is set. Done by the owner on 2026-10-26.
-- [ ] 4.5 **(owner)** Seed your admin on `dev` and `preview`; sign in on the preview with your authenticator app and set up 2FA.
+- [x] 4.5 **(owner)** Seed your admin on `dev` and `preview`; sign in on the preview with your authenticator app and set up 2FA. Done on 2026-10-26: `redhatmediang@gmail.com` seeded on both (the preview after re-keying `rhm_migrator` and updating the `neon-preview` secret), and the owner set up 2FA and signed in on the #61 preview.
 
 ## 5. Tests
 

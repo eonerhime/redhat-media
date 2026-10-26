@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 import { totpCode } from "../lib/auth/test-totp";
@@ -157,7 +158,18 @@ test.describe("full sign-in flow (local, with a fresh admin)", () => {
     const secret = (await page.getByTestId("totp-key").innerText()).replace(/\s+/g, "");
     await page.getByLabel("Then enter the 6-digit code it shows").fill(totpCode(secret));
     await page.getByRole("button", { name: "Turn on two-factor sign-in" }).click();
-    await expect(page.getByTestId("backup-codes").getByRole("listitem")).toHaveCount(10);
+    const codes = page.getByTestId("backup-codes").getByRole("listitem");
+    await expect(codes).toHaveCount(10);
+
+    // The codes download as a text file holding all ten (D7, amended 2026-10-26).
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Download as a text file" }).click(),
+    ]);
+    expect(download.suggestedFilename()).toBe("redhat-media-backup-codes.txt");
+    const file = await readFile((await download.path())!, "utf8");
+    for (const code of await codes.allInnerTexts()) expect(file).toContain(code);
+
     await page.getByRole("link", { name: "I've saved them. Continue" }).click();
 
     await expect(page.getByText("Signed in as")).toBeVisible();

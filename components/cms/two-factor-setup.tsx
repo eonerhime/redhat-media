@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { authClient, isRateLimited } from "@/lib/auth/client";
+import { downloadBackupCodes } from "./backup-codes-file";
 import { cmsCopy } from "./cms-copy";
-import { buttonClassName, controlClassName, errorClassName, labelClassName } from "./form-styles";
+import {
+  buttonClassName,
+  controlClassName,
+  errorClassName,
+  labelClassName,
+  secondaryButtonClassName,
+} from "./form-styles";
 import { TotpQr } from "./totp-qr";
 
 const copy = cmsCopy.setup;
@@ -21,7 +28,8 @@ function setupKey(totpURI: string): string {
 }
 
 // First sign-in without 2FA (D7): confirm the password, scan the QR code,
-// confirm one code (which turns 2FA on), then see the backup codes once.
+// confirm one code (which turns 2FA on), then see the backup codes once, with
+// a download as a text file (D7 as amended 2026-10-26).
 export function TwoFactorSetup() {
   const [step, setStep] = useState<Step>({ name: "password" });
   const [error, setError] = useState<string | null>(null);
@@ -161,7 +169,14 @@ export function TwoFactorSetup() {
           <li key={code}>{code}</li>
         ))}
       </ul>
-      <div>
+      <div className="flex flex-wrap gap-4">
+        <button
+          type="button"
+          onClick={() => downloadBackupCodes(step.backupCodes)}
+          className={secondaryButtonClassName}
+        >
+          {copy.download}
+        </button>
         <Link href="/cms" className={buttonClassName}>
           {copy.done}
         </Link>

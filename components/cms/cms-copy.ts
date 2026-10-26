@@ -38,6 +38,7 @@ export const cmsCopy = {
     backupTitle: "Save your backup codes",
     backupIntro:
       "Each code signs you in once if you lose your phone. Store them in your password manager now: they won't be shown again.",
+    download: "Download as a text file",
     done: "I've saved them. Continue",
     wrongPassword: "That password didn't work.",
     invalidCode: "That code didn't work. Check the time on your phone and try again.",
