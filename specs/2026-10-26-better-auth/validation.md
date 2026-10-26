@@ -31,7 +31,7 @@
 - [x] A signed-in user without 2FA is sent to `/cms/2fa/setup` from every other `/cms` page (D7). The full flow in `cms.spec.ts`, run locally against Neon `dev` (implementation.md).
 - [x] The build's route table shows no public route changing mode (C2).
 - [x] Vercel Production has neither `CMS_ENABLED` nor `BETTER_AUTH_SECRET` (D11). `vercel env ls production` on 2026-10-26: neither is listed; both are Preview only.
-- [ ] Lighthouse on the preview's `/cms/login`: accessibility and best practices ≥ 90 (D18).
+- [x] Lighthouse on the preview's `/cms/login`: accessibility and best practices ≥ 90 (D18). The `lighthouse` job on #61 (run 40335604241, mobile, median of 3): performance 99, accessibility 100, best practices 100, SEO 100.
 
 ## Scripts
 
