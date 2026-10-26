@@ -16,6 +16,7 @@ Strategy: **public site first.**
 2. Add the scoped inquiry flow with email (Milestone 2).
 3. Add the in-place CMS with its **Editing: On/Off** toggle and the staff back office (Milestone 3).
 4. Harden continuously (Milestone 4).
+5. Add e-business cards: RHM's own card for admins first, then a free public card generator as a lead magnet (Milestone 5; owner, 2026-10-26).
 
 ---
 
@@ -84,6 +85,16 @@ Pattern: see `tech-stack.md` → *In-place CMS* and *Security baseline*. Every p
 | 36 | **Operational visibility.** An admin view of failed email sends and failed Cloudinary deletes (with retry), plus a security events panel (lockouts, rate-limit spikes). | Failures are visible without reading logs. |
 | 37 | **Content/SEO iteration.** Location and industry landing pages, and possibly an Insights section, driven by Search Console data. | Each addition is justified by a query or conversion it targets. |
 
+## Milestone 5 — E-business cards
+
+Added by the owner on 2026-10-26. The RHM card is built first. It needs Phase 25's `requireRole`, and it reaches production only once the CMS does (Phase 34). The generator stands alone and follows it.
+
+| # | Phase | Done when |
+| --- | --- | --- |
+| 38 | **RHM e-business card (admin only).** A `/cms/card` page, guarded by `requireRole("admin")`, that builds RHM's card from data the site already holds: the logo, the visible services (`visibleServices()`), and the email, mobile number and website from `lib/site.ts`. Nothing is typed in, so the card follows a muted service or a changed contact detail with no extra step. Two downloads at business-card size (open question 12), **PNG** and **PDF**; neither carries a link. The one clickable form is a **shareable link** to a public page that shows the card and takes the recipient to the website. That page has its own Open Graph card, so the link previews in WhatsApp, and is `noindex` and left out of `sitemap.ts`. The PDF library is chosen in this phase's spec and added to `tech-stack.md` there. | An admin downloads the PNG and the PDF, and both match the card at print size with no clickable element. Editors, sales staff and visitors are refused `/cms/card`. Muting a service removes it from the card with no code change. The shared link previews with the card and opens the website. |
+| 39 | **Card generator: editor and PNG.** A free public page (path set in the spec) where anyone builds a business card: logo, name, role, business name, services or products, and contact details. The visitor picks a template and a colour palette and sees a live preview, then downloads a **PNG**. It runs entirely in the browser: no account, no server action, nothing stored and nothing sent, the logo included. There is **no shareable link**. It starts with a first set of templates. Any CSP change (e.g. `blob:` in `img-src` for the logo preview) lands with its test and in `tech-stack.md`. The privacy notice says the generator keeps nothing. The page ends with an inquiry CTA. | A card made from every field downloads as a PNG that matches the preview. Playwright shows that building and downloading a card makes no request with the visitor's details or logo. The page meets the accessibility, CSP and Lighthouse budgets of every public template. |
+| 40 | **Card generator: PDF and the full template set.** **PDF** download at business-card size, using Phase 38's library. The template set grows to 20–30, all in one layout system so each is a small data entry. The palette picker keeps text at WCAG AA contrast, or warns when a chosen pair falls short. | Every template downloads as PNG and PDF at the correct size, and a test renders each one. Text on every built-in palette meets AA contrast. |
+
 ---
 
 ## Open questions (resolve before the phase noted)
@@ -99,3 +110,4 @@ Pattern: see `tech-stack.md` → *In-place CMS* and *Security baseline*. Every p
 9. **Hosting plans (Phases 7, 15, 16).** Neon protected branches and a longer PITR window, plus Vercel Firewall custom rules, depend on the paid tier. Confirm plans and budget before Phase 7. **Answered for Neon (owner, 2026-10-12):** Free plan, so a 6-hour restore window and no protected branch (Phase 7 spec, D10). Decide on Neon Launch before Phase 18. **Neon Launch decided (owner, 2026-10-20):** stay on Free and revisit at the Milestone 2 release (Phase 23); from Phase 20 every inquiry is also emailed, so a database loss would not lose leads (Phase 18 spec, owner answer D). **Answered for Vercel (owner, 2026-10-16):** the project stays on **Hobby**. The owner has seen Vercel's fair-use terms, which restrict Hobby to non-commercial use. On Hobby there are 3 Firewall custom rules (1 rate limit), no Alerts or Log Drains, and runtime logs for 1 hour, so alerting runs on GitHub Actions (Phase 15 spec, D7, D8). **Neon revisited at Milestone 2 (owner, 2026-10-23):** stay on Free; revisit at Milestone 3, when staff edits live only in the database (Phase 23 spec, D11).
 10. **Data protection (Phases 18, 23).** Who is RHM's data protection contact for the privacy notice (NDPA 2023)? Is 24 months the right retention for closed inquiries? **Answered (owner, 2026-10-20):** the contact is `redhatmediang@gmail.com`, named as RedHat Media (no individual), and closed inquiries are anonymised after 24 months (Phase 18 spec, owner answers B, C).
 11. **Proof points (Phase 3).** Are there real numbers (projects delivered, years operating, clients served) and testimonials with permission? Without them, the homepage shows none (mission principle 4). Phase 3 shipped without any (Phase 3 spec, D6).
+12. **Business cards (Phases 38–40).** Which size is printed: ISO 85 × 55 mm (common in Nigeria) or US 3.5 × 2 in? Do the PDFs need a bleed and crop marks for a print shop? Does a generated card carry a small "Made with RedHat Media" mark, and may the visitor remove it? What is the public generator's path and name?

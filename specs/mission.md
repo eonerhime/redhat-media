@@ -27,13 +27,19 @@ Supporting metrics:
 | Organic search rank for regional terms ("photography studio Lagos", "web development company Lagos", "social media management Nigeria") | This is the main source of new clients. |
 | Core Web Vitals (all "Good") on mobile | Most visitors browse on phones, often over mobile data. Heavy media must not slow the site down. |
 | Zero lost inquiries | Inquiries are saved to the database before any email is attempted, so an email failure never loses one. |
+| Card generator → inquiry conversion (from Phase 39) | Shows whether the free tool brings in prospects, which is its only purpose. |
 
 ## Who we serve
 
 1. **Brands and SMEs needing visual production.** They need commercial, event and portrait photography and videography. They judge on the portfolio: image quality, range and turnaround.
 2. **Businesses needing growth.** They need digital marketing, social media management and online presence. They want evidence of results: campaign outcomes, before/after presence, platforms covered.
 3. **Founders and organisations needing software.** They need websites and web apps. They want proof of engineering depth: live products, tech stack, architecture and a disciplined delivery method (Spec-Driven Development).
-4. **RHM staff (internal).** Editors update copy, images, videos and portfolio items directly on the live pages through an **Editing: On/Off** toggle. Sales staff work incoming inquiries in `/cms`. None of this needs a developer.
+4. **RHM staff (internal).** Editors update copy, images, videos and portfolio items directly on the live pages through an **Editing: On/Off** toggle. Sales staff work incoming inquiries in `/cms`. Admins download and share RHM's own e-business card, built from the site's data (Phase 38). None of this needs a developer.
+5. **Small businesses and freelancers who need a business card (lead magnet).** The free card generator (Phases 39–40) gives them a print-ready card with no account. Each card shows RHM's design work, and the page invites them to start a project.
+
+## Free tools (lead magnets)
+
+Added by the owner on 2026-10-26. A free tool earns its place only by bringing in prospects, so it ends in an inquiry CTA and is measured by the inquiries it brings. It needs no account. It runs in the visitor's browser and stores and sends nothing they enter, so it adds no personal data to RHM's systems under the NDPA. It offers downloads only, never a hosted or shareable copy, so RHM never hosts content that visitors make. The first is the business card generator.
 
 ## How the portfolio is framed
 
