@@ -19,6 +19,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - `e2e/cms.spec.ts` against a CMS-on build on Neon `dev`: 27 passed, including the full browser flow (sign-in, forced set-up with the QR code, 10 backup codes, sign-out, sign-in with a code, sign-out) for a temporary admin, deleted afterwards. Screenshots of `/cms/login` at 360 and 1440 px with the error shown.
   - Builds with the CMS on and off both pass. With it on, `/cms` and `/cms/2fa/setup` are partial prerenders, `/cms/login` and `/cms/2fa` static, and `/api/auth/[...all]` dynamic; the public routes' modes are unchanged (C2).
   - `docs/runbooks/secret-rotation.md`: the `BETTER_AUTH_SECRET` row. `tech-stack.md` rotation row and `CLAUDE.md` commands updated.
+- **2026-10-26** — #60 merged by the owner (`88603c0`); `migrate-preview` green (run 40333165097). The owner set Vercel Preview `CMS_ENABLED=1` and `BETTER_AUTH_SECRET` (plan 4.4). Feature PR #61 opened with `develop` merged in; every check green: `ci`, `db` (`auth.db.test.ts` 22, `auth-grants.db.test.ts` 5, 12 files), `gitleaks`, preview-headers, preview-e2e (175 passed, 10 skipped: the CMS-off block and the credential-only full flow; `cms.spec.ts` ran in on-mode) and lighthouse (run 40334163694).
+- **2026-10-26** — Plan 6.4: `/cms/login` added to the `lighthouse` job (`LIGHTHOUSE_CMS=on`), held to accessibility and best practices ≥ 0.90 (D18). The `auth-seed-admin.mts` header now says how to reach the preview: its `rhm_migrator` URL exists only in the GitHub secret, so the owner re-keys that role (`db-bootstrap.mts --role rhm_migrator`), updates the secret from the file, seeds, and deletes the file.
 
 ## Deviations from plan
 
@@ -31,6 +33,7 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **The session checks live in each page, not the layout** (plan 3.2). A layout can't see the path, so it can't tell `/cms/login` (open) from `/cms` (signed in). `getStaffSession()` in each session-dependent page does the redirect.
 - **`.gitignore` unchanged** (plan 4.1): its `.env*` rule already covers `.env.admin-*.local`, and the scripts check with `git check-ignore`.
 - **The `ci` job keeps the CMS off** (plan 2.1 said on in CI), so it tests the off-mode 404s; preview-e2e tests on-mode.
+- **Lighthouse on `/cms/login` runs in CI** (plan 6.4 planned a one-off run). The bypass secret exists only in GitHub, and the job then checks every later preview too.
 
 ## Issues and fixes
 

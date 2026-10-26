@@ -6,6 +6,7 @@ import {
   lighthousePaths,
   median,
   medianScores,
+  pathsToMeasure,
   type Scores,
 } from "./lighthouse-core";
 
@@ -19,6 +20,20 @@ describe("lighthouse budget", () => {
     );
     expect(lighthousePaths).not.toContain("/services/branding");
     expect(new Set(lighthousePaths).size).toBe(lighthousePaths.length);
+  });
+
+  it("adds the staff login only where the CMS is on (Phase 24 spec, D18)", () => {
+    expect(pathsToMeasure(false)).toEqual(lighthousePaths);
+    expect(pathsToMeasure(true)).toEqual([...lighthousePaths, "/cms/login"]);
+  });
+
+  it("holds the staff login to accessibility and best practices only", () => {
+    expect(budgetFailures({ "/cms/login": { ...all(0.95), performance: 0.5, seo: 0.6 } })).toEqual(
+      [],
+    );
+    expect(budgetFailures({ "/cms/login": { ...all(0.95), accessibility: 0.89 } })).toEqual([
+      "/cms/login accessibility 0.89",
+    ]);
   });
 
   it("takes the middle of three runs, and the lower middle of an even count", () => {

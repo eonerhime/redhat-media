@@ -36,7 +36,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 4.1 `scripts/auth-seed-admin.mts` (D12): random 24-character password to `.env.admin-<branch>.local`, never printed; refuses production; stops if the email exists. `.gitignore`'s `.env*` already covers the file (the script checks with `git check-ignore`). `pnpm auth:seed-admin`.
 - [x] 4.2 `scripts/auth-reset-password.mts` (D10): new random password to the same file, revoke sessions, clear both lockouts, `--reset-2fa`. `pnpm auth:reset-password`.
 - [x] 4.3 `CLAUDE.md` *Commands* table: the two scripts.
-- [ ] 4.4 **(owner)** Vercel Preview: `CMS_ENABLED=1` and a `BETTER_AUTH_SECRET` (Sensitive). **Before the feature PR is pushed**, because preview-e2e runs `cms.spec.ts` in on-mode. Production: neither is set.
+- [x] 4.4 **(owner)** Vercel Preview: `CMS_ENABLED=1` and a `BETTER_AUTH_SECRET` (Sensitive). **Before the feature PR is pushed**, because preview-e2e runs `cms.spec.ts` in on-mode. Production: neither is set. Done by the owner on 2026-10-26.
 - [ ] 4.5 **(owner)** Seed your admin on `dev` and `preview`; sign in on the preview with your authenticator app and set up 2FA.
 
 ## 5. Tests
@@ -53,6 +53,6 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 6.1 `docs/runbooks/secret-rotation.md`: the `BETTER_AUTH_SECRET` row. Rotation ends sessions and breaks each 2FA set-up (TOTP secrets are encrypted with it), so the row resets each user's 2FA; versioned rotation (`BETTER_AUTH_SECRETS`) is to be decided before Phase 34 (D18).
 - [x] 6.2 `roadmap.md` Phase 24 row: the dated note (D10, D11, D17), staged as its own hunk (C4).
 - [x] 6.3 Run `/security-review` over the branch's diff. Resolve each finding, or record the owner's written acceptance (D18).
-- [ ] 6.4 Lighthouse on the preview's `/cms/login` (D18).
-- [ ] 6.5 Security checklist: record the lockout and rate-limit items in `validation.md` (D18).
+- [ ] 6.4 Lighthouse on the preview's `/cms/login` (D18): added to the `lighthouse` job (`LIGHTHOUSE_CMS=on`), accessibility and best practices ≥ 0.90.
+- [x] 6.5 Security checklist: record the lockout and rate-limit items in `validation.md` (D18).
 - [ ] 6.6 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green. **(owner)** Merge.

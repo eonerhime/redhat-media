@@ -164,6 +164,8 @@ jobs:
           # The runner's Google Chrome, in its new headless mode.
           PW_CHANNEL: chrome
           PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+          # Vercel Preview has CMS_ENABLED=1: also measure /cms/login (Phase 24 spec, D18).
+          LIGHTHOUSE_CMS: "on"
         run: |
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"

@@ -2,8 +2,11 @@
 //
 //   pnpm auth:seed-admin --branch dev --email you@example.com --name "Your Name"
 //
-// For dev, MIGRATOR_DATABASE_URL comes from .env.local. For preview, set it in
-// the shell from .env.neon-preview.local first, and remove it afterwards.
+// For dev, MIGRATOR_DATABASE_URL comes from .env.local. For preview it is kept
+// only in the GitHub secret, so re-key rhm_migrator first (db-bootstrap.mts
+// --branch preview --role rhm_migrator writes .env.neon-preview.local), update
+// that secret from the file, set the variable in the shell from it, and delete
+// the file afterwards.
 // The random password is written to the git-ignored .env.admin-<branch>.local
 // and never printed. Sign in at /cms/login, then set up 2FA. Refuses production
 // and an email that already exists (use pnpm auth:reset-password).

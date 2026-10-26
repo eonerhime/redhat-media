@@ -327,6 +327,34 @@ describe("refusal of an expired session (D8)", () => {
     expect(hours).toBeLessThanOrEqual(8);
   });
 
+  it("sets an httpOnly, Secure, SameSite=Lax, __Secure- cookie over https", async () => {
+    const base = "https://cms.example.test";
+    const secureAuth = createAuth({
+      db,
+      secret: "auth-db-test-secret-".padEnd(48, "x"),
+      baseURL: base,
+      trustedOrigins: [base],
+      limiter: createRateLimiter(db, SALT),
+      logSalt: SALT,
+    });
+    const user = await staff("cookie");
+    const response = await secureAuth.handler(
+      new Request(`${base}/api/auth/sign-in/email`, {
+        method: "POST",
+        headers: { origin: base, "x-real-ip": nextIp(), "content-type": "application/json" },
+        body: JSON.stringify({ email: user.email, password: PASSWORD }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const cookie = response.headers
+      .getSetCookie()
+      .find((header) => header.startsWith("__Secure-better-auth.session_token="));
+    expect(cookie).toBeDefined();
+    expect(cookie).toMatch(/;\s*HttpOnly/i);
+    expect(cookie).toMatch(/;\s*Secure/i);
+    expect(cookie).toMatch(/;\s*SameSite=Lax/i);
+  });
+
   it("ends every session when the owner resets the password (D10)", async () => {
     const user = await staff("reset");
     const secret = await enrol(user.email, new Map());
