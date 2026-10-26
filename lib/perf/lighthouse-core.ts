@@ -15,7 +15,7 @@ export const lighthousePaths = [
 ] as const;
 
 /** The staff login, measured only where the CMS is on (LIGHTHOUSE_CMS=on; Phase 24 spec, D18). */
-export const staffLighthousePaths = ["/cms/login"] as const;
+export const staffLighthousePaths = ["/admin"] as const;
 
 export const categories = ["performance", "accessibility", "best-practices", "seo"] as const;
 export type Category = (typeof categories)[number];

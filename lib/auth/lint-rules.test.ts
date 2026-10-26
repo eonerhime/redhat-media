@@ -25,7 +25,7 @@ async function restricted(filePath: string): Promise<string[]> {
 
 describe("ESLint: no server-side sign-in", () => {
   it("fires on each auth.api call in app code, not on the client API", async () => {
-    const messages = await restricted("app/cms/login/actions.ts");
+    const messages = await restricted("app/admin/actions.ts");
     expect(messages).toHaveLength(3);
     for (const message of messages) expect(message).toMatch(/client API/);
   }, 60_000);

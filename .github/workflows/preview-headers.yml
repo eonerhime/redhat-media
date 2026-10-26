@@ -138,7 +138,7 @@ jobs:
             echo "::error::Secret VERCEL_AUTOMATION_BYPASS_SECRET is not set"
             exit 1
           fi
-          pnpm test:e2e e2e/home.spec.ts e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts e2e/inquiry.spec.ts e2e/contextual-cta.spec.ts e2e/portfolio-modal.spec.ts e2e/cms.spec.ts
+          pnpm test:e2e e2e/home.spec.ts e2e/portfolio.spec.ts e2e/portfolio-detail.spec.ts e2e/csp.spec.ts e2e/smoke.spec.ts e2e/a11y.spec.ts e2e/not-found.spec.ts e2e/error.spec.ts e2e/inquiry.spec.ts e2e/contextual-cta.spec.ts e2e/portfolio-modal.spec.ts e2e/admin.spec.ts
 
   # Lighthouse on mobile for every template, three runs each, every category >= 0.90 (Phase 15
   # spec, D6). The bypass cookie is set for the preview's host only, and no report is kept,
@@ -164,7 +164,7 @@ jobs:
           # The runner's Google Chrome, in its new headless mode.
           PW_CHANNEL: chrome
           PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
-          # Vercel Preview has CMS_ENABLED=1: also measure /cms/login (Phase 24 spec, D18).
+          # Vercel Preview has CMS_ENABLED=1: also measure /admin (Phase 24 spec, D18).
           LIGHTHOUSE_CMS: "on"
         run: |
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then

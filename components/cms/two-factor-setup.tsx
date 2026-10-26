@@ -13,6 +13,7 @@ import {
   secondaryButtonClassName,
 } from "./form-styles";
 import { TotpQr } from "./totp-qr";
+import { useHydrated } from "./use-hydrated";
 
 const copy = cmsCopy.setup;
 
@@ -35,6 +36,7 @@ export function TwoFactorSetup() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
+  const hydrated = useHydrated();
 
   function fail(message: string) {
     setBusy(false);
@@ -86,7 +88,7 @@ export function TwoFactorSetup() {
 
   if (step.name === "password")
     return (
-      <form onSubmit={start} className="mt-8 flex flex-col gap-6">
+      <form method="post" onSubmit={start} className="mt-8 flex flex-col gap-6">
         <p className="text-lg">{copy.intro}</p>
         <div>
           <label htmlFor="cms-setup-password" className={labelClassName}>
@@ -108,7 +110,7 @@ export function TwoFactorSetup() {
         <div>
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || !hydrated}
             className={`${buttonClassName} disabled:cursor-wait`}
           >
             {copy.start}
@@ -119,7 +121,7 @@ export function TwoFactorSetup() {
 
   if (step.name === "scan")
     return (
-      <form onSubmit={confirm} className="mt-8 flex flex-col gap-6">
+      <form method="post" onSubmit={confirm} className="mt-8 flex flex-col gap-6">
         <p className="text-lg">{copy.scan}</p>
         <TotpQr uri={step.totpURI} label={copy.qrLabel} />
         <div>
@@ -149,7 +151,7 @@ export function TwoFactorSetup() {
         <div>
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || !hydrated}
             className={`${buttonClassName} disabled:cursor-wait`}
           >
             {copy.confirm}
@@ -177,7 +179,7 @@ export function TwoFactorSetup() {
         >
           {copy.download}
         </button>
-        <Link href="/cms" className={buttonClassName}>
+        <Link href="/" className={buttonClassName}>
           {copy.done}
         </Link>
       </div>

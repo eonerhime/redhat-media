@@ -43,10 +43,11 @@ export const cmsCopy = {
     wrongPassword: "That password didn't work.",
     invalidCode: "That code didn't work. Check the time on your phone and try again.",
   },
-  dashboard: {
-    title: "Staff area",
+  panel: {
     signedInAs: "Signed in as",
-    comingSoon: "The inquiry inbox, editing tools and staff management arrive in later releases.",
+    comingSoon:
+      "Inquiries and staff management arrive here in later releases. Editing will happen on the website itself, through an Editing: On/Off switch.",
+    toSite: "Go to the website",
     signOut: "Sign out",
     signingOut: "Signing out…",
   },

@@ -80,7 +80,7 @@ const envSchema = z
     INQUIRY_NOTIFICATION_EMAIL: optional(emailList),
     INQUIRY_ACK_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
     EMAIL_REDIRECT_TO: optional(z.email("Must be one email address")),
-    // Staff sign-in and /cms (Phase 24 spec, D11): off in production until Phase 34.
+    // Staff sign-in and /admin (Phase 24 spec, D11): off in production until Phase 34.
     CMS_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
     BETTER_AUTH_SECRET: optional(z.string().min(32, "Must be at least 32 characters")),
   })

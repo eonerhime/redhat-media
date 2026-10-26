@@ -7,8 +7,8 @@ import { getStaffSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: cmsCopy.setup.title };
 
-// Set-up is the only /cms page a signed-in user without 2FA can use (D7).
-export default function CmsTwoFactorSetup() {
+// Set-up is the only /admin page a signed-in user without 2FA can use (D7).
+export default function AdminTwoFactorSetup() {
   return (
     <>
       <h1 className="font-display text-display-2 font-extrabold">{cmsCopy.setup.title}</h1>
@@ -21,7 +21,7 @@ export default function CmsTwoFactorSetup() {
 
 async function NeedsSetup() {
   const session = await getStaffSession();
-  if (!session) redirect("/cms/login");
-  if (session.twoFactorEnabled) redirect("/cms");
+  if (!session) redirect("/admin");
+  if (session.twoFactorEnabled) redirect("/admin/panel");
   return <TwoFactorSetup />;
 }

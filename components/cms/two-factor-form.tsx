@@ -12,6 +12,7 @@ import {
   labelClassName,
   textLinkClassName,
 } from "./form-styles";
+import { useHydrated } from "./use-hydrated";
 
 const copy = cmsCopy.twoFactor;
 
@@ -25,6 +26,7 @@ export function TwoFactorForm() {
   const [expired, setExpired] = useState(false);
   const [busy, setBusy] = useState(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
+  const hydrated = useHydrated();
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,8 +37,9 @@ export function TwoFactorForm() {
       mode === "totp"
         ? await authClient.twoFactor.verifyTotp({ code })
         : await authClient.twoFactor.verifyBackupCode({ code });
+    // Signed in: back to the website, where editing happens (D13, amended).
     if (!failure) {
-      router.replace("/cms");
+      router.replace("/");
       return;
     }
     setBusy(false);
@@ -49,7 +52,7 @@ export function TwoFactorForm() {
 
   const totp = mode === "totp";
   return (
-    <form onSubmit={submit} className="mt-8 flex flex-col gap-6">
+    <form method="post" onSubmit={submit} className="mt-8 flex flex-col gap-6">
       <div>
         <label htmlFor="cms-code" className={labelClassName}>
           {totp ? copy.totpLabel : copy.backupLabel}
@@ -77,13 +80,17 @@ export function TwoFactorForm() {
       >
         {error}{" "}
         {expired && (
-          <Link href="/cms/login" className={textLinkClassName}>
+          <Link href="/admin" className={textLinkClassName}>
             {copy.signInAgain}
           </Link>
         )}
       </p>
       <div className="flex flex-wrap items-center gap-6">
-        <button type="submit" disabled={busy} className={`${buttonClassName} disabled:cursor-wait`}>
+        <button
+          type="submit"
+          disabled={busy || !hydrated}
+          className={`${buttonClassName} disabled:cursor-wait`}
+        >
           {busy ? copy.submitting : copy.submit}
         </button>
         <button

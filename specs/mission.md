@@ -33,7 +33,7 @@ Supporting metrics:
 1. **Brands and SMEs needing visual production.** They need commercial, event and portrait photography and videography. They judge on the portfolio: image quality, range and turnaround.
 2. **Businesses needing growth.** They need digital marketing, social media management and online presence. They want evidence of results: campaign outcomes, before/after presence, platforms covered.
 3. **Founders and organisations needing software.** They need websites and web apps. They want proof of engineering depth: live products, tech stack, architecture and a disciplined delivery method (Spec-Driven Development).
-4. **RHM staff (internal).** Editors update copy, images, videos and portfolio items directly on the live pages through an **Editing: On/Off** toggle. Sales staff work incoming inquiries in `/cms`. None of this needs a developer.
+4. **RHM staff (internal).** Editors update copy, images, videos and portfolio items directly on the live pages through an **Editing: On/Off** toggle. Sales staff work incoming inquiries in the admin panel, which the header's admin icon opens for signed-in staff. None of this needs a developer.
 
 ## How the portfolio is framed
 

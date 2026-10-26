@@ -8,7 +8,7 @@
 // that secret from the file, set the variable in the shell from it, and delete
 // the file afterwards.
 // The random password is written to the git-ignored .env.admin-<branch>.local
-// and never printed. Sign in at /cms/login, then set up 2FA. Refuses production
+// and never printed. Sign in at /admin, then set up 2FA. Refuses production
 // and an email that already exists (use pnpm auth:reset-password).
 
 import { execFileSync } from "node:child_process";
@@ -74,7 +74,7 @@ try {
   );
   console.log(
     `auth-seed-admin: admin ${user.email} created on ${host}.\n` +
-      `Password written to ${outPath} (not printed). Sign in at /cms/login and set up 2FA.`,
+      `Password written to ${outPath} (not printed). Sign in at /admin and set up 2FA.`,
   );
 } finally {
   await db.$disconnect();

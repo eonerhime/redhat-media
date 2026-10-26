@@ -6,6 +6,13 @@
 
 - [x] **Seeded admin, 2FA, sign-out (D17, amended):** `auth.db.test.ts` "asks a user with 2FA for a code, then signs in and out" green in the `db` job; `e2e/cms.spec.ts`'s full flow green against a seeded admin (run locally on Neon `dev`); **and** the owner seeds an admin on preview, sets up 2FA with a real authenticator app, signs in, reaches `/cms` and signs out. Owner confirmed on the #61 preview on 2026-10-26.
 - [x] **No public link:** the public-crawl e2e finds no link to `/cms` on any public page (plan 5.5). Green in preview-e2e on #61 (run 40334163694).
+
+### After D13's amendment (`/admin`, owner answers M, N)
+
+- [x] The full browser flow on a CMS-on build: sign-in at `/admin`, set-up, backup-code download, landing on `/`, the header icon "Admin panel", `/admin/panel`, sign-out, and sign-in with a code (`admin.spec.ts`, run locally on Neon `dev`, 2026-10-26; plan 3.14).
+- [x] A visitor's header has no admin icon, and no public page links to `/admin` (`admin.spec.ts`, on-mode, locally; preview-e2e on the next push).
+- [x] Every staff form posts and can't submit before hydration (D22): `admin.spec.ts`.
+- [ ] **(owner)** On the preview: sign in at `/admin`, land on the website, open the panel from the header icon, sign out (plan 3.15).
 - [x] **429 on repeated IP failures:** `auth.db.test.ts` (plan 5.1). Green in the `db` job on #61 (run 40334030629).
 - [x] **Lockout after 5 account failures:** `auth.db.test.ts`, for passwords and for TOTP codes, with the right password refused while locked (D4). Green in the `db` job (run 40334030629).
 - [x] **Breached password refused:** `auth.db.test.ts` via `/change-password` (D6). Green in the `db` job (run 40334030629).

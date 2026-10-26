@@ -5,6 +5,7 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { cmsCopy } from "./cms-copy";
 import { secondaryButtonClassName } from "./form-styles";
+import { clearStaffHint } from "./staff-hint";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -13,14 +14,15 @@ export function SignOutButton() {
   async function signOut() {
     setBusy(true);
     await authClient.signOut();
-    router.replace("/cms/login");
+    clearStaffHint();
+    router.replace("/admin");
     // Drop the client router cache, so no staff page survives the sign-out.
     router.refresh();
   }
 
   return (
     <button type="button" onClick={signOut} disabled={busy} className={secondaryButtonClassName}>
-      {busy ? cmsCopy.dashboard.signingOut : cmsCopy.dashboard.signOut}
+      {busy ? cmsCopy.panel.signingOut : cmsCopy.panel.signOut}
     </button>
   );
 }

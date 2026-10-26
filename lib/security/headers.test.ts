@@ -114,8 +114,8 @@ describe("serializeCsp", () => {
 });
 
 describe("staff area headers (Phase 24 spec, D13)", () => {
-  it("marks every /cms response noindex, nofollow", () => {
-    expect(STAFF_AREA_SOURCE).toBe("/cms/:path*");
+  it("marks every /admin response noindex, nofollow", () => {
+    expect(STAFF_AREA_SOURCE).toBe("/admin/:path*");
     expect(staffAreaHeaders()).toEqual([{ key: "X-Robots-Tag", value: "noindex, nofollow" }]);
   });
 

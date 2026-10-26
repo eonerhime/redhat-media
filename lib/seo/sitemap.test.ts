@@ -35,9 +35,9 @@ describe("sitemapEntries() (Phase 14 spec, D4)", () => {
     expect(urls({ siteUrl, serviceSlugs: [], portfolioSlugs: [] })).toHaveLength(6);
   });
 
-  it("never lists /dev, /cms or a query string", () => {
+  it("never lists /dev, /admin or a query string", () => {
     const out = urls({ siteUrl, serviceSlugs: ["photography"], portfolioSlugs: ["sportspred"] });
-    for (const url of out) expect(url).not.toMatch(/\/dev\/|\/cms|\?/);
+    for (const url of out) expect(url).not.toMatch(/\/dev\/|\/admin|\?/);
   });
 });
 

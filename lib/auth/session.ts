@@ -11,14 +11,14 @@ export type StaffSession = {
   name: string;
   email: string;
   role: StaffRole;
-  /** False until the user has set up TOTP; /cms then allows only set-up (D7). */
+  /** False until the user has set up TOTP; /admin then allows only set-up (D7). */
   twoFactorEnabled: boolean;
 };
 
 /**
  * The signed-in staff member for this request, read from the database (no cookie
  * cache, D8), or null. A deactivated user or an unknown role counts as signed out.
- * While CMS_ENABLED is off it calls notFound(): the /cms layout's own notFound()
+ * While CMS_ENABLED is off it calls notFound(): the /admin layout's own notFound()
  * does not stop a page body that renders beside it (D11).
  */
 export async function getStaffSession(): Promise<StaffSession | null> {

@@ -48,9 +48,9 @@ export function serializeCsp(directives: CspDirectives): string {
 }
 
 /** The hidden staff area (tech-stack.md → Architectural rules 6; Phase 24 spec, D13). */
-export const STAFF_AREA_SOURCE = "/cms/:path*";
+export const STAFF_AREA_SOURCE = "/admin/:path*";
 
-/** Added to every /cms response, beside securityHeaders(). Not in robots.txt, which would advertise it. */
+/** Added to every /admin response, beside securityHeaders(). Not in robots.txt, which would advertise it. */
 export function staffAreaHeaders(): readonly Header[] {
   return [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
 }

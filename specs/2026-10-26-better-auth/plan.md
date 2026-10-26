@@ -32,6 +32,15 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 3.8 Build and check the route table: `/cms` and `/cms/2fa/setup` are partial prerenders, `/cms/login` and `/cms/2fa` static, `/api/auth/[...all]` dynamic; no public route changed mode (C2). Built both with the CMS on and off.
 - [x] 3.9 Backup codes: a "Download as a text file" button on the set-up page (D7, amended by the owner on 2026-10-26). `components/cms/backup-codes-file.ts` builds the file in the browser and uses an object URL that is revoked straight after the click, so the codes never leave the page. Unit-tested, and the e2e full flow checks the file holds all ten codes.
 
+### 3a. Owner amendment: the `/admin` entry (D13 amended, D22; owner answers M, N, 2026-10-26)
+
+- [x] 3.10 Routes: `app/(cms)/cms` → `app/(admin)/admin`. `/admin` is the sign-in (the form is the static shell; a session check beside it redirects signed-in staff), `/admin/panel` the placeholder panel, `/admin/2fa` and `/admin/2fa/setup` as before. After the code or set-up, staff go to `/`.
+- [x] 3.11 Header admin icon: `components/cms/staff-link.tsx` (a plain `<a>` to `/admin/panel`, labelled `staffPanelLabel(role)`), shown only where `CMS_ENABLED` is on and only for a signed-in user, read from `/api/auth/get-session` when the `localStorage` hint (`staff-hint.ts`) is set. `lib/auth/roles.test.ts`.
+- [x] 3.12 `X-Robots-Tag` on `/admin/:path*`; sitemap, Lighthouse path (`/admin`), seed-script message, `e2e/cms.spec.ts` → `e2e/admin.spec.ts` (and the preview-e2e list), runbook, `.env.example`, `tech-stack.md` rule 6 and *In-place CMS* 1–2, `mission.md`, README and the `roadmap.md` rows 24, 26 and 32 (staged without the owner's `---` edit, C4).
+- [x] 3.13 D22: every staff form `method="post"`, submit disabled until hydrated; e2e checks the two signed-out forms post.
+- [x] 3.14 Checked against a CMS-on production build on Neon `dev` with a throwaway admin, deleted afterwards: `admin.spec.ts` 31 passed, including the full flow (sign-in, set-up, backup-code download, landing on `/`, the icon, the panel, sign-out, sign-in with a code); `a11y`, `shell` and `smoke` 214 passed. Route table: no public route changed mode; `/admin`, `/admin/panel` and `/admin/2fa/setup` are partial prerenders, `/admin/2fa` static.
+- [ ] 3.15 **(owner)** On the new preview: sign in at `/admin`, land on the website, open the admin panel from the header icon, sign out.
+
 ## 4. Owner scripts
 
 - [x] 4.1 `scripts/auth-seed-admin.mts` (D12): random 24-character password to `.env.admin-<branch>.local`, never printed; refuses production; stops if the email exists. `.gitignore`'s `.env*` already covers the file (the script checks with `git check-ignore`). `pnpm auth:seed-admin`.

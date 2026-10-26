@@ -10,8 +10,8 @@ import { routes } from "./routes";
 // E2E_CMS=on (preview-e2e: Vercel Preview has CMS_ENABLED=1 and a database):
 // the login page, its noindex and a11y, the signed-out redirects, the generic
 // error and the endpoint allowlist. Otherwise (the ci job, where CMS_ENABLED is
-// unset): every /cms and /api/auth path is a 404. In both: no public page links
-// to /cms. With E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD (an admin without 2FA,
+// unset): every /admin and /api/auth path is a 404. In both: no public page links
+// to /admin. With E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD (an admin without 2FA,
 // run locally), the full set-up, sign-in and sign-out flow runs too.
 
 const cmsOn = process.env.E2E_CMS === "on";
@@ -36,14 +36,14 @@ async function fetchPath(page: Page, path: string, init: { method?: string; data
   });
 }
 
-test.describe("no public page links to /cms (roadmap)", () => {
+test.describe("no public page links to /admin (roadmap)", () => {
   for (const route of routes) {
-    test(`${route} has no /cms link`, async ({ page }) => {
+    test(`${route} has no /admin link`, async ({ page }) => {
       await page.goto(route);
       const hrefs = await page
         .locator("a[href]")
         .evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).href));
-      for (const href of hrefs) expect(new URL(href).pathname).not.toMatch(/^\/cms(\/|$)/);
+      for (const href of hrefs) expect(new URL(href).pathname).not.toMatch(/^\/admin(\/|$)/);
     });
   }
 });
@@ -52,10 +52,10 @@ test.describe("with CMS_ENABLED off (D11)", () => {
   test.skip(cmsOn, "the CMS is on here");
 
   for (const path of [
-    "/cms",
-    "/cms/login",
-    "/cms/2fa",
-    "/cms/2fa/setup",
+    "/admin",
+    "/admin/panel",
+    "/admin/2fa",
+    "/admin/2fa/setup",
     "/api/auth/get-session",
   ]) {
     test(`${path} is a 404`, async ({ page }) => {
@@ -76,8 +76,8 @@ test.describe("with CMS_ENABLED off (D11)", () => {
 test.describe("with CMS_ENABLED on", () => {
   test.skip(!cmsOn, "the CMS is off here (E2E_CMS=on to run)");
 
-  test("/cms/login is noindex in its header and its meta tag (D13)", async ({ page }) => {
-    const response = await page.goto("/cms/login");
+  test("/admin is noindex in its header and its meta tag (D13)", async ({ page }) => {
+    const response = await page.goto("/admin");
     expect(response?.status()).toBe(200);
     expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
@@ -86,16 +86,28 @@ test.describe("with CMS_ENABLED on", () => {
     );
   });
 
-  for (const path of ["/cms", "/cms/2fa/setup"]) {
-    test(`signed out, ${path} goes to /cms/login (D13)`, async ({ page }) => {
+  for (const path of ["/admin", "/admin/panel", "/admin/2fa/setup"]) {
+    test(`signed out, ${path} shows the sign-in at /admin (D13)`, async ({ page }) => {
       await page.goto(path);
-      await expect(page).toHaveURL(/\/cms\/login$/);
+      await expect(page).toHaveURL(/\/admin$/);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("Staff sign-in");
     });
   }
 
+  for (const path of ["/admin", "/admin/2fa"]) {
+    test(`${path}'s form posts, so a credential never lands in a URL`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator("main form")).toHaveAttribute("method", "post");
+    });
+  }
+
+  test("a visitor's header has no admin icon (D13)", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("banner").getByRole("link", { name: /panel$/ })).toHaveCount(0);
+  });
+
   test("a wrong password gets the generic message (D14)", async ({ page }) => {
-    await page.goto("/cms/login");
+    await page.goto("/admin");
     await page.getByLabel("Email").fill(`nobody-${Date.now()}@example.test`);
     await page.getByLabel("Password").fill("not-the-password-1");
     await page.getByRole("button", { name: "Sign in" }).click();
@@ -110,7 +122,7 @@ test.describe("with CMS_ENABLED on", () => {
     "/api/auth/delete-user",
   ]) {
     test(`${path} is closed (D10, D19)`, async ({ page }) => {
-      await page.goto("/cms/login");
+      await page.goto("/admin");
       const response = await fetchPath(page, path, { method: "POST", data: {} });
       expect(response.status()).toBe(404);
     });
@@ -125,7 +137,7 @@ test.describe("with CMS_ENABLED on", () => {
   });
 
   for (const width of [360, 1440]) {
-    for (const path of ["/cms/login", "/cms/2fa"]) {
+    for (const path of ["/admin", "/admin/2fa"]) {
       test(`${path} has no WCAG A/AA violations at ${width}px`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(path);
@@ -143,13 +155,13 @@ test.describe("full sign-in flow (local, with a fresh admin)", () => {
   );
 
   test("sets up 2FA, signs out, signs in with a code and signs out (D7, D17)", async ({ page }) => {
-    await page.goto("/cms/login");
+    await page.goto("/admin");
     await page.getByLabel("Email").fill(adminEmail!);
     await page.getByLabel("Password").fill(adminPassword!);
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    // No 2FA yet: /cms sends the admin to set it up.
-    await expect(page).toHaveURL(/\/cms\/2fa\/setup$/);
+    // No 2FA yet: /admin sends the admin to set it up.
+    await expect(page).toHaveURL(/\/admin\/2fa\/setup$/);
     await page.getByLabel("Confirm your password").fill(adminPassword!);
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(
@@ -172,23 +184,33 @@ test.describe("full sign-in flow (local, with a fresh admin)", () => {
 
     await page.getByRole("link", { name: "I've saved them. Continue" }).click();
 
-    await expect(page.getByText("Signed in as")).toBeVisible();
-    await page.getByRole("button", { name: "Sign out" }).click();
-    await expect(page).toHaveURL(/\/cms\/login$/);
+    // Back on the website, where the header's admin icon opens the panel (D13, amended).
+    await expect(page).toHaveURL(/\/$/);
+    await openPanelAndSignOut(page);
 
-    // Signed out: /cms is closed again.
-    await page.goto("/cms");
-    await expect(page).toHaveURL(/\/cms\/login$/);
+    // Signed out: /admin is the sign-in again, and the icon is gone.
+    await page.goto("/");
+    await expect(page.getByRole("banner").getByRole("link", { name: /panel$/ })).toHaveCount(0);
+    await page.goto("/admin");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Staff sign-in");
 
-    // Back in, now with a code.
+    // Back in, now with a code: straight to the website.
     await page.getByLabel("Email").fill(adminEmail!);
     await page.getByLabel("Password").fill(adminPassword!);
     await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL(/\/cms\/2fa$/);
+    await expect(page).toHaveURL(/\/admin\/2fa$/);
     await page.getByLabel("6-digit code from your authenticator app").fill(totpCode(secret));
     await page.getByRole("button", { name: "Verify" }).click();
-    await expect(page.getByText("Signed in as")).toBeVisible();
-    await page.getByRole("button", { name: "Sign out" }).click();
-    await expect(page).toHaveURL(/\/cms\/login$/);
+    await expect(page).toHaveURL(/\/$/);
+    await openPanelAndSignOut(page);
   });
 });
+
+async function openPanelAndSignOut(page: Page) {
+  await page.getByRole("banner").getByRole("link", { name: "Admin panel" }).click();
+  await expect(page).toHaveURL(/\/admin\/panel$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Admin panel");
+  await expect(page.getByText("Signed in as")).toBeVisible();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Staff sign-in");
+}

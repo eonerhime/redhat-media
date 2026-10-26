@@ -24,15 +24,13 @@ describe("lighthouse budget", () => {
 
   it("adds the staff login only where the CMS is on (Phase 24 spec, D18)", () => {
     expect(pathsToMeasure(false)).toEqual(lighthousePaths);
-    expect(pathsToMeasure(true)).toEqual([...lighthousePaths, "/cms/login"]);
+    expect(pathsToMeasure(true)).toEqual([...lighthousePaths, "/admin"]);
   });
 
   it("holds the staff login to accessibility and best practices only", () => {
-    expect(budgetFailures({ "/cms/login": { ...all(0.95), performance: 0.5, seo: 0.6 } })).toEqual(
-      [],
-    );
-    expect(budgetFailures({ "/cms/login": { ...all(0.95), accessibility: 0.89 } })).toEqual([
-      "/cms/login accessibility 0.89",
+    expect(budgetFailures({ "/admin": { ...all(0.95), performance: 0.5, seo: 0.6 } })).toEqual([]);
+    expect(budgetFailures({ "/admin": { ...all(0.95), accessibility: 0.89 } })).toEqual([
+      "/admin accessibility 0.89",
     ]);
   });
 

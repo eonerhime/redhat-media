@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     const dev = process.env.NODE_ENV === "development";
     return [
       { source: "/:path*", headers: [...securityHeaders({ dev })] },
-      // noindex on every /cms response, the 404s while CMS_ENABLED is off included (Phase 24 spec, D13).
+      // noindex on every /admin response, the 404s while CMS_ENABLED is off included (Phase 24 spec, D13).
       { source: STAFF_AREA_SOURCE, headers: [...staffAreaHeaders()] },
     ];
   },
