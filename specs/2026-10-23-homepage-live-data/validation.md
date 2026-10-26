@@ -6,7 +6,7 @@
 
 - [x] **Featured flags:** on the seeded preview and on production, `/` shows the featured, published items (SportsPred, AfroJamz, toutMessages today) in portfolio order, at most 3, and no unfeatured item (D1).
 - [x] **Test inquiry:** a production inquiry is saved, `emailSentAt` is set, and the Gmail notification arrives. The row is then deleted and the next monitor run is green (D13).
-- [ ] **Scheduled job:** a dispatched `retention` run and the next scheduled run are both green, and each prints only the two counts (D8, D9).
+- [x] **Scheduled job:** a dispatched `retention` run and the next scheduled run are both green, and each prints only the two counts (D8, D9).
 
 ## Homepage
 
@@ -49,4 +49,4 @@ Each item is marked done with evidence, N/A until a named phase, or deferred to 
 
 - [x] `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test` and `pnpm build` pass locally.
 - [x] `ci`, `db` and `gitleaks` green on the PR; preview-e2e green (or, for the expand PR only, a failure explained on the PR).
-- [ ] Every box in `plan.md` ticked.
+- [x] Every box in `plan.md` ticked.

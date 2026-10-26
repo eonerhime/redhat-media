@@ -23,12 +23,12 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - 6.3: production deploy of `8501c1a` Ready at 20:12Z. production-checks green. `home.spec.ts` against production (Edge, `PW_BASE_URL`): 7 passed.
   - 6.4: test inquiry `cmvoam6ct000208i3e4ak1qru`, created 20:41:21.581Z, `emailSentAt` 20:41:21.914Z, `ackSentAt` NULL (acknowledgment off), `closedAt` and `anonymisedAt` NULL. Gmail received the notification at 20:41:22Z with SPF, DKIM (`resend.dev`, `amazonses.com`) and DMARC passing. The owner deleted the row in the Neon SQL Editor, and dispatched monitor run 40232454175 was green, including `inquiry notifications: none unsent`.
   - 6.6: PageSpeed Insights mobile on `/`: 98, 97 and 97 (median 97). LCP 2.3–2.6 s, TBT 20–30 ms, CLS 0. A further run scored 99, with no run warnings and no errored performance audit.
-- **2026-10-25** — Retention (plan 6.5, partial):
+- **2026-10-25** — Retention (plan 6.5):
   - The owner widened the Gmail forward filter to `("Run failed: monitor" OR "Run failed: retention")`.
   - Dispatched run 40236224879 was green and printed only `anonymised: 0, purged: 0`.
   - The `test_alert` dispatch, run 40236289742, did the real run, then failed with `TEST ALERT — not an incident`. The failure email reached the owner's mailbox and `redhatmediang@gmail.com`.
   - Neither log has personal data. The only `@` lines are package names from `pnpm install`.
-  - The first scheduled run (2026-10-26, 03:41 UTC) is still to be checked.
+  - The first scheduled run, 40298730960, was green. It was due at 03:41 UTC but GitHub started it at 09:20 UTC on 2026-10-26; scheduled runs can be delayed like this. It printed only `anonymised: 0, purged: 0`. The only other output was the `pg` notice that `sslmode=require` will mean libpq's weaker `require` in pg v9. That needs `sslmode=verify-full` in the URL before pg 9 is adopted.
 - **2026-10-25** — D14 (plan 6.7): the Resend region is `us-east-1`, recorded in `spec.md`. The privacy notice already matches it. The owner deleted the Neon branch `before-45` (`br-noisy-fire-zapg5293`) at 22:07:58Z, which left only `production`, `preview` and `dev`. Before that, at 21:32:01Z, the `before-58` snapshot was deleted by mistake (see Issues).
 
 ## Deviations from plan
