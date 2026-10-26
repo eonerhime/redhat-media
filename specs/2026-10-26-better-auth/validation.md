@@ -4,7 +4,7 @@
 
 > A seeded admin logs in with 2FA and logs out at `/cms/login`. No public page links to `/cms`. Tests show 429 on repeated IP failures, lockout after 5 account failures, refusal of a breached password, and refusal of an expired session.
 
-- [ ] **Seeded admin, 2FA, sign-out:** `e2e/cms-auth.spec.ts` green in the `db` job (D17), **and** the owner seeds an admin on preview, sets up 2FA with a real authenticator app, signs in, reaches `/cms` and signs out.
+- [ ] **Seeded admin, 2FA, sign-out (D17, amended):** `auth.db.test.ts` "asks a user with 2FA for a code, then signs in and out" green in the `db` job; `e2e/cms.spec.ts`'s full flow green against a seeded admin (run locally on Neon `dev`); **and** the owner seeds an admin on preview, sets up 2FA with a real authenticator app, signs in, reaches `/cms` and signs out.
 - [ ] **No public link:** the public-crawl e2e finds no link to `/cms` on any public page (plan 5.5).
 - [ ] **429 on repeated IP failures:** `auth.db.test.ts` (plan 5.1).
 - [ ] **Lockout after 5 account failures:** `auth.db.test.ts`, for passwords and for TOTP codes, with the right password refused while locked (D4).
@@ -19,7 +19,9 @@
 - [ ] The ESLint ban on server-side sign-in fires on its fixture (D5).
 - [ ] Security log lines appear for a failed sign-in and a lockout, with no email address or password (D20).
 - [ ] The session cookie is `httpOnly`, `Secure`, `SameSite=Lax` and `__Secure-`-prefixed on the preview (D8).
-- [ ] A request from an origin outside `trustedOrigins` is refused (D9).
+- [ ] A request from an origin outside `trustedOrigins` is refused (D9, D21): a cookie-bearing one by Better Auth (`auth.db.test.ts`), a cookieless POST by the route (`paths.test.ts`, and `cms.spec.ts` on the preview).
+- [ ] Only the allowlisted endpoints reach Better Auth; any other `/api/auth` path is a 404 (D21: `paths.test.ts`, `cms.spec.ts`).
+- [ ] `/two-factor/disable` is closed, and "trust this device" is refused (D7, D21).
 - [ ] `auth-grants.db.test.ts`: `rhm_readonly` cannot read any auth table (D15).
 
 ## `/cms` entry and the switch
