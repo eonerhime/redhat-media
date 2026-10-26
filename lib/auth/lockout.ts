@@ -27,6 +27,8 @@ export type LockoutStore = {
   recordFailure(email: string, until: Date): Promise<{ userId: string; locked: boolean } | null>;
   /** A correct password: the count starts again. */
   reset(email: string): Promise<void>;
+  /** Ends every session of the user except `keepToken` (when 2FA is turned on). */
+  endOtherSessions(userId: string, keepToken: string): Promise<void>;
 };
 
 /** Why sign-in is refused before the password is checked, if it is. */
@@ -105,6 +107,15 @@ export function createLockoutHooks(deps: {
       }
     } else if (VERIFY_PATHS.has(ctx.path) && isAPIError(ctx.context.returned)) {
       deps.log("auth.2fa_failed", { path: ctx.path });
+    } else if (ctx.path === "/two-factor/verify-totp" && ctx.context.newSession) {
+      // A code confirmed with a session cookie is the set-up step, which turns 2FA on
+      // (a sign-in challenge carries only the 2FA cookie). Any other session the user
+      // opened with just a password ends here, so none outlives the switch to 2FA.
+      const cookies = ctx.headers?.get("cookie") ?? "";
+      if (cookies.includes(`${ctx.context.authCookies.sessionToken.name}=`)) {
+        const { user, session } = ctx.context.newSession;
+        await deps.store.endOtherSessions(user.id, session.token);
+      }
     }
   });
 

@@ -43,12 +43,12 @@
 
 - [ ] `tech-stack.md`, `roadmap.md` (Phase 24 note only; the owner's `---` edit not committed, C4), `CLAUDE.md` and `.env.example` updated.
 - [ ] `docs/runbooks/secret-rotation.md` has the `BETTER_AUTH_SECRET` section (D18).
-- [ ] The expand PR merged and `migrate-preview` applied `…_auth` before the feature PR (C1).
+- [x] The expand PR merged and `migrate-preview` applied `…_auth` before the feature PR (C1).
 
 ## Pre-launch security checklist (items this phase touches)
 
 - [ ] Rate-limit, Turnstile, honeypot and lockout tests green: record the evidence here.
-- [ ] `/security-review` findings resolved, or accepted in writing by the owner (D18).
+- [x] `/security-review` findings resolved, or accepted in writing by the owner (D18): **no reportable finding** (2026-10-26, over `e7b028b..559fe04`). Its one defence-in-depth note, that turning 2FA on left the user's other password-only sessions alive, is fixed: the set-up step ends them (`auth.db.test.ts`). Its other note, that `deactivatedAt` is not checked on live sessions at `/api/auth`, is for Phase 33, whose deactivation must also revoke sessions (nothing sets `deactivatedAt` before then).
 
 ## Merge
 

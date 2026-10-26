@@ -147,6 +147,17 @@ describe("sign-in, 2FA and sign-out (roadmap: a seeded admin logs in with 2FA an
     });
   });
 
+  it("ends the user's other password-only sessions when 2FA is turned on", async () => {
+    const user = await staff("enrol-other");
+    const other: Jar = new Map();
+    expect((await signIn(user.email, other)).status).toBe(200);
+    expect((await call("/get-session", { jar: other })).json).not.toBeNull();
+    const jar: Jar = new Map();
+    await enrol(user.email, jar);
+    expect((await call("/get-session", { jar: other })).json).toBeNull();
+    expect((await call("/get-session", { jar })).json).toMatchObject({ user: { id: user.id } });
+  });
+
   it("refuses 'trust this device' (D7)", async () => {
     const user = await staff("trust");
     const secret = await enrol(user.email, new Map());

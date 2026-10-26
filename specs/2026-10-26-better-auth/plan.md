@@ -8,7 +8,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 1.2 Add `better-auth` 1.7.12 (exact). Write `lib/auth/options.ts` (plugins, `additionalFields` and sessions, with no env or database) and `lib/auth/roles.ts`, so the Better Auth CLI can read them. Generate the models into `schema.prisma` with `npx auth@1.7.12 generate`, then check the output by hand (D1).
 - [x] 1.3 Migration `…_auth`: the generated tables, the three `user` columns, the `role` CHECK constraint and the `rhm_readonly` revokes (D1, D15). Add the hand-written SQL to the generated migration.
 - [x] 1.4 Database test `auth-grants.db.test.ts`: `rhm_readonly` cannot select from any auth table; `rhm_app` can insert, select, update and delete; the CHECK constraint rejects `role = 'owner'`.
-- [ ] 1.5 `pnpm db:migrate` on `dev` (done). PR #60 into `develop` (open). **(owner)** Merge; `migrate-preview` green.
+- [x] 1.5 `pnpm db:migrate` on `dev`. PR #60 into `develop`, merged by the owner (`88603c0`); `migrate-preview` green (run 40333165097).
 
 ## 2. Auth server (feature PR, after `develop` is merged in)
 
@@ -52,7 +52,7 @@ Scope, decisions (D1–D21) and constraints (C1–C6) are in [`spec.md`](spec.md
 
 - [x] 6.1 `docs/runbooks/secret-rotation.md`: the `BETTER_AUTH_SECRET` row. Rotation ends sessions and breaks each 2FA set-up (TOTP secrets are encrypted with it), so the row resets each user's 2FA; versioned rotation (`BETTER_AUTH_SECRETS`) is to be decided before Phase 34 (D18).
 - [x] 6.2 `roadmap.md` Phase 24 row: the dated note (D10, D11, D17), staged as its own hunk (C4).
-- [ ] 6.3 Run `/security-review` over the branch's diff. Resolve each finding, or record the owner's written acceptance (D18).
+- [x] 6.3 Run `/security-review` over the branch's diff. Resolve each finding, or record the owner's written acceptance (D18).
 - [ ] 6.4 Lighthouse on the preview's `/cms/login` (D18).
 - [ ] 6.5 Security checklist: record the lockout and rate-limit items in `validation.md` (D18).
 - [ ] 6.6 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green. **(owner)** Merge.
