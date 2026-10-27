@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Route } from "@playwright/test";
+import { continueButton, formOn } from "./inquiry-steps";
 import { test, withBypass } from "./portfolio-expect";
 
 // The edit-mode shell (Phase 26 spec, D2–D8, D10; validation.md).
@@ -272,11 +273,14 @@ test.describe("with the CMS on", () => {
     });
 
     test("the inquiry stepper's buttons stay clear of the pill when focused", async ({ page }) => {
+      test.skip(!formOn, "INQUIRY_FORM_ENABLED is not 1 here");
       await mockSession(page, editor);
       await openAsStaff(page, "/contact");
+      // The form streams in after load, so wait for it rather than count what's there.
+      const next = continueButton(page);
+      await expect(next).toBeVisible();
       const box = (await pill(page).boundingBox())!;
       const buttons = page.locator("main form").getByRole("button");
-      test.skip((await buttons.count()) === 0, "the inquiry form is off here");
       for (const button of await buttons.all()) {
         if (!(await button.isVisible())) continue;
         await button.focus();

@@ -42,7 +42,7 @@ Scope, decisions (D1–D11) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 7.1 Commit, push, open the PR into `develop` (#65).
 - [x] 7.1a preview-e2e failed on duplicate streamed content (D1 amended): move the state from React context to a `useSyncExternalStore` store, and add `forgetEditState()` for sign-out.
 - [x] 7.1b Owner answer H: the "Back to the website" link in the `/admin` header, with an e2e check (D12).
-- [ ] 7.1c CI green on the fix, including preview-e2e and Lighthouse.
-- [ ] 7.2 **(owner)** Preview check as admin (D11; validation.md).
-- [ ] 7.3 Roadmap *Built* note on the Phase 26 row. Tick validation.md and this plan, and finish implementation.md.
+- [x] 7.1c CI green on the fix, including preview-e2e and Lighthouse.
+- [x] 7.2 **(owner)** Preview check as admin (D11; validation.md).
+- [x] 7.3 Roadmap *Built* note on the Phase 26 row. Tick validation.md and this plan, and finish implementation.md.
 - [ ] 7.4 **(owner)** Merge into `develop`; develop run green.

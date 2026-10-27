@@ -23,6 +23,9 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 
   The check is repeated on the fixed preview before the owner boxes are ticked.
 
+- **2026-10-27** — The fix commit (`03a6a74`) is green on every check. preview-e2e: 199 passed, 13 skipped. The owner re-checked the fixed preview: everything confirmed, and a new tab starts Off while the first stays On. The owner confirmed that `/api/cms/session` is requested; the e2e checks prove one request per navigation.
+- **2026-10-27** — CI's reporter lists failures only, so the preview log couldn't show whether the inquiry-stepper overlap test had run. It counted the form's buttons straight after load, and on the preview the form streams in later, so it may have skipped. It now skips only when `INQUIRY_FORM_ENABLED` is off, and waits for the Continue button. The Phase 26 *Built* note is on the roadmap, and every validation box is ticked.
+
 ## Deviations from plan
 
 - **Plan 5.3:** `e2e/admin.spec.ts` needed no change. Its "a visitor asks no session" check and the full-flow `roleReads` check hold as written for the shared read.
