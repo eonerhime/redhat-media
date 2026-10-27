@@ -102,6 +102,13 @@ test.describe("with CMS_ENABLED on", () => {
     });
   }
 
+  test("/admin links back to the website (owner, 2026-10-27)", async ({ page }) => {
+    await page.goto("/admin");
+    await expect(
+      page.getByRole("banner").getByRole("link", { name: "Back to the website" }),
+    ).toHaveAttribute("href", "/");
+  });
+
   test("a visitor's header has no admin icon, and asks no session (D13; Phase 25, D9)", async ({
     page,
   }) => {

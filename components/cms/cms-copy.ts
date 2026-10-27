@@ -3,6 +3,7 @@
 
 export const cmsCopy = {
   areaName: "RedHat Media staff",
+  backToSite: "Back to the website",
   login: {
     title: "Staff sign-in",
     email: "Email",

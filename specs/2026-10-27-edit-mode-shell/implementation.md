@@ -13,6 +13,15 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - `DATABASE_URL= next build` with the CMS off has a route table identical to `develop` run 40515668722. With the CMS on, every public route keeps its marker, and only `/admin`, `/admin/2fa/setup` and `/admin/panel` become `◐` because they read the session (C1).
     - e2e against `next start` in Edge with the CMS off (edit-mode, admin, shell, smoke and a11y specs, `--workers=1`): 233 passed, 40 skipped.
     - `edit-mode.spec.ts` with `E2E_CMS=on` against a CMS-on build: 18 passed, 2 skipped. The skips are the CMS-off case and the stepper case, because the inquiry form is off locally; preview runs it.
+- **2026-10-27** — PR #65 opened. `ci`, `db`, gitleaks, preview headers and Lighthouse passed. **preview-e2e failed** (run 40562331354, and again on a rerun) in three portfolio tests that this phase didn't touch: a second CreativeWork JSON-LD block on two detail pages, and two `portfolio-listing` elements on `/portfolio`. It reproduced locally with the CMS on and the Neon `dev` data (9 failures in `portfolio.spec.ts`). The cause and fix are under *Issues and fixes*. After the fix, a clean CMS-on build passes `portfolio-detail`, `portfolio`, `edit-mode` and `admin` twice over (172 passed, 24 skipped), and `pnpm test` passes 1683 tests.
+- **2026-10-27** — Owner's preview check (on the first build, before the fix):
+  1. Signed in, landed on `/` with "Editing: Off": confirmed.
+  2. Toggles, stays On across pages and a reload: confirmed.
+  3. New tab starts Off: the step wasn't clear; to be repeated.
+  4. The `/api/cms/session` request: present.
+  5. Signed out, no pill and no icon: confirmed. The owner asked for a way back to the website from the sign-in page after signing out (owner answer H, D12). Built: a "Back to the website" link in the `/admin` header bar.
+
+  The check is repeated on the fixed preview before the owner boxes are ticked.
 
 ## Deviations from plan
 
@@ -20,6 +29,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **C6, decided in the build:** at 360px, scrolled to the end, the pill covered the footer's registration line (screenshot, and the same check with the fix stripped out). `globals.css` now gives `body` `padding-bottom: 5rem` and `html` `scroll-padding-bottom: 6rem`, but only while the pill is on the page (`:has([data-edit-pill])`). The page's last lines can then scroll clear of it, and focus scrolling keeps a focused control above it (WCAG 2.2 *Focus Not Obscured*). Visitors' pages are unchanged. Two e2e checks cover it: the footer lines at the end of the page, and each footer link when focused. At 1440px nothing was covered. With the menu open at 360px, the pill covers no menu link.
 
 ## Issues and fixes
+
+- **Duplicate streamed content when the CMS is on (D1 amended).** `EditModeProvider` passed a new React context value right after hydration (`useHydrated()` flipping, and an object created on every render). A context change above a Suspense boundary that is still streaming makes React give up hydrating it and client-render it instead. The streamed HTML then arrived into nothing and stayed in the page as a hidden copy outside `<main>`. That hit every visitor on a CMS-on deployment (preview), not only staff. The `ci` job builds with the CMS off, so it never saw it. **Fix:** the state moved to a module store read with `useSyncExternalStore`. Store updates re-render only the components that read it (the icon and the pill), so nothing propagates into the streaming boundaries. Because the store outlives a client navigation, sign-out resets it (`forgetEditState()`), and the provider resets it on mount when there is no sign-in hint. Lesson for Phases 27–31: never put changing state in a context above page content; read the store through `useEditMode()`.
 
 - **A stale CSS cache in the local `.next`:** the first CMS-on build served CSS without the new `globals.css` rule, although Tailwind's own compiler keeps it (`@tailwindcss/node` `compile` + `optimize`, checked in a scratch script). After `rm -rf .next`, the rebuilt CSS had it. CI and Vercel build from a clean checkout. Locally, delete `.next` when a CSS change doesn't show up in a production build.
 - The first footer check looked only at links, so it passed while the registration line (a `<p>`) was covered. It now checks every footer line.

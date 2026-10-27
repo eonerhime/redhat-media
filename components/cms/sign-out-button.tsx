@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { cmsCopy } from "./cms-copy";
-import { clearEditState } from "./edit-storage";
+import { forgetEditState } from "./edit-mode";
 import { secondaryButtonClassName } from "./form-styles";
 import { clearStaffHint } from "./staff-hint";
 
@@ -17,7 +17,7 @@ export function SignOutButton() {
     await authClient.signOut();
     clearStaffHint();
     // The next person in this tab doesn't inherit "Editing: On" (Phase 26 spec, D7).
-    clearEditState();
+    forgetEditState();
     router.replace("/admin");
     // Drop the client router cache, so no staff page survives the sign-out.
     router.refresh();

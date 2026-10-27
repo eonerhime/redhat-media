@@ -3,7 +3,7 @@
 - **Roadmap:** [`../roadmap.md`](../roadmap.md), Milestone 3, Phase 26
 - **Branch:** `feature/phase-26-edit-mode-shell` (from `develop` at `cec80cd`)
 - **Started:** 2026-10-27
-- **Status:** owner answers A–G given 2026-10-27; approved to build 2026-10-27 ("build it")
+- **Status:** owner answers A–G given 2026-10-27 (H after the preview check); approved to build 2026-10-27 ("build it")
 
 ## What and why
 
@@ -36,6 +36,7 @@ Nothing is editable yet, so turning editing on changes only the pill. The admin 
 4. **The Editing pill** (D5, D6).
 5. **Sign-out clears the edit state** (D7).
 6. **Tests:** Vitest for the helpers, and a Playwright spec with a mocked session in preview-e2e (D10).
+7. **A "Back to the website" link on every `/admin` page** (D12; owner, 2026-10-27, after the preview check).
 
 ## Constitution changes (in the PR, before the code)
 
@@ -55,13 +56,13 @@ Nothing is editable yet, so turning editing on changes only the pill. The admin 
 - Editing inside the portfolio modal. The modal `<dialog>` makes the page behind it inert, so the pill can't be reached while it is open. A later editing phase decides whether the modal gets its own controls.
 - The new-lead count on the icon (Phase 32), and real editor and sales accounts on preview (staff management, Phase 33; owner answer F).
 - A page-wide "editing" banner or outline, and a keyboard shortcut for the toggle.
-- Any change to `/admin/*` pages, the session endpoint or the guards.
+- Any change to `/admin/*` pages other than the back link (D12), to the session endpoint or to the guards.
 
 ## Decisions
 
 | # | Decision | Reason | Source |
 | --- | --- | --- | --- |
-| D1 | **`EditModeProvider` in `components/cms/edit-mode.tsx`**, a client component. `<PublicShell>` wraps the skip link, header, main and footer in it, **only where `env.cms` is on** (a server-side condition). Production pages therefore carry none of it until Phase 34. Without the provider, `useEditMode()` returns the visitor default: no role, editing off. Because `<PublicShell>` also renders the root not-found, the 404 page gets the provider too. | The header has to sit inside the provider for one shared read (D2). The provider stays a client island inside static server components, so it adds no session read on the server (rule 1). | Owner answer A; Phase 24 D11 |
+| D1 | **`EditModeProvider` in `components/cms/edit-mode.tsx`**, a client component. `<PublicShell>` wraps the skip link, header, main and footer in it, **only where `env.cms` is on** (a server-side condition). Production pages therefore carry none of it until Phase 34. Without the provider, `useEditMode()` returns the visitor default: no role, editing off. Because `<PublicShell>` also renders the root not-found, the 404 page gets the provider too.<br><br>*Amended in the build (2026-10-27):* the state lives in a small module store read with `useSyncExternalStore`, not in React context. A context value that changed after hydration, above a Suspense boundary that was still streaming, made React client-render that boundary, and the streamed HTML stayed in the page as a hidden duplicate. preview-e2e found it: two `portfolio-listing` elements, and a second JSON-LD block. A store update re-renders only the components that read it. The provider still mounts the reads and the pill, and `useEditMode()` keeps its API. | The header has to sit inside the provider for one shared read (D2). The provider stays a client island inside static server components, so it adds no session read on the server (rule 1). | Owner answer A; Phase 24 D11 |
 | D2 | **One session read.** The provider calls `GET /api/cms/session` (`no-store`) only when the `localStorage` hint is set (`hasStaffHint()`). It exposes `role` and `authenticated`. `StaffLink` reads the role from `useEditMode()` and no longer fetches. Phase 25 D9's hint rule moves into the provider: it clears the hint only when `authenticated` is false. The icon stays a plain `<a>`. | One request per page instead of two, and the icon and pill can never disagree. Visitors without the hint still make no request. | Owner answer A; Phase 25 D9 |
 | D3 | **Re-read on every navigation.** The read runs after hydration and again on each `usePathname()` change. A response that arrives after a newer navigation is ignored. A network failure keeps the last known role, as in MRU. | The `(public)` layout does not remount on a client navigation, so a mount-only read would let a pill outlive an expired or demoted session until a hard reload. Only staff (hint set) make the request. | Owner answer B; MRU |
 | D4 | **Last-known role in `sessionStorage`** (`rhm:role`), read only after hydration (`useHydrated()`), so the server HTML and the first client render match. The fetched answer takes over when it arrives, and is written back: the role when there is one, otherwise the key is removed. Every storage call is guarded, because storage can throw (private browsing, blocked storage). | The pill doesn't vanish and reappear on a full page load (MRU 032). Reading storage during hydration would discard the server markup (MRU 074). | MRU; Claude's call |
@@ -72,6 +73,7 @@ Nothing is editable yet, so turning editing on changes only the pill. The admin 
 | D9 | **UI only.** Nothing in the context authorises anything. Every mutation still opens with `requireRole()` (rule 5). This phase adds no mutation and no endpoint, so `guard-coverage.test.ts` and `public-mutations.ts` don't change. | The browser's role is never trusted (rule 5). | tech-stack |
 | D10 | **Tests.**<br>• **Vitest** on the pure helpers: guarded storage reads and writes (including a throwing `Storage`), `canEdit(role)` for every role and null, and the "drop the toggle when the role isn't an editor" rule.<br>• **Playwright** `e2e/edit-mode.spec.ts`. Under `E2E_CMS=on` (preview-e2e) it sets the hint and answers `/api/cms/session` with `page.route()` per case: visitor with no hint (no request at all), signed out (hint cleared), signed in without 2FA, sales, editor and admin. It checks the header icon and the pill for each, the toggle and `aria-pressed`, persistence across a client navigation and a reload, Off in a new browser context, a re-read on each navigation, and `rhm:editMode` dropped when the role falls to sales. Under the `ci` job (CMS off) it checks there is no pill and no request. An axe WCAG 2.2 AA scan runs with the pill Off and On, and the pill is reached by keyboard. | No component-test library is added. The mocked session covers roles that preview has no account for. | Owner answers E, F |
 | D11 | **The owner's preview check, as admin:** after sign-in the pill shows Off. It toggles, stays On across a client navigation and a reload, starts Off in a new tab, and disappears with the edit state after sign-out. DevTools shows one `/api/cms/session` request per navigation. | The real session, end to end, with the one account preview has. | Owner answer F |
+| D12 | **A "Back to the website" link** (`cmsCopy.backToSite`) in the `/admin` layout's header bar, so every staff page has one, the sign-in after sign-out included. It points to `/`. Visitors still see no link to `/admin`, because rule 6 covers only the other direction. | After signing out, the owner landed on the sign-in with no way back to the site. | Owner answer H |
 
 ### Owner answers (2026-10-27)
 
@@ -84,6 +86,7 @@ Nothing is editable yet, so turning editing on changes only the pill. The admin 
 | E | Testing the role gating | Playwright with a mocked session; Vitest for the helpers; no new libraries |
 | F | Real editor and sales accounts | Not now: mocked e2e plus the owner's admin check on preview |
 | G | Merge gates beyond CI | "Pick those that are applicable." Claude picked all four offered: route table unchanged, axe with the pill visible, a 360px overlap check, Lighthouse unchanged |
+| H | After the preview check | "There should be a link/button to go back to homepage/website after logging out" |
 
 ## Constraints
 
