@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { auditBestEffort } from "@/lib/audit/audit";
 import type { PrismaClient } from "@/lib/generated/prisma/client";
 import { hashKey, type RateLimiter } from "@/lib/security/rate-limit-core";
 import { createLockoutHooks } from "./lockout";
@@ -30,6 +31,7 @@ export function createAuth(deps: AuthDeps) {
   const lockout = createLockoutHooks({
     store: createLockoutStore(deps.db),
     log: securityLog,
+    audit: (event) => auditBestEffort(deps.db, event),
     now: deps.now,
   });
   return betterAuth({

@@ -7,8 +7,8 @@ import { clearStaffHint, hasStaffHint } from "./staff-hint";
 // The header's admin icon (Phase 24 spec, D13, amended 2026-10-26): shown only to
 // signed-in staff, and labelled with their role as in MRU. It opens /admin/panel,
 // where the inquiry inbox (Phase 32) and staff management (Phase 33) live.
-// Public pages stay static: the role is read in the browser after load, and only
-// when the sign-in hint is set. It decides only whether the icon shows; every
+// Public pages stay static: the role is read from /api/cms/session in the browser
+// after load (Phase 25 spec, D9), and only when the sign-in hint is set. It decides only whether the icon shows; every
 // /admin page checks the session on the server again.
 export function StaffLink() {
   const [role, setRole] = useState<StaffRole | null>(null);
@@ -16,13 +16,14 @@ export function StaffLink() {
   useEffect(() => {
     if (!hasStaffHint()) return;
     let cancelled = false;
-    fetch("/api/auth/get-session", { cache: "no-store" })
+    fetch("/api/cms/session", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: { user?: { role?: unknown } } | null) => {
-        if (cancelled) return;
-        const found = data?.user?.role;
-        if (isStaffRole(found)) setRole(found);
-        else clearStaffHint();
+      .then((data: { role?: unknown; authenticated?: unknown } | null) => {
+        if (cancelled || !data) return;
+        if (isStaffRole(data.role)) setRole(data.role);
+        // Signed out: drop the hint. Signed in without 2FA yet (role null): keep it,
+        // so the icon appears once set-up is finished (Phase 25 spec, D9).
+        else if (data.authenticated === false) clearStaffHint();
       })
       .catch(() => {
         // a network blip: leave the icon hidden this time, keep the hint

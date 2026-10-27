@@ -12,6 +12,14 @@ describe("securityLog (Phase 24 spec, D20)", () => {
     );
   });
 
+  it("writes the guard's reason and action (Phase 25 spec, D12)", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    securityLog("auth.forbidden", { userId: "u1", reason: "role", action: "content.update" });
+    expect(warn).toHaveBeenCalledExactlyOnceWith(
+      '{"event":"auth.forbidden","userId":"u1","reason":"role","action":"content.update"}',
+    );
+  });
+
   it("drops anything outside the fixed fields, such as an email or a password", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const smuggled = {

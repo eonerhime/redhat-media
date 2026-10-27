@@ -1,10 +1,12 @@
 // Owner-run staff account changes (Phase 24 spec, D10, D12), used by
 // scripts/auth-seed-admin.mts and scripts/auth-reset-password.mts until the
 // Phase 33 admin screens exist, and by the tests. They write through Prisma with
-// the client they are given and hash passwords exactly as Better Auth does.
+// the client they are given, hash passwords exactly as Better Auth does, and
+// record each script's change as an AuditEvent in the same transaction.
 // Relative imports only: it runs under plain Node.
 
 import { generateRandomString, hashPassword } from "better-auth/crypto";
+import { audit } from "../audit/audit.ts";
 import type { PrismaClient } from "../generated/prisma/client.ts";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./options.ts";
 import type { StaffRole } from "./roles.ts";
@@ -26,8 +28,9 @@ function checkPassword(password: string): void {
     throw new Error(`Password must be ${PASSWORD_MIN_LENGTH}–${PASSWORD_MAX_LENGTH} characters`);
 }
 
+/** Creates a staff account with a password and no 2FA. Tests call it directly; the seed script goes through seedAdmin(). */
 export async function createStaffUser(
-  db: Db,
+  db: Pick<PrismaClient, "user">,
   input: { email: string; name: string; role: StaffRole; password: string },
 ): Promise<{ id: string; email: string }> {
   checkPassword(input.password);
@@ -54,9 +57,31 @@ export async function createStaffUser(
 }
 
 /**
+ * The seed script's first admin, with its `auth.admin_seeded` AuditEvent in the
+ * same transaction (Phase 25 spec, D7). The owner ran it, so there is no actor.
+ */
+export async function seedAdmin(
+  db: Pick<PrismaClient, "$transaction">,
+  input: { email: string; name: string; password: string },
+): Promise<{ id: string; email: string }> {
+  return db.$transaction(async (tx) => {
+    const user = await createStaffUser(tx, { ...input, role: "admin" });
+    await audit(tx, {
+      actorId: null,
+      action: "auth.admin_seeded",
+      entityType: "user",
+      entityId: user.id,
+      diff: { role: "admin" },
+    });
+    return user;
+  });
+}
+
+/**
  * Sets a new password, ends every session and clears both locks. With
  * `reset2fa`, also removes the user's 2FA, so the next sign-in sets it up again.
- * Returns false when no such user exists.
+ * The `auth.password_reset` AuditEvent is written in the same transaction (Phase
+ * 25 spec, D7). Returns false when no such user exists.
  */
 export async function resetStaffPassword(
   db: Db,
@@ -69,26 +94,34 @@ export async function resetStaffPassword(
   });
   if (!user) return false;
   const hash = await hashPassword(input.password);
-  await db.$transaction([
-    db.account.updateMany({
+  const reset2fa = input.reset2fa === true;
+  await db.$transaction(async (tx) => {
+    await tx.account.updateMany({
       where: { userId: user.id, providerId: "credential" },
       data: { password: hash },
-    }),
-    db.session.deleteMany({ where: { userId: user.id } }),
-    db.user.update({
+    });
+    await tx.session.deleteMany({ where: { userId: user.id } });
+    await tx.user.update({
       where: { id: user.id },
       data: {
         failedSignInCount: 0,
         lockedUntil: null,
-        ...(input.reset2fa ? { twoFactorEnabled: false } : {}),
+        ...(reset2fa ? { twoFactorEnabled: false } : {}),
       },
-    }),
-    input.reset2fa
-      ? db.twoFactor.deleteMany({ where: { userId: user.id } })
-      : db.twoFactor.updateMany({
-          where: { userId: user.id },
-          data: { failedVerificationCount: 0, lockedUntil: null },
-        }),
-  ]);
+    });
+    if (reset2fa) await tx.twoFactor.deleteMany({ where: { userId: user.id } });
+    else
+      await tx.twoFactor.updateMany({
+        where: { userId: user.id },
+        data: { failedVerificationCount: 0, lockedUntil: null },
+      });
+    await audit(tx, {
+      actorId: null,
+      action: "auth.password_reset",
+      entityType: "user",
+      entityId: user.id,
+      diff: { reset2fa },
+    });
+  });
   return true;
 }

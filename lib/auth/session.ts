@@ -3,35 +3,27 @@ import "server-only";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { env } from "@/lib/env";
-import { isStaffRole, type StaffRole } from "./roles";
 import { getAuth } from "./server";
+import { type StaffSession, toStaffSession } from "./staff-session";
 
-export type StaffSession = {
-  userId: string;
-  name: string;
-  email: string;
-  role: StaffRole;
-  /** False until the user has set up TOTP; /admin then allows only set-up (D7). */
-  twoFactorEnabled: boolean;
-};
+export type { StaffSession } from "./staff-session";
 
 /**
- * The signed-in staff member for this request, read from the database (no cookie
- * cache, D8), or null. A deactivated user or an unknown role counts as signed out.
- * While CMS_ENABLED is off it calls notFound(): the /admin layout's own notFound()
- * does not stop a page body that renders beside it (D11).
+ * The signed-in staff member for these request headers, read from the database
+ * (no cookie cache, D8), or null. Callers check `env.cms` first: getAuth() throws
+ * while the CMS is off. requireRole() and /api/cms/session read through this.
+ */
+export async function readStaffSession(requestHeaders: Headers): Promise<StaffSession | null> {
+  return toStaffSession(await getAuth().api.getSession({ headers: requestHeaders }));
+}
+
+/**
+ * The signed-in staff member for this request, or null. A deactivated user or an
+ * unknown role counts as signed out. While CMS_ENABLED is off it calls notFound():
+ * the /admin layout's own notFound() does not stop a page body that renders
+ * beside it (D11).
  */
 export async function getStaffSession(): Promise<StaffSession | null> {
   if (!env.cms) notFound();
-  const result = await getAuth().api.getSession({ headers: await headers() });
-  if (!result) return null;
-  const { user } = result;
-  if (user.deactivatedAt || !isStaffRole(user.role)) return null;
-  return {
-    userId: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    twoFactorEnabled: user.twoFactorEnabled === true,
-  };
+  return readStaffSession(await headers());
 }

@@ -59,6 +59,13 @@ const targetBlankRule = {
   message: "Link off-site with <ExternalLink> from @/components/shared/external-link.",
 };
 
+// The auth test helpers sign in through a test Better Auth instance and fake
+// sessions: tests only, never app code (Phase 25 spec, D10).
+const testingImport = {
+  group: ["**/auth/testing", "**/auth/testing/**"],
+  message: "lib/auth/testing is for tests only.",
+};
+
 const rawUnsafeRules = [
   { property: "$queryRawUnsafe", message: rawUnsafe },
   { property: "$executeRawUnsafe", message: rawUnsafe },
@@ -92,7 +99,10 @@ const eslintConfig = defineConfig([
   },
   {
     rules: {
-      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [cloudinaryImport] }],
+      "no-restricted-imports": [
+        "error",
+        { paths: [cloudinarySdk], patterns: [cloudinaryImport, testingImport] },
+      ],
     },
   },
   {
@@ -100,19 +110,31 @@ const eslintConfig = defineConfig([
     rules: {
       "no-restricted-imports": [
         "error",
-        { paths: [cloudinarySdk], patterns: [...appImports, cloudinaryImport] },
+        { paths: [cloudinarySdk], patterns: [...appImports, cloudinaryImport, testingImport] },
       ],
     },
   },
   {
     files: ["components/media/**"],
     rules: {
-      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: appImports }],
+      "no-restricted-imports": [
+        "error",
+        { paths: [cloudinarySdk], patterns: [...appImports, testingImport] },
+      ],
     },
   },
   {
     files: ["scripts/**"],
-    rules: { "no-restricted-imports": ["error", { patterns: [cloudinaryImport] }] },
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [cloudinaryImport, testingImport] }],
+    },
+  },
+  {
+    // Tests, e2e and the helpers themselves may use lib/auth/testing.
+    files: ["**/*.test.ts", "**/*.test.tsx", "e2e/**", "lib/auth/testing/**"],
+    rules: {
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [cloudinaryImport] }],
+    },
   },
   {
     files: ["**/*.tsx", "**/*.jsx"],

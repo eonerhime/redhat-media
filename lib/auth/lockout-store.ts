@@ -5,7 +5,9 @@ import type { PrismaClient } from "@/lib/generated/prisma/client";
 import type { LockoutStore } from "./lockout";
 import { LOCKOUT_MAX_FAILURES } from "./options";
 
-export function createLockoutStore(db: Pick<PrismaClient, "user" | "session">): LockoutStore {
+export function createLockoutStore(
+  db: Pick<PrismaClient, "user" | "session" | "twoFactor">,
+): LockoutStore {
   return {
     async find(email) {
       const user = await db.user.findUnique({
@@ -49,6 +51,18 @@ export function createLockoutStore(db: Pick<PrismaClient, "user" | "session">): 
 
     async endOtherSessions(userId, keepToken) {
       await db.session.deleteMany({ where: { userId, token: { not: keepToken } } });
+    },
+
+    async twoFactorLocked(userId, now) {
+      const locked = await db.twoFactor.findFirst({
+        where: {
+          userId,
+          lockedUntil: { gt: now },
+          failedVerificationCount: { gte: LOCKOUT_MAX_FAILURES },
+        },
+        select: { id: true },
+      });
+      return locked !== null;
     },
 
     async reset(email) {
