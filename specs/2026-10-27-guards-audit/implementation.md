@@ -22,6 +22,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Constitution: `tech-stack.md` rule 5, the lockout row, the two *Authorization & application* rows and *In-place CMS* 1; the roadmap *Built* note and the owner's `---` divider.
   - Local results: typecheck, lint, format and `pnpm test` (50 files, 1,672 tests) pass. The CI `db` job's steps on a throwaway Postgres 18 cluster (bootstrap, `migrate deploy`, no drift, seed twice, `test:db`): 16 files, 116 tests pass. `next build` passes with the CMS off and on. The route tables match except the `/admin` pages (○ off, ◐ on, as in Phase 24); `/api/cms/session` is ƒ in both (C2).
 
+- **2026-10-27** — PR #64 opened. Red-CI proof (plan 8.4): throwaway commit `e0744a3` added `app/(public)/guard-proof/actions.ts`, a `"use server"` module whose `unguardedProof()` skips the guard. The PR's `ci` job failed at `pnpm test` (run [40498102482](https://github.com/eonerhime/redhat-media/actions/runs/40498102482)) with `app/(public)/guard-proof/actions.ts:5 unguardedProof: server action does not open with await requireRole(...)`. `db` and `gitleaks` stayed green. The commit was then dropped (branch reset to `9ca0997` and force-pushed with lease).
+
 ## Deviations from plan
 
 - **`lib/audit/audit.ts` does not import `server-only`** (plan 4.1). The owner scripts call it under plain Node, where that import throws. It has no secret and no env access, and takes its client as an argument, like `staff-admin.ts`.

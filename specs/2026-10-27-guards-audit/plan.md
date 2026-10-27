@@ -54,7 +54,7 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 - [x] 8.1 `lib/auth/public-mutations.ts`: the allowlist with a reason per entry (D11).
 - [x] 8.2 `lib/auth/guard-coverage.ts`: the checker (TypeScript compiler API), as a pure function over source text.
 - [x] 8.3 `guard-coverage.test.ts`: the fixture cases (D11), then the real scan of `app/` and `lib/` passes today.
-- [ ] 8.4 Red-CI proof: push a throwaway commit with an unguarded `"use server"` action, record the failed `ci` run, then drop the commit (validation).
+- [x] 8.4 Red-CI proof: push a throwaway commit with an unguarded `"use server"` action, record the failed `ci` run, then drop the commit (validation).
 
 ## 9. Close-out
 

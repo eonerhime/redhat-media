@@ -6,7 +6,7 @@
 
 - [ ] **Guard tests pass:** `guards.test.ts` green in the `ci` job and `guards.db.test.ts` green in the `db` job (plan 3.4, 7.1).
 - [ ] **The endpoint returns `null` for anonymous visitors:** the database test gets `{ role: null, authenticated: false }` with `Cache-Control: no-store` (plan 7.2).
-- [ ] **CI fails on a new unguarded action:** the fixture tests are green (plan 8.3), **and** a throwaway commit with an unguarded `"use server"` action turned the PR's `ci` job red. The run ID is recorded in `implementation.md`, and the commit was then dropped (plan 8.4; owner answer I).
+- [x] **CI fails on a new unguarded action:** the fixture tests are green (plan 8.3), **and** a throwaway commit with an unguarded `"use server"` action turned the PR's `ci` job red. The run ID is recorded in `implementation.md`, and the commit was then dropped (plan 8.4; owner answer I).
 
 ## Database tests through the real auth (owner answer I)
 
