@@ -209,7 +209,7 @@ model RateLimitHit {
 
 model AuditEvent {
   id         String   @id @default(cuid())
-  actorId    String
+  actorId    String?  // null for the system (a lockout) and the owner scripts; no foreign key
   action     String   // e.g. "portfolio.update", "inquiry.status"
   entityType String
   entityId   String
@@ -217,6 +217,7 @@ model AuditEvent {
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])
+  @@index([actorId, createdAt])
 }
 
 ```
