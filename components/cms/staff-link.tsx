@@ -1,37 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { isStaffRole, staffPanelLabel, type StaffRole } from "@/lib/auth/roles";
-import { clearStaffHint, hasStaffHint } from "./staff-hint";
+import { staffPanelLabel } from "@/lib/auth/roles";
+import { useEditMode } from "./edit-mode";
 
 // The header's admin icon (Phase 24 spec, D13, amended 2026-10-26): shown only to
 // signed-in staff, and labelled with their role as in MRU. It opens /admin/panel,
 // where the inquiry inbox (Phase 32) and staff management (Phase 33) live.
-// Public pages stay static: the role is read from /api/cms/session in the browser
-// after load (Phase 25 spec, D9), and only when the sign-in hint is set. It decides only whether the icon shows; every
-// /admin page checks the session on the server again.
+// Public pages stay static: the role comes from EditModeProvider, which reads
+// /api/cms/session in the browser after load, only when the sign-in hint is set
+// (Phase 25 spec, D9; Phase 26 spec, D2). It decides only whether the icon shows;
+// every /admin page checks the session on the server again.
 export function StaffLink() {
-  const [role, setRole] = useState<StaffRole | null>(null);
-
-  useEffect(() => {
-    if (!hasStaffHint()) return;
-    let cancelled = false;
-    fetch("/api/cms/session", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data: { role?: unknown; authenticated?: unknown } | null) => {
-        if (cancelled || !data) return;
-        if (isStaffRole(data.role)) setRole(data.role);
-        // Signed out: drop the hint. Signed in without 2FA yet (role null): keep it,
-        // so the icon appears once set-up is finished (Phase 25 spec, D9).
-        else if (data.authenticated === false) clearStaffHint();
-      })
-      .catch(() => {
-        // a network blip: leave the icon hidden this time, keep the hint
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { role } = useEditMode();
 
   if (!role) return null;
   const label = staffPanelLabel(role);

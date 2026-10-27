@@ -35,7 +35,7 @@
 
 ```text
 ├── app/
-│   ├── (public)/          # Public marketing site and portfolio explorer (EditModeProvider mounted here)
+│   ├── (public)/          # Public marketing site and portfolio explorer (EditModeProvider wraps it through PublicShell)
 │   │   ├── page.tsx       # Homepage (hero, service pillars, featured work, process, CTA)
 │   │   ├── about/         # Agency story, mission, and multidisciplinary capabilities
 │   │   ├── services/      # Services index and one page per service (six services in three pillars)

@@ -51,6 +51,11 @@ export const cmsCopy = {
     signOut: "Sign out",
     signingOut: "Signing out…",
   },
+  // The floating pill on the public pages (Phase 26 spec, D5).
+  editMode: {
+    off: "Editing: Off",
+    on: "Editing: On",
+  },
   rateLimited: "Too many attempts. Try again in a minute.",
   unavailable: "Something went wrong. Try again.",
 } as const;
