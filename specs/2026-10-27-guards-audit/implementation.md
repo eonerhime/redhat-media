@@ -23,6 +23,7 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Local results: typecheck, lint, format and `pnpm test` (50 files, 1,672 tests) pass. The CI `db` job's steps on a throwaway Postgres 18 cluster (bootstrap, `migrate deploy`, no drift, seed twice, `test:db`): 16 files, 116 tests pass. `next build` passes with the CMS off and on. The route tables match except the `/admin` pages (○ off, ◐ on, as in Phase 24); `/api/cms/session` is ƒ in both (C2).
 
 - **2026-10-27** — PR #64 opened. Red-CI proof (plan 8.4): throwaway commit `e0744a3` added `app/(public)/guard-proof/actions.ts`, a `"use server"` module whose `unguardedProof()` skips the guard. The PR's `ci` job failed at `pnpm test` (run [40498102482](https://github.com/eonerhime/redhat-media/actions/runs/40498102482)) with `app/(public)/guard-proof/actions.ts:5 unguardedProof: server action does not open with await requireRole(...)`. `db` and `gitleaks` stayed green. The commit was then dropped (branch reset to `9ca0997` and force-pushed with lease).
+- **2026-10-27** — PR #64 green on `b7189c5`: `ci`, `db`, `gitleaks` (run [40498381742](https://github.com/eonerhime/redhat-media/actions/runs/40498381742)), preview headers, preview-e2e and Lighthouse (run [40498545743](https://github.com/eonerhime/redhat-media/actions/runs/40498545743)), and Vercel. No new dependency, and no open Dependabot PRs. Owner's preview check passed; owner said "merge #64" (plan 9.3–9.4).
 
 ## Deviations from plan
 

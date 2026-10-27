@@ -60,5 +60,5 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 
 - [x] 9.1 Typecheck, lint, format, unit tests, builds with the CMS on and off (route table: public modes unchanged, C2).
 - [x] 9.2 `roadmap.md` Phase 25 row: dated *Built* note.
-- [ ] 9.3 PR into `develop`; CI and preview-e2e green.
-- [ ] 9.4 **(owner)** The preview check (validation), then merge.
+- [x] 9.3 PR into `develop`; CI and preview-e2e green.
+- [x] 9.4 **(owner)** The preview check (validation), then merge.
