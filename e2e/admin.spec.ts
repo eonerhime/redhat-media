@@ -57,6 +57,7 @@ test.describe("with CMS_ENABLED off (D11)", () => {
     "/admin/2fa",
     "/admin/2fa/setup",
     "/api/auth/get-session",
+    "/api/cms/session",
   ]) {
     test(`${path} is a 404`, async ({ page }) => {
       const response = await fetchPath(page, path);
@@ -101,9 +102,28 @@ test.describe("with CMS_ENABLED on", () => {
     });
   }
 
-  test("a visitor's header has no admin icon (D13)", async ({ page }) => {
+  test("a visitor's header has no admin icon, and asks no session (D13; Phase 25, D9)", async ({
+    page,
+  }) => {
+    const asked: string[] = [];
+    page.on("request", (request) => {
+      const { pathname } = new URL(request.url());
+      if (pathname.startsWith("/api/cms/") || pathname.startsWith("/api/auth/"))
+        asked.push(pathname);
+    });
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("banner").getByRole("link", { name: /panel$/ })).toHaveCount(0);
+    expect(asked).toEqual([]);
+  });
+
+  test("/api/cms/session answers a visitor with role null, no-store (Phase 25, D8)", async ({
+    page,
+  }) => {
+    const response = await fetchPath(page, "/api/cms/session");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    expect(await response.json()).toEqual({ role: null, authenticated: false });
   });
 
   test("a wrong password gets the generic message (D14)", async ({ page }) => {
@@ -155,6 +175,11 @@ test.describe("full sign-in flow (local, with a fresh admin)", () => {
   );
 
   test("sets up 2FA, signs out, signs in with a code and signs out (D7, D17)", async ({ page }) => {
+    // The header icon reads its role from /api/cms/session (Phase 25 spec, D9).
+    const roleReads: string[] = [];
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname === "/api/cms/session") roleReads.push(request.url());
+    });
     await page.goto("/admin");
     await page.getByLabel("Email").fill(adminEmail!);
     await page.getByLabel("Password").fill(adminPassword!);
@@ -187,6 +212,7 @@ test.describe("full sign-in flow (local, with a fresh admin)", () => {
     // Back on the website, where the header's admin icon opens the panel (D13, amended).
     await expect(page).toHaveURL(/\/$/);
     await openPanelAndSignOut(page);
+    expect(roleReads.length).toBeGreaterThan(0);
 
     // Signed out: /admin is the sign-in again, and the icon is gone.
     await page.goto("/");

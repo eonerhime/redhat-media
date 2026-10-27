@@ -17,7 +17,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { adminSecretsFile, assertAuthScriptTarget } from "../lib/auth/script-target.ts";
-import { createStaffUser, newStaffPassword } from "../lib/auth/staff-admin.ts";
+import { newStaffPassword, seedAdmin } from "../lib/auth/staff-admin.ts";
 import { PrismaClient } from "../lib/generated/prisma/client.ts";
 
 const fail = (message: string): never => {
@@ -60,7 +60,7 @@ try {
   if (await db.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true } }))
     fail(`${email} already exists on ${host}; use pnpm auth:reset-password`);
   const password = newStaffPassword();
-  const user = await createStaffUser(db, { email, name, role: "admin", password });
+  const user = await seedAdmin(db, { email, name, password });
   writeFileSync(
     outPath,
     [

@@ -3,108 +3,35 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { testPrisma } from "@/lib/db/test-client";
 import type { PrismaClient } from "@/lib/generated/prisma/client";
 import { createRateLimiter } from "@/lib/security/rate-limit-core";
-import { type Auth, createAuth } from "./core";
-import { createStaffUser, resetStaffPassword } from "./staff-admin";
+import { createAuth } from "./core";
+import { resetStaffPassword } from "./staff-admin";
+import {
+  type AuthKit,
+  createAuthKit,
+  type Jar,
+  TEST_PASSWORD as PASSWORD,
+  TEST_SALT as SALT,
+} from "./testing/auth-kit";
 import { totpCode, totpSecretFromUri, wrongTotpCode } from "./test-totp";
 
 // The roadmap's Phase 24 checks against a real Better Auth instance and Postgres,
 // as rhm_app (Phase 24 spec, D2–D10, D14, D19; validation.md). Requests go through
-// auth.handler exactly as /api/auth/[...all] passes them on.
-
-const BASE = "http://localhost:3217";
-const SALT = "auth-db-test-salt-".padEnd(40, "s");
-const PASSWORD = "correct-horse-battery-9";
-const RUN = Date.now().toString(36); // unique emails, so reruns on a shared branch don't collide
+// auth.handler exactly as /api/auth/[...all] passes them on, by way of the shared
+// helpers in lib/auth/testing (Phase 25 spec, D10).
 
 let db: PrismaClient;
-let auth: Auth;
-let ipCounter = 0;
-const created: string[] = [];
+let kit: AuthKit;
 
-/** A fresh documentation-range IP, so per-IP limits don't leak between tests. */
-const nextIp = () => `203.0.113.${(ipCounter++ % 250) + 1}`;
-
-type Jar = Map<string, string>;
-
-function remember(response: Response, jar: Jar): Jar {
-  for (const cookie of response.headers.getSetCookie()) {
-    const [pair = ""] = cookie.split(";");
-    const at = pair.indexOf("=");
-    const name = pair.slice(0, at);
-    const value = pair.slice(at + 1);
-    if (!value || /max-age=0/i.test(cookie)) jar.delete(name);
-    else jar.set(name, value);
-  }
-  return jar;
-}
-
-async function call(
-  path: string,
-  options: { body?: unknown; jar?: Jar; ip?: string; origin?: string; method?: string } = {},
-) {
-  const headers = new Headers({
-    origin: options.origin ?? BASE,
-    "x-real-ip": options.ip ?? nextIp(),
-  });
-  if (options.body !== undefined) headers.set("content-type", "application/json");
-  if (options.jar?.size)
-    headers.set("cookie", [...options.jar].map(([name, value]) => `${name}=${value}`).join("; "));
-  const response = await auth.handler(
-    new Request(`${BASE}/api/auth${path}`, {
-      method: options.method ?? (options.body === undefined ? "GET" : "POST"),
-      headers,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
-    }),
-  );
-  if (options.jar) remember(response, options.jar);
-  const text = await response.text();
-  const json =
-    response.headers.get("content-type")?.includes("json") && text ? JSON.parse(text) : null;
-  return { status: response.status, json };
-}
-
-async function staff(label: string) {
-  const email = `${label}-${RUN}@example.test`;
-  const user = await createStaffUser(db, { email, name: label, role: "admin", password: PASSWORD });
-  created.push(user.id);
-  return user;
-}
-
-const signIn = (email: string, jar: Jar, password = PASSWORD, ip?: string) =>
-  call("/sign-in/email", { body: { email, password }, jar, ip });
-
-/** Signs in, sets up TOTP and returns its secret, leaving a full session in `jar`. */
-async function enrol(email: string, jar: Jar): Promise<string> {
-  expect((await signIn(email, jar)).status).toBe(200);
-  const enable = await call("/two-factor/enable", { body: { password: PASSWORD }, jar });
-  expect(enable.status).toBe(200);
-  const secret = totpSecretFromUri(enable.json.totpURI);
-  expect(
-    (await call("/two-factor/verify-totp", { body: { code: totpCode(secret) }, jar })).status,
-  ).toBe(200);
-  return secret;
-}
-
-/** Signs in with password and code from scratch; returns the session jar. */
-async function fullSignIn(email: string, secret: string): Promise<Jar> {
-  const jar: Jar = new Map();
-  const first = await signIn(email, jar);
-  expect(first.json).toMatchObject({ twoFactorRedirect: true });
-  const second = await call("/two-factor/verify-totp", { body: { code: totpCode(secret) }, jar });
-  expect(second.status).toBe(200);
-  return jar;
-}
+const call: AuthKit["call"] = (...args) => kit.call(...args);
+const signIn: AuthKit["signIn"] = (...args) => kit.signIn(...args);
+const enrol: AuthKit["enrol"] = (...args) => kit.enrol(...args);
+const fullSignIn: AuthKit["fullSignIn"] = (...args) => kit.fullSignIn(...args);
+const nextIp = () => kit.nextIp();
+const staff = (label: string) => kit.newStaff(label);
 
 beforeAll(() => {
   db = testPrisma("app");
-  auth = createAuth({
-    db,
-    secret: "auth-db-test-secret-".padEnd(48, "x"),
-    baseURL: BASE,
-    trustedOrigins: [BASE],
-    limiter: createRateLimiter(db, SALT),
-    logSalt: SALT,
-  });
+  kit = createAuthKit(db);
 });
 
 afterEach(() => {
@@ -112,7 +39,7 @@ afterEach(() => {
 });
 
 afterAll(async () => {
-  await db.user.deleteMany({ where: { id: { in: created } } }); // sessions, accounts, 2FA cascade
+  await kit.cleanup();
   await db.$disconnect();
 });
 
@@ -177,7 +104,8 @@ describe("429 on repeated IP failures (D3)", () => {
     const statuses = [];
     for (let i = 0; i < 6; i++)
       statuses.push(
-        (await signIn(`nobody-${RUN}-${i}@example.test`, new Map(), "wrong-password-1", ip)).status,
+        (await signIn(`nobody-${kit.run}-${i}@example.test`, new Map(), "wrong-password-1", ip))
+          .status,
       );
     expect(statuses.slice(0, 5)).toEqual([401, 401, 401, 401, 401]);
     expect(statuses[5]).toBe(429);

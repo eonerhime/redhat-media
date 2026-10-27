@@ -3,8 +3,10 @@
 // IP. Wrong 2FA codes are counted by the twoFactor plugin's own accountLockout
 // (lib/auth/options.ts). While either lock is active, or once the account is
 // deactivated, sign-in fails exactly like a wrong password: same work, same error.
+// Each lock, and each finished 2FA set-up, is also an AuditEvent (Phase 25 spec, D7).
 
 import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
+import type { AuditEventInput } from "@/lib/audit/audit";
 import { LOCKOUT_MAX_FAILURES, LOCKOUT_SECONDS, PASSWORD_MAX_LENGTH } from "./options";
 import type { SecurityLogger } from "./security-log";
 
@@ -29,7 +31,12 @@ export type LockoutStore = {
   reset(email: string): Promise<void>;
   /** Ends every session of the user except `keepToken` (when 2FA is turned on). */
   endOtherSessions(userId: string, keepToken: string): Promise<void>;
+  /** Whether the twoFactor plugin's own lock is on for the user (spent count, lock in force). */
+  twoFactorLocked(userId: string, now: Date): Promise<boolean>;
 };
+
+/** Writes an AuditEvent that has no change of its own; never throws (auditBestEffort). */
+export type AuthAuditWriter = (event: AuditEventInput) => Promise<void>;
 
 /** Why sign-in is refused before the password is checked, if it is. */
 export function refusal(
@@ -61,6 +68,22 @@ export function signInEmail(body: unknown): string | null {
   return typeof email === "string" && email.length <= 254 ? email.toLowerCase() : null;
 }
 
+/** The lasting record of a lock (Phase 25 spec, D7): the system acted, on the user. */
+export function lockoutAuditEvent(userId: string, via: "password" | "2fa"): AuditEventInput {
+  return {
+    actorId: null,
+    action: "auth.lockout",
+    entityType: "user",
+    entityId: userId,
+    diff: { via },
+  };
+}
+
+/** The record of finished TOTP set-up (D7): the user acted, on themselves. */
+export function twoFactorEnabledAuditEvent(userId: string): AuditEventInput {
+  return { actorId: userId, action: "auth.2fa_enabled", entityType: "user", entityId: userId };
+}
+
 /** Better Auth's own wrong-password error, byte for byte. */
 export function invalidCredentials(): APIError {
   return new APIError("UNAUTHORIZED", {
@@ -72,6 +95,7 @@ export function invalidCredentials(): APIError {
 export function createLockoutHooks(deps: {
   store: LockoutStore;
   log: SecurityLogger;
+  audit: AuthAuditWriter;
   now?: () => Date;
 }) {
   const now = deps.now ?? (() => new Date());
@@ -103,10 +127,26 @@ export function createLockoutHooks(deps: {
       } else if (outcome === "wrong-password") {
         const result = await deps.store.recordFailure(email, lockUntil(now()));
         deps.log("auth.sign_in_failed", { userId: result?.userId, path: SIGN_IN_PATH });
-        if (result?.locked) deps.log("auth.lockout", { userId: result.userId, path: SIGN_IN_PATH });
+        if (result?.locked) {
+          deps.log("auth.lockout", { userId: result.userId, path: SIGN_IN_PATH });
+          await deps.audit(lockoutAuditEvent(result.userId, "password"));
+        }
       }
     } else if (VERIFY_PATHS.has(ctx.path) && isAPIError(ctx.context.returned)) {
       deps.log("auth.2fa_failed", { path: ctx.path });
+      // The twoFactor plugin locks inside its endpoint and calls no hook (D7), so
+      // after a wrong code we look at its row. A refusal while already locked is
+      // not a new lock. Only a sign-in challenge counts wrong codes, and its
+      // signed two_factor cookie names the user.
+      if (ctx.context.returned.body?.code === "ACCOUNT_TEMPORARILY_LOCKED") return;
+      const cookie = ctx.context.createAuthCookie("two_factor").name;
+      const challenge = await ctx.getSignedCookie(cookie, ctx.context.secret);
+      if (!challenge) return;
+      const userId = (await ctx.context.internalAdapter.findVerificationValue(challenge))?.value;
+      if (userId && (await deps.store.twoFactorLocked(userId, now()))) {
+        deps.log("auth.lockout", { userId, path: ctx.path });
+        await deps.audit(lockoutAuditEvent(userId, "2fa"));
+      }
     } else if (ctx.path === "/two-factor/verify-totp" && ctx.context.newSession) {
       // A code confirmed with a session cookie is the set-up step, which turns 2FA on
       // (a sign-in challenge carries only the 2FA cookie). Any other session the user
@@ -115,6 +155,7 @@ export function createLockoutHooks(deps: {
       if (cookies.includes(`${ctx.context.authCookies.sessionToken.name}=`)) {
         const { user, session } = ctx.context.newSession;
         await deps.store.endOtherSessions(user.id, session.token);
+        await deps.audit(twoFactorEnabledAuditEvent(user.id));
       }
     }
   });

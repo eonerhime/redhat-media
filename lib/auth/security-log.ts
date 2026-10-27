@@ -1,4 +1,5 @@
-// Security log lines for staff sign-in (Phase 24 spec, D20). One JSON line per
+// Security log lines for staff sign-in (Phase 24 spec, D20) and the guard's
+// refusals (Phase 25 spec, D12). One JSON line per
 // event on stderr, which Vercel keeps for an hour on Hobby; AuditEvent (Phase 25)
 // is the lasting record. The fields are a fixed, typed set: a user ID when one is
 // known and a short hash of the client key, never an email address or a password.
@@ -8,7 +9,8 @@ export type SecurityEvent =
   | "auth.lockout"
   | "auth.refused_locked"
   | "auth.2fa_failed"
-  | "auth.rate_limited";
+  | "auth.rate_limited"
+  | "auth.forbidden";
 
 export type SecurityLogFields = {
   /** Better Auth user ID, when the account is known. */
@@ -17,6 +19,10 @@ export type SecurityLogFields = {
   keyHash?: string;
   /** The auth endpoint, e.g. "/sign-in/email". */
   path?: string;
+  /** Why requireRole() refused: "role", "2fa" or "reauth" (Phase 25 spec, D12). */
+  reason?: string;
+  /** The guarded action's name, e.g. "content.update", never its input. */
+  action?: string;
 };
 
 export type SecurityLogger = (event: SecurityEvent, fields?: SecurityLogFields) => void;
@@ -27,5 +33,7 @@ export const securityLog: SecurityLogger = (event, fields = {}) => {
   if (fields.userId) line.userId = fields.userId;
   if (fields.keyHash) line.keyHash = fields.keyHash;
   if (fields.path) line.path = fields.path;
+  if (fields.reason) line.reason = fields.reason;
+  if (fields.action) line.action = fields.action;
   console.warn(JSON.stringify(line));
 };

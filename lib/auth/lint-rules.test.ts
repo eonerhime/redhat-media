@@ -35,3 +35,24 @@ describe("ESLint: no server-side sign-in", () => {
     expect(await restricted("lib/auth/example.test.ts")).toEqual([]);
   }, 60_000);
 });
+
+// The auth test helpers stay out of app code (Phase 25 spec, D10).
+describe("ESLint: lib/auth/testing is for tests only", () => {
+  const IMPORT = `import { fakeStaff } from "@/lib/auth/testing/fakes";\nexport const f = fakeStaff;\n`;
+
+  async function importErrors(filePath: string): Promise<number> {
+    const [result] = await new ESLint().lintText(IMPORT, { filePath });
+    return (result?.messages ?? []).filter((m) => m.ruleId === "no-restricted-imports").length;
+  }
+
+  it("fires in app, components and lib code", async () => {
+    expect(await importErrors("app/api/cms/example/route.ts")).toBe(1);
+    expect(await importErrors("components/cms/example.tsx")).toBe(1);
+    expect(await importErrors("lib/auth/example.ts")).toBe(1);
+  }, 60_000);
+
+  it("allows tests", async () => {
+    expect(await importErrors("lib/auth/example.test.ts")).toBe(0);
+    expect(await importErrors("components/cms/example.test.ts")).toBe(0);
+  }, 60_000);
+});
