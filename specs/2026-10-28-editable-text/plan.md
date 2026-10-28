@@ -59,7 +59,7 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 
 ### 10. Checks, PR B and close-out
 
-- [ ] 10.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, and `pnpm build` with the CMS off and on. Compare the route table and a visitor HTML sample with `develop` (C1, C3).
+- [x] 10.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, and `pnpm build` with the CMS off and on. Compare the route table and a visitor HTML sample with `develop` (C1, C3).
 - [ ] 10.2 Commit, push, and open PR B into `develop`. CI green, preview-e2e included.
 - [ ] 10.3 **(owner)** Preview edit check (D12; `validation.md`).
 - [ ] 10.4 Roadmap *Built* note on the Phase 27 row. Tick `validation.md` and this plan, and finish `implementation.md`.

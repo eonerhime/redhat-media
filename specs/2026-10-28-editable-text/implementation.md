@@ -28,6 +28,7 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Builds: with the CMS on, and with no database, every route keeps its marker (C1).
   - e2e in Edge against a CMS-on build: `editable.spec.ts` 8 passed, 1 skipped (the CMS-off case); `edit-mode.spec.ts` + `admin.spec.ts` 50 passed, 10 skipped.
   - Layout (plan 8.3): with editing On at 360px and 1440px, on `/`, a service page, `/about`, `/contact` and `/portfolio/sportspred`, there's no horizontal overflow, and no ✎ overlaps a visible control or the pill. The only overlaps reported at 360px are the closed mobile menu's links, which are `invisible`. Screenshots were checked by eye: the ✎ sits after the text, and the dialog fits a 390px screen.
+  - Visitor HTML (C3): `/`, `/services`, a service page, `/about`, `/contact`, `/portfolio` and `/privacy`, served from no-database builds of PR A (`3782799`) and PR B (`64b0a4b`). With scripts and asset links removed, they are identical: 0 changed lines.
 
 ## Deviations from plan
 
