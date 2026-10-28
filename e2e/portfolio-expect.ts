@@ -59,18 +59,23 @@ export async function portfolioState(page: Page): Promise<PortfolioState> {
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 const remote = process.env.PW_BASE_URL;
 
+/** Sends the bypass header from this page to the preview's origin; a no-op locally. */
+export async function withBypass(page: Page): Promise<Page> {
+  if (remote && bypass) {
+    const origin = new URL(remote).origin;
+    await page.route(
+      (url) => url.origin === origin,
+      (route) =>
+        route.continue({
+          headers: { ...route.request().headers(), "x-vercel-protection-bypass": bypass },
+        }),
+    );
+  }
+  return page;
+}
+
 export const test = base.extend({
   page: async ({ page }, provide) => {
-    if (remote && bypass) {
-      const origin = new URL(remote).origin;
-      await page.route(
-        (url) => url.origin === origin,
-        (route) =>
-          route.continue({
-            headers: { ...route.request().headers(), "x-vercel-protection-bypass": bypass },
-          }),
-      );
-    }
-    await provide(page);
+    await provide(await withBypass(page));
   },
 });

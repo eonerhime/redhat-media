@@ -3,6 +3,7 @@
 
 export const cmsCopy = {
   areaName: "RedHat Media staff",
+  backToSite: "Back to the website",
   login: {
     title: "Staff sign-in",
     email: "Email",
@@ -50,6 +51,11 @@ export const cmsCopy = {
     toSite: "Go to the website",
     signOut: "Sign out",
     signingOut: "Signing out…",
+  },
+  // The floating pill on the public pages (Phase 26 spec, D5).
+  editMode: {
+    off: "Editing: Off",
+    on: "Editing: On",
   },
   rateLimited: "Too many attempts. Try again in a minute.",
   unavailable: "Something went wrong. Try again.",

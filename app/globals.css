@@ -81,3 +81,14 @@
 html:has(dialog:modal) {
   overflow: hidden;
 }
+
+/* While the Editing pill is on the page (editors and admins only), the page can scroll its last
+   lines clear of it, and focus scrolling keeps a focused control above it, so the pill never hides
+   the footer or a form button (Phase 26 spec, C6; WCAG 2.2 focus not obscured). */
+html:has([data-edit-pill]) {
+  scroll-padding-bottom: 6rem;
+}
+
+body:has([data-edit-pill]) {
+  padding-bottom: 5rem;
+}
