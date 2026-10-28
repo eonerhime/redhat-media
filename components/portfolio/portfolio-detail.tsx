@@ -3,11 +3,13 @@ import { MediaImage } from "@/components/media/media-image";
 import { VideoEmbed } from "@/components/media/video-embed";
 import { Cta } from "@/components/shared/cta";
 import { ExternalLink } from "@/components/shared/external-link";
-import { block } from "@/lib/content/block";
+import { block, type BlockKey } from "@/lib/content/block";
 import { serviceByCategory } from "@/lib/content/services";
 import type { PortfolioDetail as Detail, PortfolioImage } from "@/lib/portfolio/read-core";
 import { Lightbox, LightboxTrigger, type LightboxImage } from "./lightbox";
 import { MODAL_LABEL_ID } from "./modal-label";
+import { Editable } from "@/components/cms/editable";
+import { EditButton } from "@/components/cms/edit-button";
 
 // The hero spans the container (72rem less 2rem padding each side); gallery tiles are half that.
 const HERO_SIZES = "(min-width: 72rem) 68rem, 100vw";
@@ -26,27 +28,33 @@ function Marker({ children }: { children: string }) {
 }
 
 async function BackLink() {
+  const label = await block("portfolio.detail.back");
   return (
-    <Link href="/portfolio" className={`inline-flex items-center gap-2 ${linkClass}`}>
-      <Marker>←</Marker>
-      {await block("portfolio.detail.back")}
-    </Link>
+    <>
+      <Link href="/portfolio" className={`inline-flex items-center gap-2 ${linkClass}`}>
+        <Marker>←</Marker>
+        {label}
+      </Link>
+      <EditButton blockKey="portfolio.detail.back" value={label} />
+    </>
   );
 }
 
 function AsideSection({
   id,
+  headingKey,
   heading,
   children,
 }: {
   id: string;
+  headingKey: BlockKey;
   heading: string;
   children: React.ReactNode;
 }) {
   return (
     <section aria-labelledby={id}>
       <h2 id={id} className="font-display text-xl font-extrabold">
-        {heading}
+        <Editable blockKey={headingKey} value={heading} />
       </h2>
       <div className="mt-3">{children}</div>
     </section>
@@ -127,7 +135,7 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
           <p
             className={`text-base font-semibold tracking-widest text-muted uppercase ${modal ? "" : "mt-8"}`}
           >
-            {eyebrow}
+            <Editable blockKey={serviceByCategory(item.category).nameKey} value={eyebrow} />
           </p>
           <h1
             id={modal ? MODAL_LABEL_ID : undefined}
@@ -158,7 +166,7 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
             <p className="max-w-3xl text-lg">{item.description}</p>
             <section aria-labelledby="highlights-heading" className="mt-12">
               <h2 id="highlights-heading" className="font-display text-display-2 font-extrabold">
-                {highlightsHeading}
+                <Editable blockKey="portfolio.detail.highlights" value={highlightsHeading} />
               </h2>
               <ul className="mt-6 list-disc space-y-3 pl-5 text-lg marker:text-brand">
                 {item.highlights.map((highlight) => (
@@ -169,7 +177,7 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
           </div>
 
           <aside className="space-y-8 rounded-xl border border-t-4 border-line border-t-brand bg-ink p-6 md:p-8 lg:self-start">
-            <AsideSection id="tech-heading" heading={techHeading}>
+            <AsideSection id="tech-heading" headingKey="portfolio.tech" heading={techHeading}>
               <ul className="flex flex-wrap gap-2">
                 {item.techStack.map((tech) => (
                   <li key={tech} className="rounded-full border border-line px-3 py-1 text-sm">
@@ -179,13 +187,18 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
               </ul>
             </AsideSection>
             {item.liveUrl || item.repoUrl ? (
-              <AsideSection id="links-heading" heading={linksHeading}>
+              <AsideSection
+                id="links-heading"
+                headingKey="portfolio.detail.links"
+                heading={linksHeading}
+              >
                 <ul className="space-y-2">
                   {item.liveUrl ? (
                     <li>
                       <ExternalLink href={item.liveUrl} className={linkClass}>
                         {liveLabel} <Marker>↗</Marker>
                       </ExternalLink>
+                      <EditButton blockKey="portfolio.live" value={liveLabel} />
                     </li>
                   ) : null}
                   {item.repoUrl ? (
@@ -193,13 +206,18 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
                       <ExternalLink href={item.repoUrl} className={linkClass}>
                         {repoLabel} <Marker>↗</Marker>
                       </ExternalLink>
+                      <EditButton blockKey="portfolio.detail.repo" value={repoLabel} />
                     </li>
                   ) : null}
                 </ul>
               </AsideSection>
             ) : null}
             {item.credit ? (
-              <AsideSection id="credit-heading" heading={creditHeading}>
+              <AsideSection
+                id="credit-heading"
+                headingKey="portfolio.detail.credit"
+                heading={creditHeading}
+              >
                 <p className="text-base" data-testid="portfolio-credit">
                   {item.creditUrl ? (
                     <ExternalLink href={item.creditUrl} className={linkClass}>
@@ -212,7 +230,11 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
               </AsideSection>
             ) : null}
             {item.client ? (
-              <AsideSection id="client-heading" heading={clientHeading}>
+              <AsideSection
+                id="client-heading"
+                headingKey="portfolio.detail.client"
+                heading={clientHeading}
+              >
                 <p className="text-base">{item.client}</p>
               </AsideSection>
             ) : null}
@@ -225,7 +247,7 @@ export async function PortfolioDetail({ item, modal = false }: { item: Detail; m
             className="container-page border-t border-line py-16"
           >
             <h2 id="gallery-heading" className="font-display text-display-2 font-extrabold">
-              {galleryHeading}
+              <Editable blockKey="portfolio.detail.gallery" value={galleryHeading} />
             </h2>
             <ul className="mt-8 grid gap-6 md:grid-cols-2" data-testid="portfolio-gallery">
               {item.gallery.map((media) => (
@@ -287,7 +309,7 @@ export async function PortfolioDetailUnavailable({ modal = false }: { modal?: bo
         id={modal ? MODAL_LABEL_ID : undefined}
         className={`max-w-2xl text-lg text-muted ${modal ? "" : "mt-8"}`}
       >
-        {message}
+        <Editable blockKey="portfolio.unavailable" value={message} />
       </p>
     </section>
   );

@@ -1,4 +1,5 @@
 import { block, type BlockKey } from "@/lib/content/block";
+import { Editable } from "@/components/cms/editable";
 
 // A service page list ("What's included", "What you get") on the Phase 4 card surface
 // (Phase 5 spec, D4). Text stays fg on ink; only the markers are brand.
@@ -22,11 +23,13 @@ export async function ItemList({
       className="rounded-xl border border-t-4 border-line border-t-brand bg-ink p-6 md:p-8"
     >
       <h2 id={headingId} className="font-display text-2xl font-extrabold">
-        {heading}
+        <Editable blockKey={headingKey} value={heading} />
       </h2>
       <ul className="mt-6 list-disc space-y-3 pl-5 text-lg marker:text-brand">
         {items.map((item) => (
-          <li key={item.key}>{item.text}</li>
+          <li key={item.key}>
+            <Editable blockKey={item.key} value={item.text} />
+          </li>
         ))}
       </ul>
     </section>

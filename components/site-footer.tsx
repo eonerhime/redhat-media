@@ -2,6 +2,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { block } from "@/lib/content/block";
 import { contact, siteName } from "@/lib/site";
+import { EditButton } from "@/components/cms/edit-button";
 
 // A bare `new Date()` fails prerendering under cacheComponents (Phase 1 spec, D10).
 async function currentYear() {
@@ -33,6 +34,7 @@ export async function SiteFooter() {
           <Link href="/privacy" className="underline underline-offset-4">
             {privacy}
           </Link>
+          <EditButton blockKey="footer.privacy" value={privacy} />
           <p className="text-base text-muted">
             {contact.registration} · © {year} {siteName}
           </p>

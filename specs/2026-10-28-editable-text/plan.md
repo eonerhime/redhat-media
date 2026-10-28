@@ -27,35 +27,35 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 ### 5. Checks and PR A
 
 - [x] 5.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, and `pnpm build` with the CMS off and on. The route table matches `develop` (C1).
-- [ ] 5.2 Commit, push, and open PR A into `develop`.
-- [ ] 5.3 CI green on PR A, with preview-e2e showing the steady skip count.
+- [x] 5.2 Commit, push, and open PR A into `develop` (#69).
+- [x] 5.3 CI green on PR A, with preview-e2e showing the steady skip count.
 - [ ] 5.4 **(owner)** Merge PR A; `migrate-preview` applies the migration on the `develop` run.
 
 ## PR B — editing (new branch from `develop` after 5.4)
 
 ### 6. Keys and rendering
 
-- [ ] 6.1 `lib/content/editable.ts`: the kinds and caps, and the list of editable keys with their kinds (D1, D4). Log in `implementation.md` any visible key left out, and why.
-- [ ] 6.2 `lib/content/rich-text.tsx`: `**bold**` to `<strong>` and one `<p>` per line for body; plain text otherwise (D3).
-- [ ] 6.3 Tests: every listed key exists in the defaults, matches the pattern and fits its cap. No key from the inquiry form, metadata or error copy is listed. The renderer handles unmatched markers, empty lines and markup-looking text (rendered as text).
+- [x] 6.1 `lib/content/editable.ts`: the kinds and caps, and the list of editable keys with their kinds (D1, D4). Log in `implementation.md` any visible key left out, and why.
+- [x] 6.2 `lib/content/rich-text.tsx`: `**bold**` to `<strong>` and one `<p>` per line for body; plain text otherwise (D3).
+- [x] 6.3 Tests: every listed key exists in the defaults, matches the pattern and fits its cap. No key from the inquiry form, metadata or error copy is listed. The renderer handles unmatched markers, empty lines and markup-looking text (rendered as text).
 
 ### 7. Action
 
-- [ ] 7.1 `lib/content/actions.ts`: `updateContentBlock` in the D5 order, with the D8 limit and the D7 audit in one transaction, then `updateTag("content")`.
-- [ ] 7.2 Unit tests for the Zod schema: the pattern, an unlisted key, each kind's cap, a newline outside body, trimming and `\r`.
-- [ ] 7.3 Database tests through the real action: 401 when signed out, 403 for sales and for a user without 2FA, the rate limit's 61st save, an upsert, an empty value deleting the row, the audit rows with `before`/`after`, and nothing written when the audit insert fails.
+- [x] 7.1 `lib/content/actions.ts`: `updateContentBlock` in the D5 order, with the D8 limit and the D7 audit in one transaction, then `updateTag("content")`.
+- [x] 7.2 Unit tests for the Zod schema: the pattern, an unlisted key, each kind's cap, a newline outside body, trimming and `\r`.
+- [x] 7.3 Database tests through `updateContentBlockCore()` with the real guard decision fed fake sessions (`update-core.db.test.ts`): 401 when signed out, 403 for sales and for a user without 2FA, the rate limit's 61st save, an upsert, an empty value deleting the row, the audit rows with `before`/`after`, and nothing written when the audit insert fails.
 
 ### 8. Component and call sites
 
-- [ ] 8.1 `components/cms/editable.tsx`: `<Editable>` and the editor dialog (D2, D9). The dialog copy goes in `cmsCopy`.
-- [ ] 8.2 Replace the visible-text renders on each D1 page with `<Editable>`, one page per commit: home, services and service pages, about, contact, portfolio, the footer, privacy.
-- [ ] 8.3 Screenshots at 360px and 1440px of the home and a service page with editing on. Check that no ✎ overlaps a control or the pill.
+- [x] 8.1 `components/cms/editable.tsx` (`<Editable>`, `<BodyText>`) and `edit-button.tsx` (the ✎ and the editor dialog) (D2, D9 amended). The dialog copy goes in `cmsCopy`.
+- [x] 8.2 Replace the visible-text renders on each D1 page with `<Editable>`, `<BodyText>` or a side-by-side `<EditButton>` (in one commit): home, services and service pages, about, contact, portfolio, the footer, privacy.
+- [x] 8.3 Screenshots at 360px and 1440px of the home and a service page with editing on. Check that no ✎ overlaps a control or the pill.
 
 ### 9. End-to-end
 
-- [ ] 9.1 `e2e/editable.spec.ts` with the mocked editor session: the ✎ appears only with editing on, the dialog opens, Escape and Cancel close it and return focus, only one dialog opens at a time, a failed save keeps the draft and shows the error, bold renders as `<strong>`, and a visitor and sales staff see no ✎.
-- [ ] 9.2 axe with editing on and the dialog open. Every ✎ can be reached by keyboard.
-- [ ] 9.3 Add the spec to preview-e2e's list in `preview-headers.yml`.
+- [x] 9.1 `e2e/editable.spec.ts` with the mocked editor session: the ✎ appears only with editing on, the dialog opens, Escape and Cancel close it and return focus, only one dialog opens at a time, a failed save keeps the draft and shows the error, bold renders as `<strong>`, and a visitor and sales staff see no ✎.
+- [x] 9.2 axe with editing on and the dialog open. Every ✎ can be reached by keyboard.
+- [x] 9.3 Add the spec to preview-e2e's list in `preview-headers.yml`.
 
 ### 10. Checks, PR B and close-out
 

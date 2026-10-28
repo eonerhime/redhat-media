@@ -3,6 +3,8 @@ import { PortfolioGrid } from "@/components/portfolio/portfolio-grid";
 import { block } from "@/lib/content/block";
 import { featuredCards } from "@/lib/portfolio/read-core";
 import { getPublishedPortfolio } from "@/lib/portfolio/read";
+import { EditButton } from "@/components/cms/edit-button";
+import { Editable } from "@/components/cms/editable";
 
 // The homepage's featured work: up to three featured, published items from the cached portfolio
 // read, so the `featured` flags decide what shows and Phase 31's refresh updates it (Phase 23
@@ -13,17 +15,20 @@ export async function FeaturedWork() {
   const result = await getPublishedPortfolio();
   const cards = result.ok ? featuredCards(result.cards) : [];
   // "Will appear here" is true only without cards (owner, 2026-10-24).
+  const bodyKey = cards.length > 0 ? "home.work.bodyLive" : "home.work.body";
   const [heading, body, link] = await Promise.all([
     block("home.work.heading"),
-    block(cards.length > 0 ? "home.work.bodyLive" : "home.work.body"),
+    block(bodyKey),
     block("home.work.link"),
   ]);
   return (
     <section aria-labelledby="work-heading" className="container-page py-16">
       <h2 id="work-heading" className="font-display text-display-2 font-extrabold">
-        {heading}
+        <Editable blockKey="home.work.heading" value={heading} />
       </h2>
-      <p className="mt-4 max-w-2xl text-lg text-muted">{body}</p>
+      <p className="mt-4 max-w-2xl text-lg text-muted">
+        <Editable blockKey={bodyKey} value={body} />
+      </p>
       {cards.length > 0 && (
         <div className="mt-8" data-testid="featured-work">
           <PortfolioGrid cards={cards} headingLevel={3} />
@@ -35,6 +40,7 @@ export async function FeaturedWork() {
       >
         {link}
       </Link>
+      <EditButton blockKey="home.work.link" value={link} />
     </section>
   );
 }

@@ -4,6 +4,7 @@ import type { PortfolioCard as Card } from "@/lib/portfolio/read-core";
 import type { PortfolioResult } from "@/lib/portfolio/read";
 import { PortfolioCard } from "./portfolio-card";
 import { PortfolioFilters } from "./portfolio-filters";
+import { Editable } from "@/components/cms/editable";
 
 export type ListingState = "ready" | "empty" | "unavailable";
 
@@ -51,10 +52,11 @@ export async function PortfolioListing({
 }) {
   const state = listingState(result);
   if (!result.ok || state !== "ready") {
+    const key = state === "empty" ? "portfolio.empty" : "portfolio.unavailable";
     return (
       <div data-state={state} data-testid="portfolio-listing">
         <p role="status" className="max-w-2xl text-lg text-muted">
-          {await block(state === "empty" ? "portfolio.empty" : "portfolio.unavailable")}
+          <Editable blockKey={key} value={await block(key)} />
         </p>
       </div>
     );
