@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { contact, navItems } from "../lib/site";
 import { contrastFailures } from "./contrast";
+import { pinnedState } from "./portfolio-expect";
 import { routes } from "./routes";
 
 // Phase 1 "Done when": 360px, 768px and 1440px. The inline nav starts at md (768px).
@@ -66,11 +67,13 @@ for (const route of routes)
 
       test("keeps the header at the top after scrolling", async ({ page }) => {
         // A page shorter than the viewport has nothing to scroll, e.g. a portfolio item while the
-        // portfolio is unavailable (Phase 12 spec, D3).
-        test.skip(
-          await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight),
-          "the page does not scroll at this size",
-        );
+        // portfolio is unavailable (Phase 12 spec, D3). Where the portfolio is up, every page
+        // scrolls once its streamed content is in, so wait for that instead of deciding to skip
+        // before it arrives (Phase 27 spec, D11).
+        const scrolls = () =>
+          page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight);
+        if (pinnedState === "ready") await expect.poll(scrolls).toBe(true);
+        test.skip(!(await scrolls()), "the page does not scroll at this size");
         expect(await headerTopAfterScroll(page)).toBe(0);
         await expect(page.getByRole("link", { name: "RedHat Media home" })).toBeInViewport();
       });
