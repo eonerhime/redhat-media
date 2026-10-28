@@ -60,7 +60,9 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 ### 10. Checks, PR B and close-out
 
 - [x] 10.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:db`, and `pnpm build` with the CMS off and on. Compare the route table and a visitor HTML sample with `develop` (C1, C3).
-- [ ] 10.2 Commit, push, and open PR B into `develop`. CI green, preview-e2e included.
-- [ ] 10.3 **(owner)** Preview edit check (D12; `validation.md`).
-- [ ] 10.4 Roadmap *Built* note on the Phase 27 row. Tick `validation.md` and this plan, and finish `implementation.md`.
-- [ ] 10.5 **(owner)** Merge PR B into `develop`; develop run green.
+- [x] 10.2 Commit, push, and open PR B into `develop` (#70). CI green, preview-e2e included.
+- [x] 10.3 **(owner)** Preview edit check (D12; `validation.md`).
+- [x] 10.4 Roadmap *Built* note on the Phase 27 row. Tick `validation.md` and this plan, and finish `implementation.md`.
+- [x] 10.5 **(owner)** Merge PR B into `develop`; develop run green.
+- [x] 10.6 Owner amendment after the preview check: heading and line blocks get a wrapping textarea that saves one line (D2 amended). This lands with a fix for the dialog-reopen race found by develop's preview-e2e, and the close-out (`feature/phase-27-editor-textarea`).
+- [ ] 10.7 **(owner)** Merge the close-out PR into `develop`; develop run green, preview-e2e included.

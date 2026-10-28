@@ -28,6 +28,9 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
   // One block can appear twice on a page (a CTA label), so each ✎ has its own key.
   const instance = `${blockKey}#${useId()}`;
   const buttonRef = useRef<HTMLButtonElement>(null);
+  // Each opening mounts a fresh dialog. Escape closes the native <dialog> before React unmounts
+  // it, so a quick reopen could be batched with the close and leave the closed one in place.
+  const [opening, setOpening] = useState(0);
   const kind = editableKind(blockKey);
   if (!editMode || !kind) return null;
 
@@ -38,7 +41,10 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
         type="button"
         aria-label={copy.edit(preview(value))}
         aria-haspopup="dialog"
-        onClick={() => setOpenKey(instance)}
+        onClick={() => {
+          setOpening((n) => n + 1);
+          setOpenKey(instance);
+        }}
         // Inside headings and over a card's covering link: its own size, case and stacking.
         className="relative z-10 ml-2 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-fg bg-ink align-middle font-sans text-sm leading-none font-normal tracking-normal text-fg normal-case not-italic hover:border-brand print:hidden"
       >
@@ -59,6 +65,7 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
       </button>
       {openKey === instance && (
         <EditorDialog
+          key={opening}
           blockKey={blockKey}
           kind={kind}
           value={value}
@@ -96,6 +103,8 @@ function EditorDialog({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (dialog && !dialog.open) dialog.showModal();
+    // Into the text, not the Bold button that comes first in a body block's dialog.
+    fieldRef.current?.focus();
     return () => dialog?.close();
   }, []);
 
@@ -164,13 +173,24 @@ function EditorDialog({
             {copy.bold}
           </button>
         )}
-        {multiline ? (
+        {kind !== "label" ? (
+          // Headings and lines wrap here too, so the whole text is in view (owner, 2026-10-28),
+          // but stay one line: Enter saves, and a pasted line break becomes a space (D2 amended).
           <textarea
             ref={fieldRef}
             id={`${ids}-field`}
             value={draft}
-            rows={8}
-            onChange={(event) => setDraft(event.target.value)}
+            rows={multiline ? 8 : 3}
+            onChange={(event) =>
+              setDraft(
+                multiline ? event.target.value : event.target.value.replace(/\s*[\r\n]+\s*/g, " "),
+              )
+            }
+            onKeyDown={(event) => {
+              if (multiline || event.key !== "Enter" || event.nativeEvent.isComposing) return;
+              event.preventDefault();
+              event.currentTarget.form?.requestSubmit();
+            }}
             aria-describedby={`${ids}-count ${ids}-hint`}
             aria-invalid={error !== "" || undefined}
             className={`${fieldClass} resize-y`}
