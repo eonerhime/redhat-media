@@ -5,6 +5,8 @@ import { block } from "@/lib/content/block";
 import { filterForCategory, filterHref } from "@/lib/portfolio/filters";
 import { relatedTo } from "@/lib/portfolio/read-core";
 import { getPublishedPortfolio } from "@/lib/portfolio/read";
+import { Editable } from "@/components/cms/editable";
+import { EditButton } from "@/components/cms/edit-button";
 
 // The service page's related-work slot (Phase 5 spec, D6; filled by Phase 10 spec, D8): up to three
 // published items in this category, featured first. It renders nothing when the category has none
@@ -21,7 +23,7 @@ export async function RelatedWork({ category }: { category: ServiceCategory }) {
   return (
     <section aria-labelledby="work-heading" className="container-page border-t border-line py-16">
       <h2 id="work-heading" className="font-display text-display-2 font-extrabold">
-        {heading}
+        <Editable blockKey="services.detail.work.heading" value={heading} />
       </h2>
       <div className="mt-8">
         <PortfolioGrid cards={cards} headingLevel={3} />
@@ -33,6 +35,7 @@ export async function RelatedWork({ category }: { category: ServiceCategory }) {
       >
         {link}
       </Link>
+      <EditButton blockKey="services.detail.work.link" value={link} />
     </section>
   );
 }

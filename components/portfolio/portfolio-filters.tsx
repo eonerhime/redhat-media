@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { block } from "@/lib/content/block";
 import { filterHref, type PortfolioFilter } from "@/lib/portfolio/filters";
+import { EditButton } from "@/components/cms/edit-button";
 
 /**
  * The /portfolio filter bar (Phase 11 spec, D4): links, not ARIA tabs, because each one loads a
@@ -38,6 +39,7 @@ export async function PortfolioFilters({
               >
                 {names[index]}
               </Link>
+              <EditButton blockKey={filter.labelKey} value={names[index]} />
             </li>
           );
         })}

@@ -41,10 +41,10 @@ To turn the form off again, remove `INQUIRY_FORM_ENABLED` from Production and re
 
 A copy of `production` taken just before the migration stands in for a protected branch (*Security baseline*).
 
-1. console.neon.tech → project `redhat-media` → **Backup & Restore** → branch `production` → **Create snapshot**. Name it `before-<release PR number>`. Neon Free keeps one manual snapshot, so creating it replaces the previous one.
-2. **If *Create snapshot* is greyed out** (as at the Phase 20 release), make a branch instead: **Branches** → **New branch**, parent `production`, current data, named `before-<release PR number>`, **without a compute**. It uses no compute hours.
+1. console.neon.tech → project `redhat-media` → **Backup & Restore** → branch `production` → **Create snapshot**. Name it `before-<release PR number>`. Neon Free keeps one manual snapshot and **won't create another while one exists** (Phases 24–26 release, #67: `backup-58` blocked it). Deleting the old snapshot can't be undone, so use step 2 instead.
+2. **If *Create snapshot* is greyed out or refused** (Phase 20 and #67 releases), make a branch instead: **Branches** → **New branch**, parent `production`, current data, named `before-<release PR number>`, **without a compute**. It uses no compute hours.
 3. Then approve `migrate-production` (step 4 above).
-4. Once the release has settled (the next monitor runs are green and nothing is rolled back), delete the `before-<n>` branch. A snapshot is replaced by the next one.
+4. Once the release has settled (the next monitor runs are green and nothing is rolled back), delete the `before-<n>` branch.
 
 The first release (Phase 16) skipped this: the branch was empty.
 

@@ -1,5 +1,6 @@
 import type { Pillar } from "@/content/services";
 import { block } from "@/lib/content/block";
+import { Editable } from "@/components/cms/editable";
 
 // A pillar's process steps as arrowed names (Phase 3 spec, D4). Used by the homepage strip and
 // the services index (Phase 4 spec, D4). The arrows are decoration, hidden from the keyed-text check.
@@ -18,7 +19,7 @@ export async function StepList({ pillar, className }: { pillar: Pillar; classNam
               →
             </span>
           )}
-          {step.label}
+          <Editable blockKey={step.key} value={step.label} />
         </li>
       ))}
     </ol>
