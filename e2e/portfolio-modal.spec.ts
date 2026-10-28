@@ -253,8 +253,12 @@ test.describe("layout and motion", () => {
 
   test("its text meets its contrast ratios (C5)", async ({ page }) => {
     await openModal(page);
-    const { count, failures } = await contrastFailures(page, modal(page));
-    expect(count).toBeGreaterThan(5);
+    // The dialog fades in from opacity 0 (D6), and the sampler skips invisible text, so wait for it
+    // (preview-e2e on #66 sampled nothing once).
+    await expect
+      .poll(async () => (await contrastFailures(page, modal(page))).count)
+      .toBeGreaterThan(5);
+    const { failures } = await contrastFailures(page, modal(page));
     expect(failures).toEqual([]);
   });
 });
