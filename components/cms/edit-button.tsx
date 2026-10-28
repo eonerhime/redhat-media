@@ -1,7 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { updateContentBlock } from "@/lib/content/actions";
 import { BLOCK_KINDS, editableKind, type BlockKind } from "@/lib/content/editable";
@@ -23,7 +31,41 @@ function preview(value: string) {
   return text.length > PREVIEW ? `${text.slice(0, PREVIEW).trimEnd()}…` : text;
 }
 
-export function EditButton({ blockKey, value }: { blockKey: string; value: string }) {
+/** Gaps in px: after the text, and from the window's right edge. */
+const GAP = 6;
+const EDGE = 4;
+
+/** The last line box of what the ✎ follows: its text, or the control before it. */
+function lastLine(button: HTMLElement) {
+  let node = button.previousSibling;
+  while (node?.nodeType === Node.TEXT_NODE && !node.textContent?.trim())
+    node = node.previousSibling;
+  if (!node) return null;
+  let rects: DOMRectList;
+  if (node instanceof Element) rects = node.getClientRects();
+  else {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    rects = range.getClientRects();
+  }
+  return rects.length ? rects[rects.length - 1] : null;
+}
+
+/**
+ * The ✎ is out of the flow, so turning editing on moves nothing (D9 amended). It is moved to
+ * just after the last line of what it follows, centred on it, and kept inside the window. Its
+ * own place in the flow can't be used: in a flex row it is the row's start. `corner` puts it on
+ * the top-right corner of an <EditAround> instead, where the next control is too close.
+ */
+export function EditButton({
+  blockKey,
+  value,
+  corner = false,
+}: {
+  blockKey: string;
+  value: string;
+  corner?: boolean;
+}) {
   const { editMode, openKey, setOpenKey } = useEditMode();
   // One block can appear twice on a page (a CTA label), so each ✎ has its own key.
   const instance = `${blockKey}#${useId()}`;
@@ -32,6 +74,36 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
   // it, so a quick reopen could be batched with the close and leave the closed one in place.
   const [opening, setOpening] = useState(0);
   const kind = editableKind(blockKey);
+
+  useLayoutEffect(() => {
+    const button = buttonRef.current;
+    if (!button || corner) return;
+    function fit() {
+      if (!button) return;
+      button.style.translate = "";
+      const line = lastLine(button);
+      if (!line) return;
+      const box = button.getBoundingClientRect();
+      // After a line that ends at the window's edge, back over the text, so the page doesn't
+      // scroll sideways.
+      const left = Math.min(
+        line.right + GAP,
+        document.documentElement.clientWidth - EDGE - box.width,
+      );
+      const top = line.top + (line.height - box.height) / 2;
+      button.style.translate = `${Math.round(left - box.left)}px ${Math.round(top - box.top)}px`;
+    }
+    fit();
+    // The text can rewrap without a window resize (a font loading, a sibling changing).
+    const observer = new ResizeObserver(fit);
+    if (button.parentElement) observer.observe(button.parentElement);
+    window.addEventListener("resize", fit);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [editMode, corner, value]);
+
   if (!editMode || !kind) return null;
 
   return (
@@ -46,7 +118,7 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
           setOpenKey(instance);
         }}
         // Inside headings and over a card's covering link: its own size, case and stacking.
-        className="relative z-10 ml-2 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-fg bg-ink align-middle font-sans text-sm leading-none font-normal tracking-normal text-fg normal-case not-italic hover:border-brand print:hidden"
+        className={`absolute z-10 inline-flex items-center justify-center rounded-full border border-fg bg-ink font-sans text-sm leading-none font-normal tracking-normal text-fg normal-case not-italic hover:border-brand print:hidden ${corner ? "top-0 -right-1 size-6" : "size-7"}`}
       >
         {/* An SVG, not the ✎ character, which some systems draw as a colour emoji. */}
         <svg
@@ -76,6 +148,35 @@ export function EditButton({ blockKey, value }: { blockKey: string; value: strin
         />
       )}
     </>
+  );
+}
+
+/**
+ * A control that a flex column stretches, or a chip too close to the next one, with its ✎. With
+ * editing on, a wrapper the control's size holds both, aligned by `className` as the control
+ * was, so the ✎ follows the control and not the column's edge. Otherwise the control alone, so a
+ * visitor's HTML doesn't change.
+ */
+export function EditAround({
+  blockKey,
+  value,
+  corner = false,
+  className = "",
+  children,
+}: {
+  blockKey: string;
+  value: string;
+  corner?: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  const { editMode } = useEditMode();
+  if (!editMode || !editableKind(blockKey)) return children;
+  return (
+    <span className={`relative flex ${className}`}>
+      {children}
+      <EditButton blockKey={blockKey} value={value} corner={corner} />
+    </span>
   );
 }
 

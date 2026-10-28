@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { block } from "@/lib/content/block";
 import { filterHref, type PortfolioFilter } from "@/lib/portfolio/filters";
-import { EditButton } from "@/components/cms/edit-button";
+import { EditAround } from "@/components/cms/edit-button";
 
 /**
  * The /portfolio filter bar (Phase 11 spec, D4): links, not ARIA tabs, because each one loads a
@@ -26,20 +26,22 @@ export async function PortfolioFilters({
           const isCurrent = filter === current;
           return (
             <li key={filter.slug ?? "all"} className="shrink-0">
-              {/* Current: fg on brand-deep (5.03:1); the others fg on ink with a line edge. */}
-              <Link
-                href={filterHref(filter)}
-                scroll={false}
-                aria-current={isCurrent ? "page" : undefined}
-                className={`inline-block rounded-full border px-4 py-2 text-base font-semibold whitespace-nowrap ${
-                  isCurrent
-                    ? "border-brand-deep bg-brand-deep"
-                    : "border-line hover:border-brand-deep"
-                }`}
-              >
-                {names[index]}
-              </Link>
-              <EditButton blockKey={filter.labelKey} value={names[index]} />
+              {/* Current: fg on brand-deep (5.03:1); the others fg on ink with a line edge. The
+                  ✎ sits on the chip's corner, inside the nav's padding: the next chip is 12px away. */}
+              <EditAround blockKey={filter.labelKey} value={names[index]} corner>
+                <Link
+                  href={filterHref(filter)}
+                  scroll={false}
+                  aria-current={isCurrent ? "page" : undefined}
+                  className={`inline-block rounded-full border px-4 py-2 text-base font-semibold whitespace-nowrap ${
+                    isCurrent
+                      ? "border-brand-deep bg-brand-deep"
+                      : "border-line hover:border-brand-deep"
+                  }`}
+                >
+                  {names[index]}
+                </Link>
+              </EditAround>
             </li>
           );
         })}

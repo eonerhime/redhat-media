@@ -20,7 +20,7 @@ import { localBusinessJsonLd } from "@/lib/seo/json-ld";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { contact, mailtoHref, siteName } from "@/lib/site";
 import { Editable } from "@/components/cms/editable";
-import { EditButton } from "@/components/cms/edit-button";
+import { EditAround, EditButton } from "@/components/cms/edit-button";
 
 // Static: no database, cookies or headers (Phase 13 spec, D1, C2). Title as on /about.
 export async function generateMetadata(): Promise<Metadata> {
@@ -158,8 +158,9 @@ export default async function Contact() {
             <Note>
               <Editable blockKey="contact.email.note" value={email[1]} />
             </Note>
-            <CopyEmail email={contact.email} label={email[2]} copiedLabel={email[3]} />
-            <EditButton blockKey="contact.email.copy" value={email[2]} />
+            <EditAround blockKey="contact.email.copy" value={email[2]} className="self-start">
+              <CopyEmail email={contact.email} label={email[2]} copiedLabel={email[3]} />
+            </EditAround>
           </ChannelCard>
           <ChannelCard labelKey="contact.phone.label" label={phone[0]}>
             <a href={contact.phoneHref} className={contactLink}>
@@ -176,10 +177,16 @@ export default async function Contact() {
             </a>
           </ChannelCard>
           <ChannelCard labelKey="contact.whatsapp.label" label={whatsapp[0]}>
-            <ExternalLink href={contact.whatsappHref} className={contactLink}>
-              {whatsapp[1]}
-            </ExternalLink>
-            <EditButton blockKey="contact.whatsapp.link" value={whatsapp[1]} />
+            <EditAround
+              blockKey="contact.whatsapp.link"
+              value={whatsapp[1]}
+
+              className="self-start"
+            >
+              <ExternalLink href={contact.whatsappHref} className={contactLink}>
+                {whatsapp[1]}
+              </ExternalLink>
+            </EditAround>
             <Note>
               <Editable blockKey="contact.whatsapp.note" value={whatsapp[2]} />
             </Note>

@@ -65,4 +65,7 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 - [x] 10.4 Roadmap *Built* note on the Phase 27 row. Tick `validation.md` and this plan, and finish `implementation.md`.
 - [x] 10.5 **(owner)** Merge PR B into `develop`; develop run green.
 - [x] 10.6 Owner amendment after the preview check: heading and line blocks get a wrapping textarea that saves one line (D2 amended). This lands with a fix for the dialog-reopen race found by develop's preview-e2e, and the close-out (`feature/phase-27-editor-textarea`).
-- [ ] 10.7 **(owner)** Merge the close-out PR into `develop`; develop run green, preview-e2e included.
+- [x] 10.7 **(owner)** Merge the close-out PR into `develop`; develop run green, preview-e2e included.
+- [x] 10.8 Owner amendment after the merge: the ✎ leaves the flow, so turning editing on moves nothing (D9 amended), with an e2e test (`feature/phase-27-edit-icon-overlay`).
+- [ ] 10.9 PR into `develop`. CI green, preview-e2e included.
+- [ ] 10.10 **(owner)** Preview check of the toggle (`validation.md`), then merge. Develop run green.
