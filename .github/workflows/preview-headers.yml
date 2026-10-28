@@ -35,6 +35,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
+        # About 20 s normally; on 2026-10-27 it hung until the 6-hour job limit.
+        timeout-minutes: 10
         run: pnpm exec playwright install --with-deps chromium
       # A deployment reports success as it is promoted; give the domain a minute to follow.
       - if: github.event_name == 'deployment_status'
@@ -118,6 +120,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
+        # About 20 s normally; on 2026-10-27 it hung until the 6-hour job limit.
+        timeout-minutes: 10
         run: pnpm exec playwright install --with-deps chromium
       - name: Portfolio and CSP e2e against the preview
         env:
