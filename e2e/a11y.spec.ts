@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 import { RECOVER_KEY } from "../app/(dev)/dev/error/throw-once";
 import { continueButton, fillToReview, formOn, stepHeading } from "./inquiry-steps";
-import { test } from "./portfolio-expect";
+import { pinnedState, test } from "./portfolio-expect";
 import { routes } from "./routes";
 
 // Phase 15 spec, D4: zero WCAG 2.2 A/AA violations from axe on every route, the 404 page and the
@@ -70,6 +70,9 @@ test.describe("axe on interactive states", () => {
     test(`the open lightbox on ${route}`, async ({ page }) => {
       await open(page, route);
       const view = page.getByRole("button", { name: /^View / }).first();
+      // Where the portfolio is up, wait for the streamed gallery instead of deciding to skip
+      // before it arrives (Phase 27 spec, D11).
+      if (pinnedState === "ready") await expect(view).toBeVisible();
       test.skip((await view.count()) === 0, "no gallery here (the portfolio is unavailable)");
       await view.click();
       await expect(page.getByRole("dialog")).toBeVisible();

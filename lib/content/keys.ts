@@ -1,5 +1,7 @@
 // The CMS block-key scheme (tech-stack.md → In-place CMS 4; Phase 2 spec, D4). Phase 27's
-// updateContentBlock validates keys with this same constant, so a default always stays editable.
+// updateContentBlock validates keys with this same constant, so every default fits the scheme.
+// Matching it does not make a key editable: the key must also be listed in
+// lib/content/editable.ts (Phase 27 spec, D4).
 
 export const BLOCK_KEY_PREFIXES = [
   "home",

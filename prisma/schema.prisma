@@ -140,6 +140,15 @@ model RateLimitHit {
   @@index([windowEnd])
 }
 
+// A staff edit to one copy block; with no row, content/defaults.ts applies (Phase 27 spec, D6).
+// All rows are read together through readContentBlocks() in lib/content/read.ts.
+model ContentBlock {
+  key         String   @id // e.g. "home.hero.tagline"
+  value       String
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
 // One row per staff change or security event (Phase 25 spec, D4–D7). Append-only: rhm_app may
 // insert and select, never update or delete, and rhm_readonly has no access (…_audit_event).
 // No foreign key to "user", so the history outlives any user it names.
