@@ -7,8 +7,10 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../lib/generated/prisma"
+  // MediaItem's one-image-per-page-slot index (Phase 28 spec, D7).
+  previewFeatures = ["partialIndexes"]
 }
 
 // Six services only: BRANDING is not offered (owner, 2026-10-10; roadmap open question 6).
@@ -103,6 +105,8 @@ model MediaItem {
   updatedAt     DateTime       @updatedAt
 
   @@index([ownerType, ownerId, sortOrder])
+  // A page slot (e.g. home.hero) holds at most one image (Phase 28 spec, D7).
+  @@unique([ownerId], map: "MediaItem_page_slot_key", where: raw("\"ownerType\" = 'PAGE'"))
 }
 
 // Phase 17 spec, D1. Written only through toInquiryData (lib/validation/inquiry.ts),
