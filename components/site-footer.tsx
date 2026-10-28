@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { block } from "@/lib/content/block";
 import { contact, siteName } from "@/lib/site";
-import { EditButton } from "@/components/cms/edit-button";
+import { EditAround } from "@/components/cms/edit-button";
 
 // A bare `new Date()` fails prerendering under cacheComponents (Phase 1 spec, D10).
 async function currentYear() {
@@ -31,10 +31,16 @@ export async function SiteFooter() {
         {/* muted stays at 16px on ink (specs/tech-stack.md → Design tokens). */}
         <div className="flex flex-col gap-2 md:items-end">
           {/* The privacy notice (Phase 18 spec, D11). */}
-          <Link href="/privacy" className="underline underline-offset-4">
-            {privacy}
-          </Link>
-          <EditButton blockKey="footer.privacy" value={privacy} />
+          <EditAround
+            blockKey="footer.privacy"
+            value={privacy}
+
+            className="self-start md:self-end"
+          >
+            <Link href="/privacy" className="underline underline-offset-4">
+              {privacy}
+            </Link>
+          </EditAround>
           <p className="text-base text-muted">
             {contact.registration} · © {year} {siteName}
           </p>

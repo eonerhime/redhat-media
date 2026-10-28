@@ -23,6 +23,7 @@
 - [x] axe finds zero WCAG 2.2 A/AA violations with editing on and with the dialog open.
 - [x] Every ✎ is reachable by keyboard, at least 24×24 px, and labelled `Edit "…"`. The dialog takes focus, Escape closes it, and focus returns to the ✎ (D2, D9).
 - [x] At 360px and 1440px, no ✎ covers a control or the pill (screenshots in `implementation.md`).
+- [x] Turning editing On moves no text on `/` (1280px and 360px), `/contact` and `/portfolio` (360px), and no ✎ widens the page (`editable.spec.ts`; D9 amended).
 
 ## Static pages and visitor HTML
 
@@ -35,6 +36,8 @@
 - [x] **(owner)** Save all three empty: the defaults return, on the page and in the private window after a reload.
 
 Done on #70's preview (owner, 2026-10-28: "all checks passed").
+
+- [ ] **(owner)** On the amendment PR's preview, turn Editing On and Off on `/`, `/contact` and `/portfolio`: nothing on the page moves, and each ✎ sits just after its text or control (D9 amended).
 
 ## Merge gate (each PR)
 

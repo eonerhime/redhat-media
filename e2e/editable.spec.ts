@@ -213,6 +213,53 @@ test.describe("with the CMS on", () => {
     await expect(pencil(page, label).first()).toBeVisible();
   });
 
+  test("turning editing On moves nothing, and no ✎ widens the page (D9 amended)", async ({
+    page,
+  }) => {
+    // Where each piece of visible text is, in document order. A ✎ has no text of its own.
+    const textBoxes = () =>
+      page.evaluate(() => {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        const range = document.createRange();
+        const boxes: string[] = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          const text = node.textContent?.trim();
+          if (!text || node.parentElement?.closest("[data-edit-pill], script, style")) continue;
+          range.selectNodeContents(node);
+          const { left, top } = range.getBoundingClientRect();
+          boxes.push(
+            `${Math.round(left + scrollX)},${Math.round(top + scrollY)} ${text.slice(0, 20)}`,
+          );
+        }
+        return boxes;
+      });
+    // The home page's text blocks, a flex column of controls, and the filter chips.
+    for (const [path, width] of [
+      ["/", 1280],
+      ["/", 360],
+      ["/contact", 360],
+      ["/portfolio", 360],
+    ] as const) {
+      await page.setViewportSize({ width, height: 800 });
+      await openAsStaff(page, "editor", path);
+      // The header's staff icon arrives with the session read, before editing can be turned on.
+      await expect(pill(page)).toHaveText("Editing: Off");
+      await page.evaluate(() => document.fonts.ready);
+      const before = await textBoxes();
+      await editingOn(page);
+      await expect(pencils(page).first()).toBeVisible();
+      expect(await textBoxes(), `${path} at ${width}px`).toEqual(before);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => {
+        const { scrollWidth, clientWidth } = document.documentElement;
+        return { scrollWidth, clientWidth };
+      });
+      expect(scrollWidth, `${path} at ${width}px`).toBeLessThanOrEqual(clientWidth);
+      // The toggle lasts for the tab (Phase 26, D6): Off again for the next page.
+      await pill(page).click();
+      await expect(pill(page)).toHaveText("Editing: Off");
+    }
+  });
+
   test("axe finds nothing with editing On and with the dialog open", async ({ page }) => {
     await openAsStaff(page, "editor");
     await editingOn(page);

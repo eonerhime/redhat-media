@@ -33,6 +33,12 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **2026-10-28** — PR B opened as #70. After the bypass fix in the e2e spec (see *Issues*), CI was green: preview-e2e 208 passed, 13 skipped (the steady 12 plus the new spec's CMS-off case), and Lighthouse passed.
 - **2026-10-28** — Owner's preview check on #70. An `/about` edit showed in a private window. Then the homepage tagline, a service summary, a bold word in a body paragraph, and resetting all of them empty: "all checks passed". The owner merged #70 as `533682d`. Develop's `ci` run 40667623689 is green.
 - **2026-10-28** — Owner feedback: long headings and lines needed scrolling in the one-line input on `/`, `/services` and `/portfolio`, while `/about`'s body blocks already had a textarea. On `feature/phase-27-editor-textarea`, heading and line kinds now get a 3-row wrapping textarea. Enter saves, a pasted line break becomes a space, and labels keep the input. Focus moves into the text field when the dialog opens. A new e2e test covers it (D2 amended). The close-out lands in the same PR: the roadmap's *Built* note, `validation.md` ticked, and plan 10.2–10.6.
+- **2026-10-28** — The owner merged #71 as `c41a693`, and opened release #72. Owner feedback: turning Editing On made page elements jump, because each ✎ took 36px in its line, or a row of its own in a flex column. On `feature/phase-27-edit-icon-overlay` (D9 amended):
+  - `<EditButton>` is `position: absolute`. A layout effect moves it to 6px after the last line box of its previous sibling (a text node through a `Range`, or a control's last client rect), centres it on that line, and keeps it 4px inside the window. A `ResizeObserver` on its parent and the window's `resize` re-run it. CSS alone couldn't place it: in a flex row (the step lists) an absolute box's static position is the row's start, and it landed on the first letter.
+  - `<EditAround>` wraps a control and its ✎ only while editing is on, so visitor HTML is unchanged: the footer's privacy link, the contact WhatsApp link and Copy button (`self-start`, so the ✎ follows the control, not the stretched column), and the portfolio filter chips (a 24px corner ✎, since the next chip is 12px away).
+  - A first try with `html { overflow-x: clip }` stopped wheel scrolling, but a script could still scroll the page by 5–11px at 360px; the layout pass replaced it.
+  - Measured in Edge on `/`, `/services`, a service page, `/about`, `/contact`, `/portfolio` and `/privacy` at 360px and 1440px: no element moves when editing turns on (the remounted wrapped controls keep their position and height; only their box narrows to the text), no sideways scroll, and no ✎ covers a visible control. Screenshots checked by eye. The ✎ covers the step lists' decorative arrows.
+  - New e2e test in `editable.spec.ts`: the position of every visible text node is the same before and after turning editing on, on `/` at 1280px and 360px, `/contact` and `/portfolio` at 360px, with no sideways scroll. Against a CMS-on build in Edge: `editable.spec.ts` 10 passed, 1 skipped; with `edit-mode`, `contact`, `portfolio` and `a11y` 105 passed, 6 skipped before the new test's last fix.
 
 ## Deviations from plan
 
@@ -45,6 +51,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **Plan 8.2:** one commit for all call sites instead of one per page; the PR is reviewed as a whole.
 
 ## Issues and fixes
+
+- The amendment's e2e run against `next dev` failed 9 tests that pass against a build: React Strict Mode runs effects twice in dev, so the dialog's cleanup closed it as it opened, and the session was read twice; the dev tools button also took focus. Run the CMS e2e against `next build` + `next start`.
 
 - The first screenshots showed no dimmed backdrop behind the dialog: `backdrop:bg-black/70` doesn't exist, because `globals.css` clears Tailwind's palette (`--color-*: initial`). It now uses `backdrop:bg-ink/80`. The ✎ character also drew as a colour emoji in Edge on Windows, so it is now an inline SVG pencil.
 
