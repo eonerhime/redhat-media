@@ -37,7 +37,9 @@
 
 Done on #70's preview (owner, 2026-10-28: "all checks passed").
 
-- [ ] **(owner)** On the amendment PR's preview, turn Editing On and Off on `/`, `/contact` and `/portfolio`: nothing on the page moves, and each ✎ sits just after its text or control (D9 amended).
+- [x] **(owner)** On the amendment PR's preview, turn Editing On and Off on `/`, `/contact` and `/portfolio`: nothing on the page moves, and each ✎ sits just after its text or control (D9 amended).
+
+Done on #73's preview (owner, 2026-10-28: "page elements don't move anymore").
 
 ## Merge gate (each PR)
 

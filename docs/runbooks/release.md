@@ -7,7 +7,7 @@ Built in Phase 16 (spec D1–D5, `specs/2026-10-16-release/spec.md`). Production
 1. A release PR goes `develop` → `main`. `branch-check`, `ci`, `db` and `gitleaks` must be green. Merge it with a merge commit: `gh pr merge <n> --merge --repo eonerhime/redhat-media`.
 2. The push to `main` runs `ci` and `db`, then `migrate-production`, which **waits for the owner's approval** (GitHub Environment `neon-production`).
 3. **Before approving**, check whether the release carries a migration: `git diff --stat origin/main~1 origin/main -- prisma/migrations`. If it does, take a snapshot (below).
-4. Approve: Actions → the `ci` run for the merge commit → **Review deployments** → tick `neon-production` → **Approve and deploy**.
+4. Approve: Actions → the `ci` run for the merge commit → **Review deployments** → tick `neon-production` → **Approve and deploy**. GitHub may send no alert for this, so open the run straight after merging: the job waits there until approved (Phase 27 release, #72).
 5. The job runs `prisma migrate deploy`, seeds the approved portfolio content (`SEED_ALLOW_PRODUCTION=1`), then calls the deploy hook. Its log ends with `Deploy hook: PENDING`.
 6. Vercel builds and promotes the production deployment. `vercel.json` turns off automatic deployments of `main`, so this hook is the only thing that starts one.
 7. `production-checks` (in `preview-headers.yml`) runs on the Production deployment: headers, the smoke test and `e2e/release.spec.ts`. If it did not start, run it by hand: Actions → preview-headers → Run workflow → `main`.
