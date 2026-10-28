@@ -159,6 +159,30 @@ test.describe("with the CMS on", () => {
     await visitor.close();
   });
 
+  test("a heading or line wraps in a textarea but stays one line; a label is an input", async ({
+    page,
+  }) => {
+    await openAsStaff(page, "editor");
+    await editingOn(page);
+    const subtext = defaults["home.hero.subtext"];
+    await pencil(page, subtext).click();
+    const dialog = page.getByRole("dialog", { name: "Edit text" });
+    const field = dialog.getByRole("textbox", { name: "Text" });
+    expect(await field.evaluate((el) => el.tagName)).toBe("TEXTAREA");
+    // The whole text is in view: no horizontal scrolling inside the field (owner, 2026-10-28).
+    expect(await field.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await field.fill("First line\n  second line");
+    await expect(field).toHaveValue("First line second line");
+    // Enter saves instead of adding a line break (refused here: the editor is mocked).
+    await field.press("Enter");
+    await expect(dialog.getByRole("alert")).toHaveText(refused);
+    await expect(field).toHaveValue("First line second line");
+    await page.keyboard.press("Escape");
+
+    await pencil(page, defaults["home.cta.button"]).first().click();
+    expect(await field.evaluate((el) => el.tagName)).toBe("INPUT");
+  });
+
   test("a body block opens a textarea with a Bold button", async ({ page }) => {
     await openAsStaff(page, "editor", "/about");
     await editingOn(page);
@@ -167,6 +191,8 @@ test.describe("with the CMS on", () => {
     const dialog = page.getByRole("dialog", { name: "Edit text" });
     const field = dialog.getByRole("textbox", { name: "Text" });
     await expect(field).toHaveValue(story);
+    // Focus goes to the text, not to the Bold button before it.
+    await expect(field).toBeFocused();
     await field.evaluate((el: HTMLTextAreaElement) => el.setSelectionRange(0, 3));
     await dialog.getByRole("button", { name: "Bold" }).click();
     await expect(field).toHaveValue(`**${story.slice(0, 3)}**${story.slice(3)}`);
