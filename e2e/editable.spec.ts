@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Route } from "@playwright/test";
 import { defaults } from "../content/defaults";
-import { test } from "./portfolio-expect";
+import { test, withBypass } from "./portfolio-expect";
 
 // Editable text (Phase 27 spec, D2, D3, D9; validation.md).
 //
@@ -86,8 +86,10 @@ test.describe("with the CMS on", () => {
     await page.waitForLoadState("networkidle");
     await expect(pencils(page)).toHaveCount(0);
 
-    const visitor = await browser.newPage();
+    // A second page needs the preview bypass too, or it lands on Vercel's login page.
+    const visitor = await withBypass(await browser.newPage());
     await visitor.goto("/");
+    await expect(visitor.getByRole("heading", { level: 1 })).toHaveText(tagline);
     await visitor.waitForLoadState("networkidle");
     await expect(pencils(visitor)).toHaveCount(0);
     await visitor.close();
@@ -151,7 +153,7 @@ test.describe("with the CMS on", () => {
     await expect(dialog.getByRole("alert")).toHaveText(refused);
     await expect(field).toHaveValue("A draft that must not be lost.");
 
-    const visitor = await browser.newPage();
+    const visitor = await withBypass(await browser.newPage());
     await visitor.goto("/");
     await expect(visitor.getByRole("heading", { level: 1 })).toHaveText(tagline);
     await visitor.close();
