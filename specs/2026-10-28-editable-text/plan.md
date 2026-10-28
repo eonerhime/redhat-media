@@ -29,7 +29,7 @@ Scope, decisions (D1–D12) and constraints (C1–C5) are in [`spec.md`](spec.md
 - [x] 5.1 `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test`, and `pnpm build` with the CMS off and on. The route table matches `develop` (C1).
 - [x] 5.2 Commit, push, and open PR A into `develop` (#69).
 - [x] 5.3 CI green on PR A, with preview-e2e showing the steady skip count.
-- [ ] 5.4 **(owner)** Merge PR A; `migrate-preview` applies the migration on the `develop` run.
+- [x] 5.4 **(owner)** Merge PR A; `migrate-preview` applies the migration on the `develop` run.
 
 ## PR B — editing (new branch from `develop` after 5.4)
 
