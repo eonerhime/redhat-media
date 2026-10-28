@@ -25,6 +25,9 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 
 - **2026-10-27** — The fix commit (`03a6a74`) is green on every check. preview-e2e: 199 passed, 13 skipped. The owner re-checked the fixed preview: everything confirmed, and a new tab starts Off while the first stays On. The owner confirmed that `/api/cms/session` is requested; the e2e checks prove one request per navigation.
 - **2026-10-27** — CI's reporter lists failures only, so the preview log couldn't show whether the inquiry-stepper overlap test had run. It counted the form's buttons straight after load, and on the preview the form streams in later, so it may have skipped. It now skips only when `INQUIRY_FORM_ENABLED` is off, and waits for the Continue button. The Phase 26 *Built* note is on the roadmap, and every validation box is ticked.
+- **2026-10-27** — On `128dba8`, preview-e2e passed with 200 passed and 12 skipped: the stepper overlap test now runs on the preview (one more pass and one fewer skip than on `03a6a74`). Lighthouse failed once on the known `/portfolio/sportspred` flake (performance 0.84, budget 0.9) and passed on a rerun. The `ci` job (run 40569517830) was cancelled at GitHub's 6-hour job limit because "Install Playwright Chromium" hung; a rerun of the job passed every step.
+- **2026-10-28** — The owner merged PR #65 into `develop` as `6c21844`. Develop run 40642592599 is green: `ci`, `db`, gitleaks, and `migrate-preview` with no pending migrations. Every plan box is ticked.
+- **2026-10-28** — Close-out: the three "Install Playwright Chromium" steps (`ci.yml`, and both in `preview-headers.yml`) get `timeout-minutes: 10`. The step normally takes about 20 seconds, so a hang now fails in 10 minutes instead of holding the job for 6 hours.
 
 ## Deviations from plan
 

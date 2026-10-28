@@ -45,4 +45,4 @@ Scope, decisions (D1–D11) and constraints (C1–C6) are in [`spec.md`](spec.md
 - [x] 7.1c CI green on the fix, including preview-e2e and Lighthouse.
 - [x] 7.2 **(owner)** Preview check as admin (D11; validation.md).
 - [x] 7.3 Roadmap *Built* note on the Phase 26 row. Tick validation.md and this plan, and finish implementation.md.
-- [ ] 7.4 **(owner)** Merge into `develop`; develop run green.
+- [x] 7.4 **(owner)** Merge into `develop`; develop run green.
