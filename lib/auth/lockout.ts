@@ -1,0 +1,166 @@
+// Per-account lockout (Phase 24 spec, D4, D14; tech-stack.md → lockout row).
+// Five wrong passwords in a row lock the account for 15 minutes, whatever the
+// IP. Wrong 2FA codes are counted by the twoFactor plugin's own accountLockout
+// (lib/auth/options.ts). While either lock is active, or once the account is
+// deactivated, sign-in fails exactly like a wrong password: same work, same error.
+// Each lock, and each finished 2FA set-up, is also an AuditEvent (Phase 25 spec, D7).
+
+import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
+import type { AuditEventInput } from "@/lib/audit/audit";
+import { LOCKOUT_MAX_FAILURES, LOCKOUT_SECONDS, PASSWORD_MAX_LENGTH } from "./options";
+import type { SecurityLogger } from "./security-log";
+
+export const SIGN_IN_PATH = "/sign-in/email";
+const VERIFY_PATHS = new Set(["/two-factor/verify-totp", "/two-factor/verify-backup-code"]);
+
+export type AccountLockState = {
+  userId: string;
+  lockedUntil: Date | null;
+  twoFactorLockedUntil: Date | null;
+  deactivatedAt: Date | null;
+};
+
+export type LockoutStore = {
+  find(email: string): Promise<AccountLockState | null>;
+  /**
+   * Counts one wrong password. At LOCKOUT_MAX_FAILURES it sets `lockedUntil` to
+   * `until` and starts the count again. Returns null for an unknown email.
+   */
+  recordFailure(email: string, until: Date): Promise<{ userId: string; locked: boolean } | null>;
+  /** A correct password: the count starts again. */
+  reset(email: string): Promise<void>;
+  /** Ends every session of the user except `keepToken` (when 2FA is turned on). */
+  endOtherSessions(userId: string, keepToken: string): Promise<void>;
+  /** Whether the twoFactor plugin's own lock is on for the user (spent count, lock in force). */
+  twoFactorLocked(userId: string, now: Date): Promise<boolean>;
+};
+
+/** Writes an AuditEvent that has no change of its own; never throws (auditBestEffort). */
+export type AuthAuditWriter = (event: AuditEventInput) => Promise<void>;
+
+/** Why sign-in is refused before the password is checked, if it is. */
+export function refusal(
+  state: AccountLockState,
+  now: Date,
+): "deactivated" | "locked" | "2fa-locked" | null {
+  if (state.deactivatedAt) return "deactivated";
+  if (state.lockedUntil && state.lockedUntil > now) return "locked";
+  if (state.twoFactorLockedUntil && state.twoFactorLockedUntil > now) return "2fa-locked";
+  return null;
+}
+
+export function lockUntil(now: Date): Date {
+  return new Date(now.getTime() + LOCKOUT_SECONDS * 1000);
+}
+
+/** The sign-in result, as the after hook sees it: a wrong password, a pass, or neither. */
+export function signInOutcome(returned: unknown): "wrong-password" | "passed" | "other" {
+  if (isAPIError(returned))
+    return returned.statusCode === 401 && returned.body?.code === "INVALID_EMAIL_OR_PASSWORD"
+      ? "wrong-password"
+      : "other";
+  return returned && typeof returned === "object" ? "passed" : "other";
+}
+
+/** The email from a sign-in body, lower-cased as Better Auth stores it. */
+export function signInEmail(body: unknown): string | null {
+  const email = (body as { email?: unknown } | undefined)?.email;
+  return typeof email === "string" && email.length <= 254 ? email.toLowerCase() : null;
+}
+
+/** The lasting record of a lock (Phase 25 spec, D7): the system acted, on the user. */
+export function lockoutAuditEvent(userId: string, via: "password" | "2fa"): AuditEventInput {
+  return {
+    actorId: null,
+    action: "auth.lockout",
+    entityType: "user",
+    entityId: userId,
+    diff: { via },
+  };
+}
+
+/** The record of finished TOTP set-up (D7): the user acted, on themselves. */
+export function twoFactorEnabledAuditEvent(userId: string): AuditEventInput {
+  return { actorId: userId, action: "auth.2fa_enabled", entityType: "user", entityId: userId };
+}
+
+/** Better Auth's own wrong-password error, byte for byte. */
+export function invalidCredentials(): APIError {
+  return new APIError("UNAUTHORIZED", {
+    message: "Invalid email or password",
+    code: "INVALID_EMAIL_OR_PASSWORD",
+  });
+}
+
+export function createLockoutHooks(deps: {
+  store: LockoutStore;
+  log: SecurityLogger;
+  audit: AuthAuditWriter;
+  now?: () => Date;
+}) {
+  const now = deps.now ?? (() => new Date());
+
+  const before = createAuthMiddleware(async (ctx) => {
+    // No trusted devices: every sign-in asks for a code (D7).
+    if (VERIFY_PATHS.has(ctx.path) && (ctx.body as { trustDevice?: unknown })?.trustDevice)
+      throw new APIError("BAD_REQUEST", { message: "Trusted devices are not allowed" });
+    if (ctx.path !== SIGN_IN_PATH) return;
+    const email = signInEmail(ctx.body);
+    if (!email) return;
+    const state = await deps.store.find(email);
+    if (!state || !refusal(state, now())) return;
+    // Hash as a real check would, so the refusal takes as long as a wrong password.
+    const password = (ctx.body as { password?: unknown }).password;
+    if (typeof password === "string" && password.length <= PASSWORD_MAX_LENGTH)
+      await ctx.context.password.hash(password);
+    deps.log("auth.refused_locked", { userId: state.userId, path: SIGN_IN_PATH });
+    throw invalidCredentials();
+  });
+
+  const after = createAuthMiddleware(async (ctx) => {
+    if (ctx.path === SIGN_IN_PATH) {
+      const email = signInEmail(ctx.body);
+      if (!email) return;
+      const outcome = signInOutcome(ctx.context.returned);
+      if (outcome === "passed") {
+        await deps.store.reset(email);
+      } else if (outcome === "wrong-password") {
+        const result = await deps.store.recordFailure(email, lockUntil(now()));
+        deps.log("auth.sign_in_failed", { userId: result?.userId, path: SIGN_IN_PATH });
+        if (result?.locked) {
+          deps.log("auth.lockout", { userId: result.userId, path: SIGN_IN_PATH });
+          await deps.audit(lockoutAuditEvent(result.userId, "password"));
+        }
+      }
+    } else if (VERIFY_PATHS.has(ctx.path) && isAPIError(ctx.context.returned)) {
+      deps.log("auth.2fa_failed", { path: ctx.path });
+      // The twoFactor plugin locks inside its endpoint and calls no hook (D7), so
+      // after a wrong code we look at its row. A refusal while already locked is
+      // not a new lock. Only a sign-in challenge counts wrong codes, and its
+      // signed two_factor cookie names the user.
+      if (ctx.context.returned.body?.code === "ACCOUNT_TEMPORARILY_LOCKED") return;
+      const cookie = ctx.context.createAuthCookie("two_factor").name;
+      const challenge = await ctx.getSignedCookie(cookie, ctx.context.secret);
+      if (!challenge) return;
+      const userId = (await ctx.context.internalAdapter.findVerificationValue(challenge))?.value;
+      if (userId && (await deps.store.twoFactorLocked(userId, now()))) {
+        deps.log("auth.lockout", { userId, path: ctx.path });
+        await deps.audit(lockoutAuditEvent(userId, "2fa"));
+      }
+    } else if (ctx.path === "/two-factor/verify-totp" && ctx.context.newSession) {
+      // A code confirmed with a session cookie is the set-up step, which turns 2FA on
+      // (a sign-in challenge carries only the 2FA cookie). Any other session the user
+      // opened with just a password ends here, so none outlives the switch to 2FA.
+      const cookies = ctx.headers?.get("cookie") ?? "";
+      if (cookies.includes(`${ctx.context.authCookies.sessionToken.name}=`)) {
+        const { user, session } = ctx.context.newSession;
+        await deps.store.endOtherSessions(user.id, session.token);
+        await deps.audit(twoFactorEnabledAuditEvent(user.id));
+      }
+    }
+  });
+
+  return { before, after };
+}
+
+export { LOCKOUT_MAX_FAILURES };

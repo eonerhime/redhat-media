@@ -12,7 +12,7 @@ export type SitemapInput = {
   portfolioSlugs: readonly string[];
 };
 
-// No /dev/*, /cms, filtered views or muted services. No lastModified: no stored date says when a
+// No /dev/*, /admin, filtered views or muted services. No lastModified: no stored date says when a
 // page last changed, and publishedAt is not that (implementation log, 2026-10-15).
 export function sitemapEntries({
   siteUrl,
@@ -33,7 +33,7 @@ export function sitemapEntries({
   return paths.map((path) => ({ url: `${siteUrl}${path === "/" ? "" : path}` }));
 }
 
-// No Disallow lines: listing /cms would advertise it (Architectural rules 6), and /dev/* already
+// No Disallow lines: listing /admin would advertise it (Architectural rules 6), and /dev/* already
 // 404s in production with noindex.
 export function robotsRules(siteUrl: string): MetadataRoute.Robots {
   return {

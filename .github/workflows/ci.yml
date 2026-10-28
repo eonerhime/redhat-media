@@ -42,6 +42,8 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - name: Install Playwright Chromium
+        # About 20 s normally; on 2026-10-27 it hung until the 6-hour job limit.
+        timeout-minutes: 10
         run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
         env:

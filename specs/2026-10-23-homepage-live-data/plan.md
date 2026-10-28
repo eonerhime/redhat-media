@@ -37,16 +37,16 @@ Scope, decisions (D1–D14) and constraints (C1–C7) are in [`spec.md`](spec.md
 
 ## 5. Merge into `develop`
 
-- [ ] 5.1 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green.
-- [ ] 5.2 **(owner)** Preview check of `/` (cards, links, 360px and 1440px). **(owner)** Merge.
+- [x] 5.1 Feature PR into `develop`: `ci`, `db`, `gitleaks` and preview-e2e green.
+- [x] 5.2 **(owner)** Preview check of `/` (cards, links, 360px and 1440px). **(owner)** Merge.
 
 ## 6. Milestone 2 release (D11, D13, D14)
 
-- [ ] 6.1 **(owner)** Create `rhm_retention` on `production`: `node scripts/db-bootstrap.mts --branch production --role rhm_retention`. Create the GitHub environment `retention` (branch `main` only) holding `RETENTION_DATABASE_URL`.
-- [ ] 6.2 Release PR `develop` → `main`. **(owner)** Take the pre-migration branch from `production` (`docs/runbooks/release.md`), merge, and approve migrate-production. It applies `…_inquiry_retention`.
-- [ ] 6.3 Production deploy Ready; production-checks green; `pnpm test:e2e` on `home.spec.ts` against production (`PW_BASE_URL`).
-- [ ] 6.4 Production test inquiry: row, `emailSentAt`, Gmail notification. Then delete the row and confirm the next monitor run is green (D13).
-- [ ] 6.5 Dispatch `retention` once (green, counts printed), then a dispatch with `test_alert` (the failure email arrives), then confirm the next scheduled run is green (D10).
-- [ ] 6.6 PageSpeed Insights mobile on `/` in production: ≥ 90 (C5).
-- [ ] 6.7 Confirm the Resend sending region and record it in `spec.md` D14. **(owner)** Confirm, then delete Neon branch `before-45` (D14).
-- [ ] 6.8 Close-out PR into `develop` with the final ticks.
+- [x] 6.1 **(owner)** Create `rhm_retention` on `production`: `node scripts/db-bootstrap.mts --branch production --role rhm_retention`. Create the GitHub environment `retention` (branch `main` only) holding `RETENTION_DATABASE_URL`.
+- [x] 6.2 Release PR `develop` → `main`. **(owner)** Take the pre-migration branch from `production` (`docs/runbooks/release.md`), merge, and approve migrate-production. It applies `…_inquiry_retention`.
+- [x] 6.3 Production deploy Ready; production-checks green; `pnpm test:e2e` on `home.spec.ts` against production (`PW_BASE_URL`).
+- [x] 6.4 Production test inquiry: row, `emailSentAt`, Gmail notification. Then delete the row and confirm the next monitor run is green (D13).
+- [x] 6.5 Dispatch `retention` once (green, counts printed), then a dispatch with `test_alert` (the failure email arrives), then confirm the next scheduled run is green (D10).
+- [x] 6.6 PageSpeed Insights mobile on `/` in production: ≥ 90 (C5).
+- [x] 6.7 Confirm the Resend sending region and record it in `spec.md` D14. **(owner)** Confirm, then delete Neon branch `before-45` (D14).
+- [x] 6.8 Close-out PR into `develop` with the final ticks.

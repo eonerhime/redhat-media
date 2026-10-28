@@ -79,7 +79,7 @@ test.describe("structured data (D6)", () => {
 });
 
 test.describe("sitemap and robots (D4, D5)", () => {
-  test("sitemap.xml lists the visible services and no /dev or /cms page", async ({ request }) => {
+  test("sitemap.xml lists the visible services and no /dev or /admin page", async ({ request }) => {
     const res = await request.get("/sitemap.xml");
     expect(res.status()).toBe(200);
     const locs = [...(await res.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -91,7 +91,7 @@ test.describe("sitemap and robots (D4, D5)", () => {
     for (const service of resolveVisibility(services)) {
       expect(locs).toContain(`/services/${service.slug}`);
     }
-    for (const loc of locs) expect(loc).not.toMatch(/^\/(dev|cms)(\/|$)/);
+    for (const loc of locs) expect(loc).not.toMatch(/^\/(dev|admin)(\/|$)/);
   });
 
   test("robots.txt points at the sitemap and disallows nothing", async ({ request }) => {
