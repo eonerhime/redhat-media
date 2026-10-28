@@ -4,7 +4,7 @@
 
 > An editor changes homepage and service copy in place, and an anonymous visitor sees the change after reload.
 
-- [ ] **An editor changes homepage and service copy in place:** the owner's preview edit check below, plus `e2e/editable.spec.ts` (dialog, save and failure paths with a mocked editor) and the database tests of `updateContentBlock` through the real action.
+- [ ] **An editor changes homepage and service copy in place:** the owner's preview edit check below, plus `e2e/editable.spec.ts` (the dialog and the refused-save path with a mocked editor) and the database tests of `updateContentBlockCore()`.
 - [ ] **An anonymous visitor sees the change after reload:** in the owner's check, a private window shows the edited text after a reload. A database test shows that `block()` returns the row after a save.
 
 ## Behaviour (spec D2–D9)
@@ -31,8 +31,8 @@
 
 ## Owner's preview check (D12)
 
-- [ ] **(owner)** On PR B's preview, signed in as admin with Editing On: edit the homepage tagline and a service page paragraph (with one bold word). Both show at once. A private window shows both after a reload.
-- [ ] **(owner)** Save both empty: the defaults return, on the page and in the private window after a reload.
+- [ ] **(owner)** On PR B's preview, signed in as admin with Editing On: edit the homepage tagline, a service page's summary, and the "Our story" paragraph on `/about` with one bold word (only body blocks take bold; D3). All three show at once. A private window shows all three after a reload, with the word in bold.
+- [ ] **(owner)** Save all three empty: the defaults return, on the page and in the private window after a reload.
 
 ## Merge gate (each PR)
 

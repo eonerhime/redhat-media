@@ -57,6 +57,21 @@ export const cmsCopy = {
     off: "Editing: Off",
     on: "Editing: On",
   },
+  // The ✎ button and the editor dialog (Phase 27 spec, D2, D9). The server's errors are
+  // returned by updateContentBlock and shown as they come.
+  editor: {
+    /** The ✎ button's label, with the start of the text it edits. */
+    edit: (preview: string) => `Edit "${preview}"`,
+    title: "Edit text",
+    field: "Text",
+    bold: "Bold",
+    boldHint: "Bold the selected text",
+    count: (length: number, max: number) => `${length} of ${max} characters`,
+    resetHint: "Save it empty to go back to the original text.",
+    cancel: "Cancel",
+    save: "Save",
+    saving: "Saving…",
+  },
   rateLimited: "Too many attempts. Try again in a minute.",
   unavailable: "Something went wrong. Try again.",
 } as const;

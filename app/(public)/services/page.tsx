@@ -5,6 +5,7 @@ import { block } from "@/lib/content/block";
 import { visiblePillars } from "@/lib/content/services";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
+import { Editable } from "@/components/cms/editable";
 
 // Title is the heading plus the site name (Phase 4 spec, D3; kept by Phase 14 spec, D1).
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,9 +28,11 @@ export default async function ServicesIndex() {
     <>
       <section className="container-page py-16 md:py-24">
         <h1 className="max-w-4xl font-display text-display-1 font-black tracking-tight">
-          {heading}
+          <Editable blockKey="services.index.heading" value={heading} />
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted">{intro}</p>
+        <p className="mt-6 max-w-2xl text-lg text-muted">
+          <Editable blockKey="services.index.intro" value={intro} />
+        </p>
       </section>
       {groups.map((group) => (
         <PillarSection key={group.pillar.id} group={group} />

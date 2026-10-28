@@ -3,10 +3,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Cta } from "@/components/shared/cta";
 import { StepList } from "@/components/shared/step-list";
-import { block } from "@/lib/content/block";
+import { block, type BlockKey } from "@/lib/content/block";
 import { visiblePillars } from "@/lib/content/services";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { contact, siteName } from "@/lib/site";
+import { BodyText, Editable } from "@/components/cms/editable";
+import { EditButton } from "@/components/cms/edit-button";
 
 // Title is the heading plus the site name (Phase 6 spec, D8; kept by Phase 14 spec, D1).
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,11 +20,21 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Each h2 sits in its own band and labels its region (Phase 6 spec, D5).
-function Band({ id, heading, children }: { id: string; heading: string; children: ReactNode }) {
+function Band({
+  id,
+  headingKey,
+  heading,
+  children,
+}: {
+  id: string;
+  headingKey: BlockKey;
+  heading: string;
+  children: ReactNode;
+}) {
   return (
     <section aria-labelledby={id} className="container-page border-t border-line py-16">
       <h2 id={id} className="font-display text-display-2 font-extrabold">
-        {heading}
+        <Editable blockKey={headingKey} value={heading} />
       </h2>
       {children}
     </section>
@@ -52,11 +64,19 @@ export default async function About() {
   const [storyHeading, storyBody, founded, year, leadership, founder, title, registered, based] =
     story;
   // Registration and location are site data, the same values the footer shows (D6).
-  const facts = [
-    { label: founded, value: year },
-    { label: leadership, value: founder, detail: title },
-    { label: registered, value: contact.registration },
-    { label: based, value: contact.location },
+  const facts: {
+    label: [BlockKey, string];
+    value: [BlockKey, string] | string;
+    detail?: [BlockKey, string];
+  }[] = [
+    { label: ["about.facts.founded", founded], value: ["about.founded.year", year] },
+    {
+      label: ["about.facts.leadership", leadership],
+      value: ["about.founder.name", founder],
+      detail: ["about.founder.title", title],
+    },
+    { label: ["about.facts.registered", registered], value: contact.registration },
+    { label: ["about.facts.based", based], value: contact.location },
   ];
 
   // One card per visible pillar, so a fully muted pillar loses its card and role together (D4).
@@ -74,30 +94,56 @@ export default async function About() {
     <>
       <section className="container-page py-16 md:py-24">
         <h1 className="max-w-4xl font-display text-display-1 font-black tracking-tight">
-          {heading}
+          <Editable blockKey="about.heading" value={heading} />
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted">{intro}</p>
+        <BodyText
+          blockKey="about.intro"
+          value={intro}
+          className="mt-6 max-w-2xl text-lg text-muted"
+        />
       </section>
 
-      <Band id="about-story" heading={storyHeading}>
-        <p className="mt-4 max-w-2xl text-lg text-muted">{storyBody}</p>
+      <Band id="about-story" headingKey="about.story.heading" heading={storyHeading}>
+        <BodyText
+          blockKey="about.story.body"
+          value={storyBody}
+          className="mt-4 max-w-2xl text-lg text-muted"
+        />
         <dl className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {facts.map(({ label, value, detail }) => (
-            <div key={label} className="border-l-4 border-brand pl-4">
-              <dt className="text-base text-muted">{label}</dt>
-              <dd className="mt-1 font-display text-xl font-extrabold">{value}</dd>
-              {detail && <dd className="mt-1 text-base text-muted">{detail}</dd>}
+            <div key={label[0]} className="border-l-4 border-brand pl-4">
+              <dt className="text-base text-muted">
+                <Editable blockKey={label[0]} value={label[1]} />
+              </dt>
+              <dd className="mt-1 font-display text-xl font-extrabold">
+                {typeof value === "string" ? (
+                  value
+                ) : (
+                  <Editable blockKey={value[0]} value={value[1]} />
+                )}
+              </dd>
+              {detail && (
+                <dd className="mt-1 text-base text-muted">
+                  <Editable blockKey={detail[0]} value={detail[1]} />
+                </dd>
+              )}
             </div>
           ))}
         </dl>
       </Band>
 
-      <Band id="about-one-team" heading={oneTeam[0]}>
-        <p className="mt-4 max-w-2xl text-lg text-muted">{oneTeam[1]}</p>
+      <Band id="about-one-team" headingKey="about.oneTeam.heading" heading={oneTeam[0]}>
+        <BodyText
+          blockKey="about.oneTeam.body"
+          value={oneTeam[1]}
+          className="mt-4 max-w-2xl text-lg text-muted"
+        />
       </Band>
 
-      <Band id="about-pillars" heading={pillarsCopy[0]}>
-        <p className="mt-4 max-w-2xl text-lg text-muted">{pillarsCopy[1]}</p>
+      <Band id="about-pillars" headingKey="about.pillars.heading" heading={pillarsCopy[0]}>
+        <p className="mt-4 max-w-2xl text-lg text-muted">
+          <Editable blockKey="about.pillars.intro" value={pillarsCopy[1]} />
+        </p>
         <ul className="mt-10 grid gap-6 md:grid-cols-3">
           {cards.map(({ pillar, name, role }) => (
             // muted text stays on the ink surface at ≥ 16px (tech-stack.md → Design tokens).
@@ -105,8 +151,12 @@ export default async function About() {
               key={pillar.id}
               className="flex flex-col rounded-xl border border-t-4 border-line border-t-brand bg-ink p-6"
             >
-              <h3 className="font-display text-2xl font-extrabold">{name}</h3>
-              <p className="mt-3 text-base text-muted">{role}</p>
+              <h3 className="font-display text-2xl font-extrabold">
+                <Editable blockKey={pillar.nameKey} value={name} />
+              </h3>
+              <p className="mt-3 text-base text-muted">
+                <Editable blockKey={pillar.roleKey} value={role} />
+              </p>
               <StepList pillar={pillar} className="mt-6 text-xl" />
             </li>
           ))}
@@ -114,8 +164,12 @@ export default async function About() {
       </Band>
 
       {build && (
-        <Band id="about-sdd" heading={sdd[0]}>
-          <p className="mt-4 max-w-2xl text-lg text-muted">{sdd[1]}</p>
+        <Band id="about-sdd" headingKey="about.sdd.heading" heading={sdd[0]}>
+          <BodyText
+            blockKey="about.sdd.body"
+            value={sdd[1]}
+            className="mt-4 max-w-2xl text-lg text-muted"
+          />
           <StepList pillar={build.pillar} className="mt-6 text-xl" />
           <p className="mt-8">
             <Link
@@ -124,6 +178,7 @@ export default async function About() {
             >
               {sdd[2]}
             </Link>
+            <EditButton blockKey="about.sdd.link" value={sdd[2]} />
           </p>
         </Band>
       )}

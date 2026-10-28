@@ -17,11 +17,33 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
     - `CMS_ENABLED=1` build: only `/admin`, `/admin/2fa/setup` and `/admin/panel` are `◐`, as in Phase 26.
     - `shell.spec.ts` and `a11y.spec.ts` in Edge against that build with `E2E_PORTFOLIO_STATE=ready`: 211 passed, 2 skipped (the inquiry stepper, off locally).
 
+- **2026-10-28** — PR A opened as #69. CI green: `ci`, `db`, preview headers, preview-e2e (200 passed, 12 skipped, the steady count), Lighthouse and gitleaks. On the preview, the content read fails until `migrate-preview` creates the table, so pages show their defaults, as D6 intends.
+- **2026-10-28** — PR B built on `feature/phase-27-editable-text-ui`, branched from PR A's head while #69 waits for the owner's merge. It is rebased onto `develop` after the merge (plan 6–9):
+  - `lib/content/editable.ts`: kinds and caps, 84 page keys plus the service, pillar and privacy keys from config (D1, D4). Visible keys left out: `contact.channels.heading` (inside an `sr-only` heading), `portfolio.filter.label` (an `aria-label`), `contact.email.copied` (shown only after a click), the loading labels, `portfolio.detail.view` and the lightbox labels (`aria-label` templates), and `portfolio.modal.close`.
+  - `lib/content/rich-text.tsx` (bold, paragraphs, `stripBold`), `lib/content/update-core.ts` (`parseContentUpdate`, `updateContentBlockCore`) and `lib/content/actions.ts` (`updateContentBlock`, `"use server"`, `requireRole` first).
+  - `components/cms/edit-button.tsx` (client: the ✎, the native `<dialog>` in a portal, the Bold button and the counter) and `components/cms/editable.tsx` (server: `<Editable>`, `<BodyText>`). The copy is in `cmsCopy.editor`.
+  - Call sites: hero, pillar cards, process strip, step list, featured work, CTA, services index and pillar sections, service pages (item lists, related work), about, contact, portfolio (page, filters, listing states, item page), footer and privacy.
+  - Tests: `editable.test.ts`, `rich-text.test.ts`, `update-core.test.ts`, `update-core.db.test.ts`, and `e2e/editable.spec.ts` (added to preview-e2e).
+  - Local checks: typecheck, lint and format clean. `pnpm test`: 55 files, 1886 tests. The content database tests (`read-core.db.test.ts`, `update-core.db.test.ts`) ran against Neon `dev` as `rhm_app` / `rhm_migrator`: 7 passed, and they clean up after themselves.
+  - Builds: with the CMS on, and with no database, every route keeps its marker (C1).
+  - e2e in Edge against a CMS-on build: `editable.spec.ts` 8 passed, 1 skipped (the CMS-off case); `edit-mode.spec.ts` + `admin.spec.ts` 50 passed, 10 skipped.
+  - Layout (plan 8.3): with editing On at 360px and 1440px, on `/`, a service page, `/about`, `/contact` and `/portfolio/sportspred`, there's no horizontal overflow, and no ✎ overlaps a visible control or the pill. The only overlaps reported at 360px are the closed mobile menu's links, which are `invisible`. Screenshots were checked by eye: the ✎ sits after the text, and the dialog fits a 390px screen.
+  - Visitor HTML (C3): `/`, `/services`, a service page, `/about`, `/contact`, `/portfolio` and `/privacy`, served from no-database builds of PR A (`3782799`) and PR B (`64b0a4b`). With scripts and asset links removed, they are identical: 0 changed lines.
+- **2026-10-28** — The owner merged #69 ("merge #69") as `e3c0973`. Develop run 40660529715 is green, and `migrate-preview` applied `20261028000000_content_block` on Neon `preview`. PR B's two commits were cherry-picked onto `develop` as `feature/phase-27-editable-ui`.
+
 ## Deviations from plan
 
 - **D6 amended (2026-10-28):** a successful content read is cached for `days`, not `hours`. Every page reads copy, so `hours` would have cut every page's lifetime from a day to an hour; a save expires the tag at once anyway. Spec, plan and `tech-stack.md` updated.
 - **Plan 3.2–3.3:** the tests sit next to a new `read-core.ts` (the pattern of `lib/portfolio/`) instead of in `block.test.ts` and a `content.db.test.ts`. `block.test.ts` still runs every default through `block()`, with the cached read stubbed in `vitest.setup.ts`.
 
+- **D9 amended (2026-10-28):** `<Editable>` is a server wrapper around a client `<EditButton>`, not a client component that renders the text (see the spec). For a link or button label, the call site places `<EditButton>` beside the control.
+- **D1 detail:** keys whose only visible form is screen-reader text, an `aria-label` template or a transient state aren't listed (above). `contact.email.copy` (the visible "Copy email address" button) is listed.
+- **Plan 7.3:** the database tests drive `updateContentBlockCore()` with the real guard decision and fake sessions (`lib/auth/testing/fakes.ts`). The request-bound `requireRole()` needs a real cookie, and its own refusals are already tested in `lib/auth`. The CI guard scan checks that `updateContentBlock` calls it first.
+- **Plan 8.2:** one commit for all call sites instead of one per page; the PR is reviewed as a whole.
+
 ## Issues and fixes
 
+- The first screenshots showed no dimmed backdrop behind the dialog: `backdrop:bg-black/70` doesn't exist, because `globals.css` clears Tailwind's palette (`--color-*: initial`). It now uses `backdrop:bg-ink/80`. The ✎ character also drew as a colour emoji in Edge on Windows, so it is now an inline SVG pencil.
+
 - `block()` gaining `server-only` and a `"use cache"` read broke unit tests that reach it (`email/render.test.ts`, `content/project-types.test.ts`): `server-only` throws outside a react-server build, and `cacheTag()` throws outside Next. Fixed with a Vitest alias for `server-only` and a setup-file stub of `@/lib/content/read`.
+- PR #70's first preview-e2e failed in `editable.spec.ts`: the second page opened with `browser.newPage()` had no preview bypass header and landed on "Log in to Vercel". The visitor check in the sales test had the same gap, and passed only because the login page has no ✎. Both now use `withBypass()`, and the visitor check first confirms the homepage heading. The run was otherwise 207 passed and 13 skipped (the steady 12, plus the new spec's CMS-off case).

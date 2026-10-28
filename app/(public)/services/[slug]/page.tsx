@@ -12,6 +12,8 @@ import { env } from "@/lib/env";
 import { serviceJsonLd } from "@/lib/seo/json-ld";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { siteName } from "@/lib/site";
+import { Editable } from "@/components/cms/editable";
+import { EditButton } from "@/components/cms/edit-button";
 
 // All six slugs are prerendered, muted ones as a 404, so unmuting needs no redeploy. Any other
 // slug finds no visible service and 404s through notFound() too (Architectural rules 3; Phase 5
@@ -70,14 +72,17 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
           </span>
           {backLabel}
         </Link>
+        <EditButton blockKey="services.detail.back" value={backLabel} />
         {/* muted stays at ≥ 16px on ink (tech-stack.md → Design tokens). */}
         <p className="mt-8 text-base font-semibold tracking-widest text-muted uppercase">
-          {pillarName}
+          <Editable blockKey={pillar.nameKey} value={pillarName} />
         </p>
         <h1 className="mt-4 max-w-4xl font-display text-display-1 font-black tracking-tight">
-          {name}
+          <Editable blockKey={service.nameKey} value={name} />
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted">{summary}</p>
+        <p className="mt-6 max-w-2xl text-lg text-muted">
+          <Editable blockKey={service.summaryKey} value={summary} />
+        </p>
       </section>
       <div className="container-page grid gap-6 border-t border-line py-16 md:grid-cols-2">
         <ItemList
@@ -96,7 +101,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         className="container-page border-t border-line py-16"
       >
         <h2 id="process-heading" className="font-display text-display-2 font-extrabold">
-          {processHeading}
+          <Editable blockKey="home.process.heading" value={processHeading} />
         </h2>
         <StepList pillar={pillar} className="mt-6 text-xl" />
       </section>
