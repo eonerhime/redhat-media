@@ -72,6 +72,27 @@ export const cmsCopy = {
     save: "Save",
     saving: "Saving…",
   },
+  // The image ✎ and its dialog (Phase 28 spec, D3). The server's errors come from
+  // lib/media/upload-rules.ts, which the dialog's own checks share.
+  imageEditor: {
+    /** The ✎ button's label, with the start of the image's alt text. */
+    edit: (preview: string) => `Edit image: "${preview}"`,
+    title: "Edit image",
+    current: "Current image",
+    file: "Replace with a new image",
+    fileHint: "JPEG, PNG, WebP or AVIF, up to 15 MB.",
+    chosen: (name: string, size: string) => `Chosen: ${name} (${size})`,
+    alt: "Alt text",
+    altHint: "Describe what the image shows, for people who can't see it.",
+    count: (length: number, max: number) => `${length} of ${max} characters`,
+    uploadFailed: "The upload didn't finish. Check your connection and try again.",
+    cancel: "Cancel",
+    save: "Save",
+    uploading: "Uploading…",
+    saving: "Saving…",
+    remove: "Remove image",
+    removing: "Removing…",
+  },
   rateLimited: "Too many attempts. Try again in a minute.",
   unavailable: "Something went wrong. Try again.",
 } as const;

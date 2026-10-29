@@ -60,6 +60,12 @@ const envSchema = z
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optional(
       z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/, "Must be a Cloudinary cloud name"),
     ),
+    // The site's own signing key (Phase 28 spec, D11). The key is public: it is sent with
+    // each signed upload. The secret is server-only.
+    NEXT_PUBLIC_CLOUDINARY_API_KEY: optional(
+      z.string().regex(/^[0-9]{6,30}$/, "Must be a Cloudinary API key"),
+    ),
+    CLOUDINARY_API_SECRET: optional(z.string().min(10).max(200)),
     // The inquiry form's switch (Phase 18 spec, D10): on in production from the Phase 20 release.
     INQUIRY_FORM_ENABLED: optional(z.enum(["0", "1"], "Must be 1 (on) or 0 (off)")),
     // Public: the widget's site key is in the page (D5).
@@ -149,6 +155,31 @@ const envSchema = z
         message: "Required when CMS_ENABLED=1",
       });
     }
+    // Phase 28 spec, D11: image editing needs the signing key wherever staff can sign in.
+    if (
+      (env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview") &&
+      env.CMS_ENABLED === "1"
+    ) {
+      for (const key of ["NEXT_PUBLIC_CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"] as const) {
+        if (!env[key]) {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            message: `Required when CMS_ENABLED=1 and VERCEL_ENV=${env.VERCEL_ENV}`,
+          });
+        }
+      }
+    }
+    // A key without its secret (or the reverse) is a half-finished rotation.
+    if (!env.NEXT_PUBLIC_CLOUDINARY_API_KEY !== !env.CLOUDINARY_API_SECRET) {
+      ctx.addIssue({
+        code: "custom",
+        path: [
+          env.CLOUDINARY_API_SECRET ? "NEXT_PUBLIC_CLOUDINARY_API_KEY" : "CLOUDINARY_API_SECRET",
+        ],
+        message: "NEXT_PUBLIC_CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET are set together",
+      });
+    }
     // Phase 24 spec, D11: no login page in production before staff can use the CMS.
     // The Milestone 3 release (Phase 34) removes this check.
     if (env.VERCEL_ENV === "production" && env.CMS_ENABLED === "1") {
@@ -202,6 +233,11 @@ export type Env = {
   rateLimitSalt?: string;
   /** Cloudinary cloud name; read by <MediaImage> (components/media/). */
   cloudinaryCloudName?: string;
+  /**
+   * The site's Cloudinary signing key (Phase 28 spec, D11), set when both halves are.
+   * The secret is read only by lib/media/ (signing and the Admin API check).
+   */
+  cloudinaryApi?: { apiKey: string; apiSecret: string };
   /** Vercel deployment target; unset locally and in CI. */
   vercelEnv?: "production" | "preview" | "development";
   /**
@@ -247,6 +283,8 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     DATABASE_URL,
     RATE_LIMIT_SALT,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    NEXT_PUBLIC_CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET,
     INQUIRY_FORM_ENABLED,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     TURNSTILE_SECRET_KEY,
@@ -275,6 +313,10 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     databaseUrl: DATABASE_URL,
     rateLimitSalt: RATE_LIMIT_SALT,
     cloudinaryCloudName: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    cloudinaryApi:
+      NEXT_PUBLIC_CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET
+        ? { apiKey: NEXT_PUBLIC_CLOUDINARY_API_KEY, apiSecret: CLOUDINARY_API_SECRET }
+        : undefined,
     vercelEnv: VERCEL_ENV,
     inquiryForm:
       INQUIRY_FORM_ENABLED === "1" && NEXT_PUBLIC_TURNSTILE_SITE_KEY && TURNSTILE_SECRET_KEY

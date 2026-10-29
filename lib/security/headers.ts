@@ -8,6 +8,9 @@ export type CspDirectives = Readonly<Record<string, readonly string[]>>;
 // Cloudflare Turnstile's script, challenge frame and calls (Phase 18 spec, D5).
 const TURNSTILE = "https://challenges.cloudflare.com";
 
+// Where the staff editor posts signed image uploads (Phase 28 spec, D11).
+const CLOUDINARY_UPLOAD = "https://api.cloudinary.com";
+
 /**
  * The enforced policy (Phase 14). script-src keeps 'unsafe-inline': Next.js renders inline
  * bootstrap and RSC payload scripts on every page, which differ per page and per build, so a
@@ -26,7 +29,7 @@ export const csp: CspDirectives = {
     "https://i.vimeocdn.com",
   ],
   "font-src": ["'self'"],
-  "connect-src": ["'self'", TURNSTILE],
+  "connect-src": ["'self'", TURNSTILE, CLOUDINARY_UPLOAD],
   "frame-src": ["https://www.youtube-nocookie.com", "https://player.vimeo.com", TURNSTILE],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

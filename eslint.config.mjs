@@ -5,19 +5,12 @@ import nextTs from "eslint-config-next/typescript";
 const rawUnsafe =
   "Use Prisma's tagged $queryRaw / $executeRaw templates instead (specs/tech-stack.md).";
 
-// Images go through <MediaImage>, which checks the public ID and adds the blur
-// placeholder (Phase 8 spec, D10).
-const cloudinaryImport = {
-  group: ["next-cloudinary", "next-cloudinary/*"],
-  message: "Render images through <MediaImage> from @/components/media/media-image.",
-};
-
-// The server SDK holds the API secret: local scripts only until Phase 28
-// (Phase 9 spec, D6). A path, not a pattern: "cloudinary" as a pattern would
-// also match @/lib/media/cloudinary.
+// The server SDK holds the API secret: local scripts, and from Phase 28 the signing
+// and attach modules in lib/media/ (Phase 9 spec, D6; Phase 28 spec, D6, D9). A path,
+// not a pattern: "cloudinary" as a pattern would also match @/lib/media/cloudinary.
 const cloudinarySdk = {
   name: "cloudinary",
-  message: "The cloudinary SDK is for scripts/ only until Phase 28 (Phase 9 spec, D6).",
+  message: "The cloudinary SDK is for scripts/ and lib/media/ only (Phase 28 spec, D6).",
 };
 
 // Pages read copy through block() and services through visibleServices() / visiblePillars()
@@ -99,23 +92,11 @@ const eslintConfig = defineConfig([
   },
   {
     rules: {
-      "no-restricted-imports": [
-        "error",
-        { paths: [cloudinarySdk], patterns: [cloudinaryImport, testingImport] },
-      ],
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [testingImport] }],
     },
   },
   {
     files: ["app/**", "components/**"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        { paths: [cloudinarySdk], patterns: [...appImports, cloudinaryImport, testingImport] },
-      ],
-    },
-  },
-  {
-    files: ["components/media/**"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -126,15 +107,24 @@ const eslintConfig = defineConfig([
   {
     files: ["scripts/**"],
     rules: {
-      "no-restricted-imports": ["error", { patterns: [cloudinaryImport, testingImport] }],
+      "no-restricted-imports": ["error", { patterns: [testingImport] }],
     },
   },
   {
     // Tests, e2e and the helpers themselves may use lib/auth/testing.
     files: ["**/*.test.ts", "**/*.test.tsx", "e2e/**", "lib/auth/testing/**"],
     rules: {
-      "no-restricted-imports": ["error", { paths: [cloudinarySdk], patterns: [cloudinaryImport] }],
+      "no-restricted-imports": ["error", { paths: [cloudinarySdk] }],
     },
+  },
+  {
+    files: ["lib/media/**"],
+    rules: { "no-restricted-imports": ["error", { patterns: [testingImport] }] },
+  },
+  {
+    // Signature tests compare against the SDK; attach tests use fake sessions.
+    files: ["lib/media/**/*.test.ts"],
+    rules: { "no-restricted-imports": "off" },
   },
   {
     files: ["**/*.tsx", "**/*.jsx"],

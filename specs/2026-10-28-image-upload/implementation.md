@@ -20,6 +20,21 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
   - Playwright against that build (`PW_BASE_URL=http://localhost:3100`, `PW_CHANNEL=msedge`): 435 passed, 124 skipped (the CMS-on and preview-only cases), 0 failed. This covers layout, contrast, axe and reduced motion on `/`.
   - `CMS_ENABLED=1 next build` (a random `BETTER_AUTH_SECRET`, no database) passes. The top-level markers match the CMS-off build, except `/admin` at `◐`. A CMS-on build of `develop` at `fa0ad0c` gives the same `◐`; CI's one build runs with the CMS off, which is why its table shows `○`.
 
+- **2026-10-29** — PR A (#75) merged; the `develop` run (40769177188) was green, `migrate-preview` included (plan 5.2–5.4). PR B branch `feature/phase-28-image-editing` from `develop` at `04ee5a1`. Section 6:
+  - `lib/env.ts`: `NEXT_PUBLIC_CLOUDINARY_API_KEY` (digits) and `CLOUDINARY_API_SECRET`, required when `CMS_ENABLED=1` on Vercel Preview or Production, and refused when only one half is set. `env.cloudinaryApi` holds the pair. `ci.yml` sets placeholders (D11).
+  - CSP: `connect-src` gains `https://api.cloudinary.com`; a test checks it appears in no other directive.
+  - `cloudinary` 2.11.0 is in `dependencies`; `next-cloudinary` is removed, with its lint guard (and the now-redundant `components/media/**` block) and the GHSA-mrhx-c7xc-m3w5 ignore. The lockfile no longer holds zod 3, and `pnpm audit --prod --audit-level high` passes with no ignore (one low finding). The SDK lint ban now allows `lib/media/` (and its tests) besides `scripts/`. `tech-stack.md` (*Core*, *Supply chain*) and `CLAUDE.md` updated.
+  - Runbook: the developer's seed key and the site's key are separate rows.
+
+- **2026-10-29** — Sections 7–9 built:
+  - `lib/media/sign-core.ts` (`signUploadCore`, `uploadEnv`, `uploadFolder`, `isOwnUpload`, the shared `checkMediaLimit`), `attach-core.ts` (`attachMediaCore`, `removeMediaCore`, `parseAlt`; the Cloudinary client is an argument), `cloudinary-admin.ts` (server-only: the signer and the Admin API calls, with the site's credentials passed per call instead of through the SDK's global config) and `actions.ts` (`signCloudinaryUpload`, `attachMedia`, `removeMedia`, each opening with `await requireRole("editor", …)`). The limits and messages the browser checks too are in `lib/media/upload-rules.ts`, which has no server imports.
+  - Signing was checked two ways: the SDK reproduces Cloudinary's documented example (`timestamp=1315060510`, secret `abcd` → `a21ad0f6…`), and the core's signature equals a SHA-1 of the sorted parameters computed by hand.
+  - Tests: `sign-core.test.ts` (24) and `attach-core.test.ts` (27) pass locally; with the rest of `lib/media` and the guard-coverage scan, 224 pass. `attach-core.db.test.ts` (replace twice, alt-only, remove, never destroying a default, seed or another environment's upload, oversized and wrong-format uploads, a failed destroy, 401/403, the 31st action, and an audit failure rolling back) runs in CI's `db` job.
+  - `components/cms/editable-image.tsx` (server) renders `<MediaImage>` inside the client `components/cms/image-editor.tsx`, which returns it unchanged unless editing is on, as `<EditAround>` does. With editing on, a `relative` wrapper holds the image and a 24px ✎ at `top-2 right-2`. The dialog shows the same server-rendered `<img>` as "Current image" (no new request, nothing added to the visitor payload). The ✎ glyph is now `PencilIcon`, exported from `edit-button.tsx` and shared by both editors. `hero.tsx` uses `<EditableImage slot="home.hero" preload />`.
+  - `e2e/editable-image.spec.ts` added to preview-e2e's list. `scripts/media-check.mts` (`pnpm media:check`) was tried read-only against the account: the stand-in reports `exists`, an unknown ID `not found`.
+
+- **2026-10-29** — Checks before PR B: `tsc`, ESLint and Prettier clean; the touched unit suites pass (lib/media, lib/env, lib/security, lib/auth lint rules and guard coverage, components). The client bundles from a fresh compile (46 files in `.next/static`) hold neither the value nor the name of `CLOUDINARY_API_SECRET` (C5). The full `next build` could not finish locally (see *Issues and fixes*), so the route-table comparison (C1) comes from CI's build (CMS off) and the Vercel preview build (CMS on).
+
 ## Deviations from plan
 
 - **D7 amended:** the partial index is declared in `schema.prisma` (`@@unique([ownerId], map: "MediaItem_page_slot_key", where: raw(...))`, the `partialIndexes` preview feature of Prisma 7.10.1) instead of only in hand-written SQL. Prisma's docs (ctx7, `/websites/prisma_io`) support `where` on `@@unique` behind that flag. An index the schema does not declare shows as drift, and the next `migrate dev` would drop it.
@@ -28,3 +43,5 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 - **`next-cloudinary` removal added to PR B (plan 6.4):** after the Phase 16 amendment, nothing imports it except the upload widget this phase doesn't use. Removing it also clears the GHSA-mrhx-c7xc-m3w5 ignore, whose stated removal condition is that `next-cloudinary` moves off zod 3.
 
 ## Issues and fixes
+
+- **2026-10-29 — Local build timed out under machine load.** Other sessions were running `npm ci` and `tsc` at the same time: compiling took 23.6 minutes, several prerenders passed Next's 60-second limit, and the export stopped on `/dev/portfolio-detail`'s blur fetch, a page this phase doesn't change. Nothing in the code caused it. CI's `ci` job builds with the CMS off, and the Vercel preview builds with it on.
