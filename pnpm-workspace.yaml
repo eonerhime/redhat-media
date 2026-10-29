@@ -4,11 +4,3 @@ allowBuilds:
   prisma: false
   sharp: false
   unrs-resolver: false
-
-# Audit exceptions (tech-stack.md → Security baseline, Supply chain). Each entry needs a reason and
-# a removal condition there. Every other high or critical finding still fails CI.
-audit:
-  ignore:
-    # Zod < 4.6.6 memory exhaustion. Only next-cloudinary's pinned url-loader 5.10.4 uses zod 3, on
-    # our own image props, never visitor input. Remove once next-cloudinary moves off zod 3.
-    - GHSA-mrhx-c7xc-m3w5

@@ -1,20 +1,15 @@
 import { Editable } from "@/components/cms/editable";
 import { EditButton } from "@/components/cms/edit-button";
-import { MediaImage } from "@/components/media/media-image";
+import { EditableImage } from "@/components/cms/editable-image";
 import { ButtonLink } from "@/components/shared/button-link";
 import { block } from "@/lib/content/block";
-import { mediaSlot } from "@/lib/media/read";
-import { MEDIA_SLOTS } from "@/lib/media/slots";
-
-const SLOT = MEDIA_SLOTS["home.hero"];
 
 // The image sits beside the text from lg and under the button below that (Phase 28 spec, D1).
 export async function Hero() {
-  const [tagline, subtext, cta, image] = await Promise.all([
+  const [tagline, subtext, cta] = await Promise.all([
     block("home.hero.tagline"),
     block("home.hero.subtext"),
     block("home.cta.button"),
-    mediaSlot("home.hero"),
   ]);
   return (
     <section className="container-page grid gap-12 py-16 md:py-24 lg:grid-cols-[3fr_2fr] lg:items-center lg:gap-16">
@@ -31,13 +26,7 @@ export async function Hero() {
         </div>
       </div>
       <div className="w-full max-w-md overflow-hidden rounded-xl border border-line lg:max-w-none">
-        <MediaImage
-          publicId={image.publicId}
-          alt={image.alt}
-          aspect={SLOT.aspect}
-          sizes={SLOT.sizes}
-          preload
-        />
+        <EditableImage slot="home.hero" preload />
       </div>
     </section>
   );

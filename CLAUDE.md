@@ -30,6 +30,7 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 | `pnpm auth:seed-admin --branch <dev\|preview> --email <e> --name <n>` | Creates the first staff admin (Phase 24). Uses `MIGRATOR_DATABASE_URL` (`.env.local` for dev; set it in the shell for preview). Writes a random password to the git-ignored `.env.admin-<branch>.local`, never printed. Refuses production and an existing email. |
 | `pnpm auth:reset-password --branch <b> --email <e> [--reset-2fa]` | New random password (same file), ends every session, clears both lockouts; `--reset-2fa` also removes 2FA for a lost phone. Until self-service reset (domain amendment) and Phase 33. |
 | `pnpm media:upload-seed` | Uploads the seed cover screenshots to Cloudinary (default source `../emo-onerhime/public/projects`). Needs `NEXT_PUBLIC_CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in `.env.local`, which live nowhere else. |
+| `pnpm media:check <publicId> …` | Prints whether Cloudinary still holds each public ID (Admin API, read-only), e.g. that a replaced upload was destroyed (Phase 28). Same `.env.local` key as `media:upload-seed`. |
 | `pnpm db:studio` | Prisma Studio on the branch in `MIGRATOR_DATABASE_URL` |
 | `pnpm test:e2e` | Playwright (layout, contrast, reduced motion). It runs against `pnpm start`, so build first. Use `PW_CHANNEL=msedge` if the bundled Chromium is blocked. `PW_BASE_URL=<url>` targets a deployed site instead (no local server; sends the Vercel bypass header from `VERCEL_AUTOMATION_BYPASS_SECRET`). |
 | `pnpm build` | Production build. It also validates env vars (`lib/env.ts`). |
@@ -46,6 +47,6 @@ Next.js 16 rebuild of `redhat-media.vercel.app`, built with Spec-Driven Developm
 - Never put a secret in a `NEXT_PUBLIC_*` variable.
 - `dangerouslySetInnerHTML`, `$queryRawUnsafe` and `$executeRawUnsafe` are banned by lint.
 - Security headers and the CSP live in `lib/security/headers.ts`. Change them only together with their test and `specs/tech-stack.md`.
-- Images go through `<MediaImage>` (Cloudinary public IDs under `rhm/…`; the one exception is the header logo, `public/brand/logo.png`) and videos through `<VideoEmbed>` (`components/media/`). Lint blocks direct `next-cloudinary` imports and `<iframe>` elsewhere.
+- Images go through `<MediaImage>` (Cloudinary public IDs under `rhm/…`; the one exception is the header logo, `public/brand/logo.png`) and videos through `<VideoEmbed>` (`components/media/`). Lint blocks `<iframe>` elsewhere, and the server `cloudinary` SDK outside `scripts/` and `lib/media/`.
 - No custom `webpack` config, because Turbopack is the default bundler.
 - TypeScript stays on 6.0.x until `typescript-eslint` supports 7.

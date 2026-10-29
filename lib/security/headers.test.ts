@@ -57,7 +57,11 @@ describe("security headers", () => {
       "https://i.vimeocdn.com",
     ]);
     expect(csp.get("font-src")).toEqual(["'self'"]);
-    expect(csp.get("connect-src")).toEqual(["'self'", "https://challenges.cloudflare.com"]);
+    expect(csp.get("connect-src")).toEqual([
+      "'self'",
+      "https://challenges.cloudflare.com",
+      "https://api.cloudinary.com",
+    ]);
     expect(csp.get("frame-src")).toEqual([
       "https://www.youtube-nocookie.com",
       "https://player.vimeo.com",
@@ -77,6 +81,14 @@ describe("security headers", () => {
       .map(([name]) => name)
       .sort();
     expect(withTurnstile).toEqual(["connect-src", "frame-src", "script-src"]);
+  });
+
+  it("allows Cloudinary's upload API in connect-src only (Phase 28 D11)", () => {
+    const csp = directives(required("Content-Security-Policy"));
+    const withUpload = [...csp]
+      .filter(([, values]) => values.includes("https://api.cloudinary.com"))
+      .map(([name]) => name);
+    expect(withUpload).toEqual(["connect-src"]);
   });
 
   it("sends no report-only policy", () => {

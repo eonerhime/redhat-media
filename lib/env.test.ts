@@ -7,6 +7,11 @@ const APP_URL =
 const SALT = "s".repeat(32);
 const db = { DATABASE_URL: APP_URL, RATE_LIMIT_SALT: SALT };
 const cloud = { NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "test-cloud" };
+// Shaped like a Cloudinary key pair; not real.
+const signing = {
+  NEXT_PUBLIC_CLOUDINARY_API_KEY: "000000000000000",
+  CLOUDINARY_API_SECRET: "test-secret-not-real",
+};
 // Shaped like a real Resend key; not real.
 const RESEND_KEY = "re_example_0000000000000000";
 const mail = {
@@ -404,6 +409,7 @@ describe("parseEnv: staff sign-in (Phase 24 spec, D9, D11)", () => {
       VERCEL_BRANCH_URL: "rhm-git-x.vercel.app",
       ...db,
       ...cloud,
+      ...signing,
       ...on,
     }).cms;
     expect(cms?.trustedOrigins).toEqual([
@@ -433,5 +439,56 @@ describe("parseEnv: staff sign-in (Phase 24 spec, D9, D11)", () => {
 
   it("rejects values other than 0 and 1", () => {
     expect(() => parseEnv({ CMS_ENABLED: "yes" })).toThrow(/Must be 1 \(on\) or 0 \(off\)/);
+  });
+});
+
+describe("parseEnv: Cloudinary signing key (Phase 28 spec, D11)", () => {
+  const on = { CMS_ENABLED: "1", BETTER_AUTH_SECRET: "x".repeat(40) };
+  const preview = { VERCEL_ENV: "preview", ...db, ...cloud };
+
+  it("returns the key pair when both are set", () => {
+    expect(parseEnv(signing).cloudinaryApi).toEqual({
+      apiKey: "000000000000000",
+      apiSecret: "test-secret-not-real",
+    });
+  });
+
+  it("leaves it optional locally, in CI and with the CMS off on Vercel", () => {
+    expect(parseEnv({}).cloudinaryApi).toBeUndefined();
+    expect(parseEnv(on).cloudinaryApi).toBeUndefined();
+    expect(parseEnv(preview).cloudinaryApi).toBeUndefined();
+  });
+
+  it.each(["NEXT_PUBLIC_CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"])(
+    "requires %s on a preview with the CMS on",
+    (key) => {
+      expect(() => parseEnv({ ...preview, ...on, ...signing, [key]: undefined })).toThrow(
+        new RegExp(`Required when CMS_ENABLED=1 and VERCEL_ENV=preview\\s+→ at ${key}`),
+      );
+      expect(parseEnv({ ...preview, ...on, ...signing }).cloudinaryApi).toBeDefined();
+    },
+  );
+
+  it.each([
+    { NEXT_PUBLIC_CLOUDINARY_API_KEY: signing.NEXT_PUBLIC_CLOUDINARY_API_KEY },
+    { CLOUDINARY_API_SECRET: signing.CLOUDINARY_API_SECRET },
+  ])("refuses half a key pair: %j", (half) => {
+    expect(() => parseEnv(half)).toThrow(/are set together/);
+  });
+
+  it.each(["abc123", "12345", "1".repeat(31), "123 456"])("rejects the key %j", (key) => {
+    expect(() => parseEnv({ ...signing, NEXT_PUBLIC_CLOUDINARY_API_KEY: key })).toThrow(
+      /Must be a Cloudinary API key/,
+    );
+  });
+
+  it("never puts the secret in an error message", () => {
+    try {
+      parseEnv({ ...signing, NEXT_PUBLIC_CLOUDINARY_API_KEY: "bad" });
+    } catch (error) {
+      expect(String(error)).not.toContain(signing.CLOUDINARY_API_SECRET);
+      return;
+    }
+    throw new Error("expected parseEnv to throw");
   });
 });
