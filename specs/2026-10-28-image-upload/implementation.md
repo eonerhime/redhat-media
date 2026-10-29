@@ -35,6 +35,8 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 
 - **2026-10-29** — Checks before PR B: `tsc`, ESLint and Prettier clean; the touched unit suites pass (lib/media, lib/env, lib/security, lib/auth lint rules and guard coverage, components). The client bundles from a fresh compile (46 files in `.next/static`) hold neither the value nor the name of `CLOUDINARY_API_SECRET` (C5). The full `next build` could not finish locally (see *Issues and fixes*), so the route-table comparison (C1) comes from CI's build (CMS off) and the Vercel preview build (CMS on).
 
+- **2026-10-29** — `attach-core.db.test.ts` and `read-core.db.test.ts` pass against Neon `dev` (17 tests; `TEST_APP_DATABASE_URL` and `TEST_MIGRATOR_DATABASE_URL` from `.env.local`), before CI's `db` job (plan 7.5). PR B is #76.
+
 ## Deviations from plan
 
 - **D7 amended:** the partial index is declared in `schema.prisma` (`@@unique([ownerId], map: "MediaItem_page_slot_key", where: raw(...))`, the `partialIndexes` preview feature of Prisma 7.10.1) instead of only in hand-written SQL. Prisma's docs (ctx7, `/websites/prisma_io`) support `where` on `@@unique` behind that flag. An index the schema does not declare shows as drift, and the next `migrate dev` would drop it.
@@ -45,3 +47,5 @@ Newest entries at the bottom. Each entry gives the date, what landed, and any de
 ## Issues and fixes
 
 - **2026-10-29 — Local build timed out under machine load.** Other sessions were running `npm ci` and `tsc` at the same time: compiling took 23.6 minutes, several prerenders passed Next's 60-second limit, and the export stopped on `/dev/portfolio-detail`'s blur fetch, a page this phase doesn't change. Nothing in the code caused it. CI's `ci` job builds with the CMS off, and the Vercel preview builds with it on.
+
+- **2026-10-29 — PR #76 CI: Lighthouse `/portfolio` at 0.87–0.89.** First run: `ci`, `db` (with the new database tests), gitleaks and preview-headers passed. preview-e2e failed once in Phase 27's "moves nothing" test, whose snapshot of `/portfolio` at 360px was taken while the page still showed "Loading the portfolio…"; the rerun passed, the new spec included. Lighthouse kept `/portfolio` below 0.90 on four runs (89, 88, 87, 87; `/portfolio/sportspred` dipped to 76 once and was 96 otherwise), with `/` at 92–94. Recent runs had `/portfolio` at 91–94. Rerunning `develop`'s Lighthouse job (run 40769266299, `04ee5a1`) as a control gave `/portfolio` **90**, down from 94 the day before with no code change, so most of the drop comes from the environment. The PR still measured 87 straight after it. Nothing this PR changes reaches `/portfolio`: its client-reference manifest lists no new module (no `image-editor`, media actions or `upload-rules`), and its server trace includes no `cloudinary` files (only the home route's does). Left for the owner: accept the 2–3 points as noise on a page at the budget line, or investigate further with a share link.
