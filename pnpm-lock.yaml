@@ -194,8 +194,8 @@ importers:
         specifier: 16.4.2
         version: 16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       next-cloudinary:
-        specifier: 6.19.3
-        version: 6.19.3(next@16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        specifier: 7.0.0
+        version: 7.0.0(next@16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       qrcode:
         specifier: 1.5.4
         version: 1.5.4
@@ -437,17 +437,14 @@ packages:
   '@cacheable/utils@2.5.0':
     resolution: {integrity: sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA==}
 
-  '@cloudinary-util/types@1.5.10':
-    resolution: {integrity: sha512-n5lrm7SdAXhgWEbkSJKHZGnaoO9G/g4WYS6HYnq/k4nLj79sYfQZOoKjyR8hF2iyLRdLkT+qlk68RNFFv5tKew==}
+  '@cloudinary-util/types@1.7.0':
+    resolution: {integrity: sha512-4oz0zVupn1KFpi9BxzmhurYiVX5eek5DXhE1VlVwr+MeKEzrAFzrEkq2BAY0S7LRUnNT2p5UQIKoCE82MNju4g==}
 
-  '@cloudinary-util/url-loader@5.10.4':
-    resolution: {integrity: sha512-gHkdvOaV+rlcwuIT7Vqd0ts/H5bsH4+bwFten/gIZ8oRjzdTBvgIY3R6F8bbJt0pFIEfpFEQLe4rPkl0NNqEWg==}
+  '@cloudinary-util/url-loader@6.3.2':
+    resolution: {integrity: sha512-l/hLdFmTlQu0XCHzOBzXoSzhQKYuu96egPu7+W2Z5wBe7jRDfNHdH+ID4Ase1Jby8HI2xniJX2L83fglJV83+w==}
 
-  '@cloudinary-util/util@3.3.2':
-    resolution: {integrity: sha512-Cc0iFxzfl7fcOXuznpeZFGYC885Of/vDgccRDnhTe/8Rf8YKv2PjLtezyo0VgmdA/CpeZy29NCXAsf6liokbwg==}
-
-  '@cloudinary-util/util@4.0.0':
-    resolution: {integrity: sha512-S4xcou/3A7l5o+bcKlw2VHBNgwups7/0lbVDT/cO5YmtrcEYXgj6LGmwnjvpTm/x571VPVN8x5jWdT3rLZiKJQ==}
+  '@cloudinary-util/util@4.3.0':
+    resolution: {integrity: sha512-oP0HozxMd7XZcnh6VRUri2lXLvJVcT8IDou2470ZEcNXeX+6eeixZR1rAngjLcg+p6lVJsSHvrbJ3hODaYBXxw==}
 
   '@cloudinary/transformation-builder-sdk@1.21.2':
     resolution: {integrity: sha512-ehOgKUaP+Nvuf7B0TosmB8iilL0kdiVjzjl8tIK06cjvsNnwSJI3xP9nEJmKkvqNxwwFwvYXT+mxUTqnSv9JOA==}
@@ -3294,11 +3291,12 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  next-cloudinary@6.19.3:
-    resolution: {integrity: sha512-31VNjuBBeHPSYsZwpRSFdOXzY19Z9kN6yLEtodWoEr926AQBv8qwNv6MF+H1+1Sc9i3ztMRqku34bibc2CUYHg==}
+  next-cloudinary@7.0.0:
+    resolution: {integrity: sha512-+u+kbUU11wiiLuGtT50/UrBHjsMJ5SXUX20I/QEI0QO0aJZb72jJFoWf/rDY9jb7o+VMItcEuoPQJJbIkUxilA==}
+    engines: {node: '>=22'}
     peerDependencies:
-      next: ^12 || ^13 || ^14 || >=15.0.0-rc || ^15 || ^16
-      react: ^17 || ^18 || >=19.0.0-beta || ^19
+      next: ^16
+      react: ^18.2.0 || ^19
 
   next@16.4.2:
     resolution: {integrity: sha512-r+oBJojfefUjOiWkBhXgLS+igxX/7BWyK59uHnyOyplMSLtBZ+QLP3okrdYTbrfrbrmNTVWLBPaHDX9KRaIt3w==}
@@ -4199,9 +4197,6 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.6.5:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
@@ -4384,18 +4379,15 @@ snapshots:
       hashery: 1.5.1
       keyv: 5.6.0
 
-  '@cloudinary-util/types@1.5.10': {}
+  '@cloudinary-util/types@1.7.0': {}
 
-  '@cloudinary-util/url-loader@5.10.4':
+  '@cloudinary-util/url-loader@6.3.2':
     dependencies:
-      '@cloudinary-util/types': 1.5.10
-      '@cloudinary-util/util': 3.3.2
+      '@cloudinary-util/types': 1.7.0
+      '@cloudinary-util/util': 4.3.0
       '@cloudinary/url-gen': 1.15.0
-      zod: 3.25.76
 
-  '@cloudinary-util/util@3.3.2': {}
-
-  '@cloudinary-util/util@4.0.0': {}
+  '@cloudinary-util/util@4.3.0': {}
 
   '@cloudinary/transformation-builder-sdk@1.21.2':
     dependencies:
@@ -7131,11 +7123,11 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-cloudinary@6.19.3(next@16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1):
+  next-cloudinary@7.0.0(next@16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1):
     dependencies:
-      '@cloudinary-util/types': 1.5.10
-      '@cloudinary-util/url-loader': 5.10.4
-      '@cloudinary-util/util': 4.0.0
+      '@cloudinary-util/types': 1.7.0
+      '@cloudinary-util/url-loader': 6.3.2
+      '@cloudinary-util/util': 4.3.0
       next: 16.4.2(@babel/core@7.29.7(supports-color@5.5.0))(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react: 19.3.1
 
@@ -8112,8 +8104,6 @@ snapshots:
   zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
       zod: 4.6.7
-
-  zod@3.25.76: {}
 
   zod@4.6.5: {}
 
